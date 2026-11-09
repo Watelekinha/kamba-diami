@@ -11,8 +11,6 @@ public class KambaDiamiDbContext : IdentityDbContext<ApplicationUser, Applicatio
     public DbSet<FamiliaProfile> FamiliaProfiles => Set<FamiliaProfile>();
     public DbSet<SecretariaProfile> SecretariaProfiles => Set<SecretariaProfile>();
 
-    public DbSet<Province> Provinces => Set<Province>();
-    public DbSet<Municipality> Municipalities => Set<Municipality>();
     public DbSet<Neighborhood> Neighborhoods => Set<Neighborhood>();
     public DbSet<Address> Addresses => Set<Address>();
 
@@ -65,18 +63,17 @@ public class KambaDiamiDbContext : IdentityDbContext<ApplicationUser, Applicatio
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // ---- Location hierarchy ----
-        builder.Entity<Municipality>()
-            .HasOne(m => m.Province)
-            .WithMany(p => p.Municipalities)
-            .HasForeignKey(m => m.ProvinceId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Entity<Neighborhood>()
-            .HasOne(n => n.Municipality)
-            .WithMany(m => m.Neighborhoods)
-            .HasForeignKey(n => n.MunicipalityId)
-            .OnDelete(DeleteBehavior.Cascade);
+        // ---- Bairros (províncias e municípios vêm da API pública de Angola) ----
+        builder.Entity<Neighborhood>(entity =>
+        {
+            entity.Property(n => n.Name).IsRequired().HasMaxLength(80);
+            entity.Property(n => n.MunicipalitySlug).IsRequired().HasMaxLength(100);
+            entity.Property(n => n.MunicipalityName).IsRequired().HasMaxLength(100);
+            entity.Property(n => n.ProvinceSlug).IsRequired().HasMaxLength(100);
+            entity.Property(n => n.ProvinceName).IsRequired().HasMaxLength(100);
+            entity.HasIndex(n => n.MunicipalitySlug);
+            entity.HasIndex(n => n.ProvinceSlug);
+        });
 
         builder.Entity<Address>()
             .HasOne(a => a.Neighborhood)

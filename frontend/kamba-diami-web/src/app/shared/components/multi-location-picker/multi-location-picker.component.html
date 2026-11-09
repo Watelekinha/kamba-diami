@@ -1,43 +1,29 @@
 <div class="multi-location-picker">
   <div class="picker-row">
-    <select [ngModel]="selectedProvinceId" (ngModelChange)="onProvinceChange($event)" name="mlpProvince">
-      <option [ngValue]="null">Província</option>
-      @for (province of provinces; track province.id) {
-        <option [ngValue]="province.id">{{ province.name }}</option>
+    <select [ngModel]="selectedProvinceSlug" (ngModelChange)="onProvinceChange($event)" name="mlpProvince" [disabled]="loadingProvinces()">
+      <option [ngValue]="null">{{ loadingProvinces() ? 'A carregar...' : 'Província' }}</option>
+      @for (province of provinces; track province.slug) {
+        <option [ngValue]="province.slug">{{ province.name }}</option>
       }
     </select>
 
-    <select [ngModel]="selectedMunicipalityId" (ngModelChange)="onMunicipalityChange($event)" name="mlpMunicipality" [disabled]="!selectedProvinceId">
+    <select [ngModel]="selectedMunicipalitySlug" (ngModelChange)="onMunicipalityChange($event)" name="mlpMunicipality" [disabled]="!selectedProvinceSlug">
       <option [ngValue]="null">Município</option>
-      @for (municipality of municipalities; track municipality.id) {
-        <option [ngValue]="municipality.id">{{ municipality.name }}</option>
+      @for (municipality of municipalities; track municipality.slug) {
+        <option [ngValue]="municipality.slug">{{ municipality.name }}</option>
       }
     </select>
 
-    <select [ngModel]="selectedNeighborhoodId" (ngModelChange)="onNeighborhoodChange($event)" name="mlpNeighborhood" [disabled]="!selectedMunicipalityId">
+    <select [ngModel]="selectedNeighborhood" (ngModelChange)="onNeighborhoodChange($event)" name="mlpNeighborhood" [disabled]="!selectedMunicipalitySlug">
       <option [ngValue]="null">Bairro</option>
-      @for (neighborhood of neighborhoods; track neighborhood.id) {
-        <option [ngValue]="neighborhood.id">{{ neighborhood.name }}</option>
+      @for (neighborhood of neighborhoods; track neighborhood.id ?? neighborhood.name) {
+        <option [ngValue]="neighborhood">{{ neighborhood.name }}</option>
       }
     </select>
   </div>
 
   <div class="create-row">
-    @if (selectedProvinceId) {
-      @if (!addingMunicipality()) {
-        <button type="button" class="add-link" (click)="toggleAddMunicipality()">+ Novo município</button>
-      } @else {
-        <span class="add-inline">
-          <input type="text" [(ngModel)]="newMunicipalityName" name="mlpNewMunicipality" placeholder="Nome do município" maxlength="80" (keydown.enter)="$event.preventDefault(); confirmAddMunicipality()" />
-          <button type="button" class="add-confirm" [disabled]="savingMunicipality() || !newMunicipalityName.trim()" (click)="confirmAddMunicipality()">
-            {{ savingMunicipality() ? '...' : 'Criar' }}
-          </button>
-          <button type="button" class="add-cancel" (click)="toggleAddMunicipality()">Cancelar</button>
-        </span>
-      }
-    }
-
-    @if (selectedMunicipalityId) {
+    @if (selectedMunicipalitySlug) {
       @if (!addingNeighborhood()) {
         <button type="button" class="add-link" (click)="toggleAddNeighborhood()">+ Novo bairro</button>
       } @else {

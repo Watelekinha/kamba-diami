@@ -27,10 +27,10 @@ public static class UserMappingExtensions
             {
                 NeighborhoodId = user.Address.NeighborhoodId,
                 NeighborhoodName = user.Address.Neighborhood.Name,
-                MunicipalityId = user.Address.Neighborhood.Municipality.Id,
-                MunicipalityName = user.Address.Neighborhood.Municipality.Name,
-                ProvinceId = user.Address.Neighborhood.Municipality.Province.Id,
-                ProvinceName = user.Address.Neighborhood.Municipality.Province.Name,
+                MunicipalitySlug = user.Address.Neighborhood.MunicipalitySlug,
+                MunicipalityName = user.Address.Neighborhood.MunicipalityName,
+                ProvinceSlug = user.Address.Neighborhood.ProvinceSlug,
+                ProvinceName = user.Address.Neighborhood.ProvinceName,
                 StreetDetail = user.Address.StreetDetail
             }
         };

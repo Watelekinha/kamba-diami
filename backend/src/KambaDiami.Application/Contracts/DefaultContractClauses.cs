@@ -14,7 +14,7 @@ public static class DefaultContractClauses
 
         var locations = posting.Locations.Count > 0
             ? string.Join("; ", posting.Locations.Select(l =>
-                $"{l.Neighborhood.Name}, {l.Neighborhood.Municipality.Name}, {l.Neighborhood.Municipality.Province.Name}"))
+                $"{l.Neighborhood.Name}, {l.Neighborhood.MunicipalityName}, {l.Neighborhood.ProvinceName}"))
             : "a combinar pelas partes";
 
         var paymentLabel = posting.PaymentType == PaymentType.Mensal ? "por mês" : "por dia";
@@ -108,6 +108,6 @@ public static class DefaultContractClauses
         var neighborhood = address?.Neighborhood;
         if (address is null || neighborhood is null) return "morada registada na plataforma";
         var street = string.IsNullOrWhiteSpace(address.StreetDetail) ? "" : $", {address.StreetDetail}";
-        return $"{neighborhood.Name}, {neighborhood.Municipality.Name}, {neighborhood.Municipality.Province.Name}{street}";
+        return $"{neighborhood.Name}, {neighborhood.MunicipalityName}, {neighborhood.ProvinceName}{street}";
     }
 }

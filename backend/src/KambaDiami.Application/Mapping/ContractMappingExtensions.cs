@@ -156,6 +156,6 @@ public static class ContractMappingExtensions
         var neighborhood = address?.Neighborhood;
         if (address is null || neighborhood is null) return "Morada registada na plataforma";
         var street = string.IsNullOrWhiteSpace(address.StreetDetail) ? "" : $", {address.StreetDetail}";
-        return $"{neighborhood.Name}, {neighborhood.Municipality.Name}, {neighborhood.Municipality.Province.Name}{street}";
+        return $"{neighborhood.Name}, {neighborhood.MunicipalityName}, {neighborhood.ProvinceName}{street}";
     }
 }

@@ -26,7 +26,7 @@ export class FeedComponent implements OnInit {
   searchQuery = '';
   typeFilter: JobPostingType | '' = '';
   paymentTypeFilter: PaymentType | '' = '';
-  provinceId: number | '' = '';
+  provinceSlug: string | '' = '';
 
   totalCount = 0;
   page = 1;
@@ -58,7 +58,7 @@ export class FeedComponent implements OnInit {
       .getFeed({
         type: this.typeFilter || undefined,
         paymentType: this.paymentTypeFilter || undefined,
-        provinceId: this.provinceId || undefined,
+        provinceSlug: this.provinceSlug || undefined,
         search: this.searchQuery.trim() || undefined,
         page: this.page,
         pageSize: this.pageSize

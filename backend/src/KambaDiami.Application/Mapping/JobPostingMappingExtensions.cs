@@ -31,10 +31,10 @@ public static class JobPostingMappingExtensions
                 {
                     NeighborhoodId = l.NeighborhoodId,
                     NeighborhoodName = l.Neighborhood.Name,
-                    MunicipalityId = l.Neighborhood.Municipality.Id,
-                    MunicipalityName = l.Neighborhood.Municipality.Name,
-                    ProvinceId = l.Neighborhood.Municipality.Province.Id,
-                    ProvinceName = l.Neighborhood.Municipality.Province.Name
+                    MunicipalitySlug = l.Neighborhood.MunicipalitySlug,
+                    MunicipalityName = l.Neighborhood.MunicipalityName,
+                    ProvinceSlug = l.Neighborhood.ProvinceSlug,
+                    ProvinceName = l.Neighborhood.ProvinceName
                 })
                 .ToList()
         };

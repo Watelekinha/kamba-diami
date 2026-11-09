@@ -34,87 +34,24 @@ public static class DbSeeder
         }
     }
 
-    // As 21 províncias resultantes da reorganização administrativa de Angola de 2024.
-    // Os municípios/bairros só estão preenchidos para Luanda por agora; as restantes
-    // províncias ficam disponíveis para selecção mas sem dados de município ainda —
-    // os utilizadores podem adicionar bairros pela aplicação (ver LocationsController).
-    private static readonly string[] ProvinceNames =
-    [
-        "Bengo",
-        "Benguela",
-        "Bié",
-        "Cabinda",
-        "Cuando",
-        "Cubango",
-        "Cuanza Norte",
-        "Cuanza Sul",
-        "Cunene",
-        "Huambo",
-        "Huíla",
-        "Icolo e Bengo",
-        "Luanda",
-        "Lunda Norte",
-        "Lunda Sul",
-        "Malanje",
-        "Moxico",
-        "Moxico Leste",
-        "Namibe",
-        "Uíge",
-        "Zaire"
-    ];
-
+    /// <summary>
+    /// As províncias e os municípios vêm da API pública de Angola e não são guardados. Só se garante um
+    /// bairro inicial, porque a conta do primeiro administrador precisa de uma morada; os restantes bairros
+    /// são criados pelos utilizadores (ver LocationsController). Os slugs são os da API angolaprovinciasapi.ao.
+    /// </summary>
     private static async Task SeedLocationsAsync(KambaDiamiDbContext db)
     {
-        if (!await db.Provinces.AnyAsync(p => p.Name == "Luanda"))
-        {
-            db.Provinces.Add(new Province
-            {
-                Name = "Luanda",
-                Municipalities = new List<Municipality>
-                {
-                    new()
-                    {
-                        Name = "Luanda",
-                        Neighborhoods = new List<Neighborhood>
-                        {
-                            new() { Name = "Maianga" },
-                            new() { Name = "Ingombota" }
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Talatona",
-                        Neighborhoods = new List<Neighborhood>
-                        {
-                            new() { Name = "Talatona Centro" },
-                            new() { Name = "Benfica" }
-                        }
-                    },
-                    new()
-                    {
-                        Name = "Viana",
-                        Neighborhoods = new List<Neighborhood>
-                        {
-                            new() { Name = "Viana Centro" },
-                            new() { Name = "Zango" }
-                        }
-                    }
-                }
-            });
-            await db.SaveChangesAsync();
-        }
+        if (await db.Neighborhoods.AnyAsync()) return;
 
-        var existingNames = await db.Provinces.Select(p => p.Name).ToListAsync();
-        var missingProvinces = ProvinceNames
-            .Where(name => !existingNames.Contains(name))
-            .Select(name => new Province { Name = name })
-            .ToList();
-
-        if (missingProvinces.Count > 0)
+        db.Neighborhoods.Add(new Neighborhood
         {
-            db.Provinces.AddRange(missingProvinces);
-            await db.SaveChangesAsync();
-        }
+            Name = "Ingombota",
+            MunicipalitySlug = "ingombota",
+            MunicipalityName = "Ingombota",
+            ProvinceSlug = "luanda",
+            ProvinceName = "Luanda"
+        });
+        await db.SaveChangesAsync();
     }
 
     private static async Task SeedServiceCategoriesAsync(KambaDiamiDbContext db)
@@ -165,7 +102,7 @@ public static class DbSeeder
         }
 
         var neighborhood = await db.Neighborhoods
-            .OrderBy(n => n.Municipality.Province.Name == "Luanda" ? 0 : 1)
+            .OrderBy(n => n.ProvinceSlug == "luanda" ? 0 : 1)
             .ThenBy(n => n.Id)
             .FirstAsync();
 

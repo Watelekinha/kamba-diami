@@ -158,7 +158,7 @@ public class AdminController : ControllerBase
 
         var usersByProvince = await _db.Users
             .Where(u => u.Role != UserRole.Admin)
-            .GroupBy(u => u.Address.Neighborhood.Municipality.Province.Name)
+            .GroupBy(u => u.Address.Neighborhood.ProvinceName)
             .Select(g => new AdminCountDto { Label = g.Key, Count = g.Count() })
             .OrderByDescending(r => r.Count)
             .Take(8)
@@ -455,7 +455,7 @@ public class AdminController : ControllerBase
             return Conflict(new { message = "Já existe uma conta com este email." });
 
         var neighborhood = await _db.Neighborhoods
-            .OrderBy(n => n.Municipality.Province.Name == "Luanda" ? 0 : 1)
+            .OrderBy(n => n.ProvinceSlug == "luanda" ? 0 : 1)
             .ThenBy(n => n.Id)
             .FirstAsync();
 
@@ -685,8 +685,8 @@ public class AdminController : ControllerBase
             PhotoPath = u.PhotoPath,
             Role = u.Role,
             Status = u.Status,
-            Location = u.Address.Neighborhood.Name + ", " + u.Address.Neighborhood.Municipality.Name
-                       + " (" + u.Address.Neighborhood.Municipality.Province.Name + ")",
+            Location = u.Address.Neighborhood.Name + ", " + u.Address.Neighborhood.MunicipalityName
+                       + " (" + u.Address.Neighborhood.ProvinceName + ")",
             CreatedAt = u.CreatedAt,
             LastLoginAt = u.LastLoginAt,
             IsLockedOut = u.LockoutEnd != null && u.LockoutEnd > now,
@@ -707,7 +707,7 @@ public class AdminController : ControllerBase
             AuthorId = j.AuthorUserId,
             AuthorName = j.Author.FirstName + " " + j.Author.LastName,
             Categories = j.Categories.Select(c => c.ServiceCategory.Name).ToList(),
-            Locations = j.Locations.Select(l => l.Neighborhood.Name + ", " + l.Neighborhood.Municipality.Name).ToList(),
+            Locations = j.Locations.Select(l => l.Neighborhood.Name + ", " + l.Neighborhood.MunicipalityName).ToList(),
             MatchesCount = j.Matches.Count,
             CreatedAt = j.CreatedAt
         });

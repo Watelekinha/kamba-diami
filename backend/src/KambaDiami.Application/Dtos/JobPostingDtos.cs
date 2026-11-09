@@ -6,9 +6,9 @@ public class JobPostingLocationDto
 {
     public int NeighborhoodId { get; set; }
     public string NeighborhoodName { get; set; } = default!;
-    public int MunicipalityId { get; set; }
+    public string MunicipalitySlug { get; set; } = default!;
     public string MunicipalityName { get; set; } = default!;
-    public int ProvinceId { get; set; }
+    public string ProvinceSlug { get; set; } = default!;
     public string ProvinceName { get; set; } = default!;
 }
 
@@ -51,8 +51,8 @@ public class JobPostingFilter
     public JobPostingType? Type { get; set; }
     public int? CategoryId { get; set; }
     public PaymentType? PaymentType { get; set; }
-    public int? ProvinceId { get; set; }
-    public int? MunicipalityId { get; set; }
+    public string? ProvinceSlug { get; set; }
+    public string? MunicipalitySlug { get; set; }
     public int? NeighborhoodId { get; set; }
     public string? Search { get; set; }
     public int Page { get; set; } = 1;

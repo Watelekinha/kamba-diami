@@ -23,10 +23,10 @@
         />
       </div>
 
-      <select name="province" [(ngModel)]="provinceId" (ngModelChange)="onFilterChange()">
+      <select name="province" [(ngModel)]="provinceSlug" (ngModelChange)="onFilterChange()">
         <option [ngValue]="''">Todas as províncias</option>
-        @for (province of provinces; track province.id) {
-          <option [ngValue]="province.id">{{ province.name }}</option>
+        @for (province of provinces; track province.slug) {
+          <option [ngValue]="province.slug">{{ province.name }}</option>
         }
       </select>
 

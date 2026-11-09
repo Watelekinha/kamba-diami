@@ -267,7 +267,7 @@ public class AuthController : ControllerBase
         var token = await _tokenService.GenerateTokenAsync(user);
         var fullUser = await _db.Users
             .AsNoTracking()
-            .Include(u => u.Address).ThenInclude(a => a.Neighborhood).ThenInclude(n => n.Municipality).ThenInclude(m => m.Province)
+            .Include(u => u.Address).ThenInclude(a => a.Neighborhood)
             .FirstAsync(u => u.Id == user.Id);
 
         return new AuthResponse

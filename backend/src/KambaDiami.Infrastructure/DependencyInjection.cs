@@ -7,6 +7,7 @@ using KambaDiami.Domain.Entities;
 using KambaDiami.Infrastructure.Email;
 using KambaDiami.Infrastructure.Files;
 using KambaDiami.Infrastructure.Identity;
+using KambaDiami.Infrastructure.Locations;
 using KambaDiami.Infrastructure.Pdf;
 using KambaDiami.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -125,6 +126,15 @@ public static class DependencyInjection
         services.AddScoped<IContractPdfService, ContractPdfService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IUserSessionService, UserSessionService>();
+
+        // Províncias e municípios vêm da API pública de Angola; ver AngolaLocationsClient.
+        var locationsBaseUrl = configuration["AngolaLocations:BaseUrl"] ?? "https://angolaprovinciasapi.ao/api/v2/";
+        services.AddHttpClient<IAngolaLocationsProvider, AngolaLocationsClient>(client =>
+        {
+            client.BaseAddress = new Uri(locationsBaseUrl.TrimEnd('/') + "/");
+            client.Timeout = TimeSpan.FromSeconds(15);
+            client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
+        });
 
         services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 

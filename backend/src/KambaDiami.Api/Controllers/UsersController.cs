@@ -196,7 +196,7 @@ public class UsersController : ControllerBase
         _db.Users
             .Include(u => u.FamiliaProfile)
             .Include(u => u.SecretariaProfile)
-            .Include(u => u.Address).ThenInclude(a => a.Neighborhood).ThenInclude(n => n.Municipality).ThenInclude(m => m.Province)
+            .Include(u => u.Address).ThenInclude(a => a.Neighborhood)
             .FirstOrDefaultAsync(u => u.Id == id);
 
     private async Task<(double? avg, int count)> GetRatingStatsAsync(Guid userId)

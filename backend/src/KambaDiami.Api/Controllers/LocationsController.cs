@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using KambaDiami.Api.Services;
+using KambaDiami.Application.Abstractions;
 using KambaDiami.Application.Dtos;
 using KambaDiami.Domain.Entities;
 using KambaDiami.Infrastructure.Persistence;
@@ -10,100 +11,142 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KambaDiami.Api.Controllers;
 
+/// <summary>
+/// Províncias e municípios vêm da API pública de Angola (angolaprovinciasapi.ao), através de
+/// <see cref="IAngolaLocationsProvider"/>. Os bairros são da plataforma: a API só tem comunas, e
+/// essas aparecem como sugestão de bairro.
+/// </summary>
 [ApiController]
 [Route("api/locations")]
 public class LocationsController : ControllerBase
 {
     private readonly KambaDiamiDbContext _db;
+    private readonly IAngolaLocationsProvider _angola;
 
-    public LocationsController(KambaDiamiDbContext db)
+    public LocationsController(KambaDiamiDbContext db, IAngolaLocationsProvider angola)
     {
         _db = db;
+        _angola = angola;
     }
 
     [HttpGet("provinces")]
-    public async Task<ActionResult<List<ProvinceDto>>> GetProvinces()
+    public async Task<ActionResult<List<ProvinceDto>>> GetProvinces(CancellationToken ct)
     {
-        var provinces = await _db.Provinces
-            .OrderBy(p => p.Name)
-            .Select(p => new ProvinceDto { Id = p.Id, Name = p.Name })
-            .ToListAsync();
-        return Ok(provinces);
+        try
+        {
+            var provinces = await _angola.GetProvincesAsync(ct);
+            return Ok(provinces.Select(p => new ProvinceDto { Slug = p.Slug, Name = p.Name }).ToList());
+        }
+        catch (AngolaLocationsUnavailableException ex)
+        {
+            return Unavailable(ex);
+        }
     }
 
-    [HttpGet("provinces/{provinceId:int}/municipalities")]
-    public async Task<ActionResult<List<MunicipalityDto>>> GetMunicipalities(int provinceId)
+    [HttpGet("provinces/{provinceSlug}/municipalities")]
+    public async Task<ActionResult<List<MunicipalityDto>>> GetMunicipalities(string provinceSlug, CancellationToken ct)
     {
-        var municipalities = await _db.Municipalities
-            .Where(m => m.ProvinceId == provinceId)
-            .OrderBy(m => m.Name)
-            .Select(m => new MunicipalityDto { Id = m.Id, Name = m.Name, ProvinceId = m.ProvinceId })
-            .ToListAsync();
-        return Ok(municipalities);
+        try
+        {
+            var province = (await _angola.GetProvincesAsync(ct))
+                .FirstOrDefault(p => string.Equals(p.Slug, provinceSlug, StringComparison.OrdinalIgnoreCase));
+            if (province is null) return NotFound(new { message = "Província não encontrada." });
+
+            return Ok(province.Municipalities
+                .Select(m => new MunicipalityDto { Slug = m.Slug, Name = m.Name, ProvinceSlug = province.Slug })
+                .ToList());
+        }
+        catch (AngolaLocationsUnavailableException ex)
+        {
+            return Unavailable(ex);
+        }
     }
 
-    [HttpGet("municipalities/{municipalityId:int}/neighborhoods")]
-    public async Task<ActionResult<List<NeighborhoodDto>>> GetNeighborhoods(int municipalityId)
+    /// <summary>
+    /// Os bairros já criados no município e, como sugestão, as comunas da API que ainda não têm bairro
+    /// com o mesmo nome. Se a API estiver em baixo, devolve só os bairros da plataforma.
+    /// </summary>
+    [HttpGet("municipalities/{municipalitySlug}/neighborhoods")]
+    public async Task<ActionResult<List<NeighborhoodDto>>> GetNeighborhoods(string municipalitySlug, CancellationToken ct)
     {
-        var neighborhoods = await _db.Neighborhoods
-            .Where(n => n.MunicipalityId == municipalityId)
-            .OrderBy(n => n.Name)
-            .Select(n => new NeighborhoodDto { Id = n.Id, Name = n.Name, MunicipalityId = n.MunicipalityId })
-            .ToListAsync();
-        return Ok(neighborhoods);
-    }
+        var slug = municipalitySlug.Trim().ToLowerInvariant();
+        var existing = await _db.Neighborhoods
+            .AsNoTracking()
+            .Where(n => n.MunicipalitySlug == slug)
+            .Select(n => new NeighborhoodDto { Id = n.Id, Name = n.Name, MunicipalitySlug = n.MunicipalitySlug })
+            .ToListAsync(ct);
 
-    [HttpPost("municipalities")]
-    // Sem sessão: quem se está a registar também precisa de acrescentar o seu bairro.
-    [AllowAnonymous]
-    [EnableRateLimiting(RateLimitPolicies.Locations)]
-    public async Task<ActionResult<MunicipalityDto>> CreateMunicipality(CreateMunicipalityRequest request)
-    {
-        var name = NormalizeName(request.Name);
-        if (name is null)
-            return BadRequest(new { message = InvalidNameMessage("município") });
+        IReadOnlyList<AngolaCommune> communes = [];
+        try
+        {
+            var found = await _angola.FindMunicipalityAsync(slug, ct);
+            if (found is null && existing.Count == 0)
+                return NotFound(new { message = "Município não encontrado." });
+            communes = found?.Municipality.Communes ?? [];
+        }
+        catch (AngolaLocationsUnavailableException)
+        {
+            // Sem a API não há sugestões, mas os bairros já criados continuam a poder ser escolhidos.
+        }
 
-        var provinceExists = await _db.Provinces.AnyAsync(p => p.Id == request.ProvinceId);
-        if (!provinceExists)
-            return BadRequest(new { message = "Província inválida." });
+        var existingNames = new HashSet<string>(existing.Select(n => n.Name), StringComparer.CurrentCultureIgnoreCase);
+        var suggestions = communes
+            .Where(c => !existingNames.Contains(c.Name))
+            .Select(c => new NeighborhoodDto { Id = null, Name = c.Name, MunicipalitySlug = slug, IsSuggestion = true });
 
-        var existing = await _db.Municipalities.FirstOrDefaultAsync(m =>
-            m.ProvinceId == request.ProvinceId && m.Name.ToLower() == name.ToLower());
-        if (existing is not null)
-            return Ok(new MunicipalityDto { Id = existing.Id, Name = existing.Name, ProvinceId = existing.ProvinceId });
-
-        var municipality = new Municipality { Name = name, ProvinceId = request.ProvinceId };
-        _db.Municipalities.Add(municipality);
-        await _db.SaveChangesAsync();
-
-        return Ok(new MunicipalityDto { Id = municipality.Id, Name = municipality.Name, ProvinceId = municipality.ProvinceId });
+        return Ok(existing.Concat(suggestions)
+            .OrderBy(n => n.Name, StringComparer.CurrentCulture)
+            .ToList());
     }
 
     [HttpPost("neighborhoods")]
     // Sem sessão: quem se está a registar também precisa de acrescentar o seu bairro.
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitPolicies.Locations)]
-    public async Task<ActionResult<NeighborhoodDto>> CreateNeighborhood(CreateNeighborhoodRequest request)
+    public async Task<ActionResult<NeighborhoodDto>> CreateNeighborhood(CreateNeighborhoodRequest request, CancellationToken ct)
     {
         var name = NormalizeName(request.Name);
         if (name is null)
             return BadRequest(new { message = InvalidNameMessage("bairro") });
 
-        var municipalityExists = await _db.Municipalities.AnyAsync(m => m.Id == request.MunicipalityId);
-        if (!municipalityExists)
+        (AngolaProvince Province, AngolaMunicipality Municipality)? found;
+        try
+        {
+            found = await _angola.FindMunicipalityAsync(request.MunicipalitySlug?.Trim() ?? string.Empty, ct);
+        }
+        catch (AngolaLocationsUnavailableException ex)
+        {
+            return Unavailable(ex);
+        }
+        if (found is null)
             return BadRequest(new { message = "Município inválido." });
 
+        var (province, municipality) = found.Value;
+
         var existing = await _db.Neighborhoods.FirstOrDefaultAsync(n =>
-            n.MunicipalityId == request.MunicipalityId && n.Name.ToLower() == name.ToLower());
+            n.MunicipalitySlug == municipality.Slug && n.Name.ToLower() == name.ToLower(), ct);
         if (existing is not null)
-            return Ok(new NeighborhoodDto { Id = existing.Id, Name = existing.Name, MunicipalityId = existing.MunicipalityId });
+            return Ok(ToDto(existing));
 
-        var neighborhood = new Neighborhood { Name = name, MunicipalityId = request.MunicipalityId };
+        var neighborhood = new Neighborhood
+        {
+            Name = name,
+            MunicipalitySlug = municipality.Slug,
+            MunicipalityName = municipality.Name,
+            ProvinceSlug = province.Slug,
+            ProvinceName = province.Name
+        };
         _db.Neighborhoods.Add(neighborhood);
-        await _db.SaveChangesAsync();
+        await _db.SaveChangesAsync(ct);
 
-        return Ok(new NeighborhoodDto { Id = neighborhood.Id, Name = neighborhood.Name, MunicipalityId = neighborhood.MunicipalityId });
+        return Ok(ToDto(neighborhood));
     }
+
+    private static NeighborhoodDto ToDto(Neighborhood n) =>
+        new() { Id = n.Id, Name = n.Name, MunicipalitySlug = n.MunicipalitySlug };
+
+    private ObjectResult Unavailable(AngolaLocationsUnavailableException ex) =>
+        StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = ex.Message });
 
     private static readonly Regex AllowedName = new(@"^[\p{L}\p{N}][\p{L}\p{N} .'-]*$", RegexOptions.Compiled);
 

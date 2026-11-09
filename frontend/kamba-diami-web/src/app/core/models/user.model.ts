@@ -4,9 +4,9 @@ export type AccountStatus = 'PendenteAprovacao' | 'Ativo' | 'Suspenso';
 export interface AddressDto {
   neighborhoodId: number;
   neighborhoodName: string;
-  municipalityId: number;
+  municipalitySlug: string;
   municipalityName: string;
-  provinceId: number;
+  provinceSlug: string;
   provinceName: string;
   streetDetail?: string | null;
 }

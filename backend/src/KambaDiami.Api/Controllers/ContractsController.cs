@@ -454,12 +454,12 @@ public class ContractsController : ControllerBase
             .AsSplitQuery()
             .Include(m => m.Contract)
             .Include(m => m.InitiatorUser).ThenInclude(u => u.Address).ThenInclude(a => a.Neighborhood)
-                .ThenInclude(n => n.Municipality).ThenInclude(m => m.Province)
+                
             .Include(m => m.CounterpartUser).ThenInclude(u => u.Address).ThenInclude(a => a.Neighborhood)
-                .ThenInclude(n => n.Municipality).ThenInclude(m => m.Province)
+                
             .Include(m => m.JobPosting).ThenInclude(j => j.Categories).ThenInclude(c => c.ServiceCategory)
             .Include(m => m.JobPosting).ThenInclude(j => j.Locations).ThenInclude(l => l.Neighborhood)
-                .ThenInclude(n => n.Municipality).ThenInclude(m => m.Province);
+                ;
 
     private IQueryable<Contract> ContractListQuery() =>
         _db.Contracts
@@ -480,9 +480,9 @@ public class ContractsController : ControllerBase
             .Include(c => c.Match).ThenInclude(m => m.Conversation)
             .Include(c => c.Match).ThenInclude(m => m.JobPosting).ThenInclude(j => j.Categories).ThenInclude(cat => cat.ServiceCategory)
             .Include(c => c.FamiliaUser).ThenInclude(u => u.Address).ThenInclude(a => a.Neighborhood)
-                .ThenInclude(n => n.Municipality).ThenInclude(m => m.Province)
+                
             .Include(c => c.SecretariaUser).ThenInclude(u => u.Address).ThenInclude(a => a.Neighborhood)
-                .ThenInclude(n => n.Municipality).ThenInclude(m => m.Province);
+                ;
 
         return tracking ? query : query.AsNoTracking();
     }
@@ -492,9 +492,9 @@ public class ContractsController : ControllerBase
             .AsSplitQuery()
             .Include(c => c.Clauses)
             .Include(c => c.FamiliaUser).ThenInclude(u => u.Address).ThenInclude(a => a.Neighborhood)
-                .ThenInclude(n => n.Municipality).ThenInclude(m => m.Province)
+                
             .Include(c => c.SecretariaUser).ThenInclude(u => u.Address).ThenInclude(a => a.Neighborhood)
-                .ThenInclude(n => n.Municipality).ThenInclude(m => m.Province);
+                ;
 
     private async Task<ContractDto> LoadDtoAsync(int id)
     {

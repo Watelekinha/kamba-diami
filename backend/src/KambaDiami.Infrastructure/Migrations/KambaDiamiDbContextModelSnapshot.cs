@@ -578,28 +578,6 @@ namespace KambaDiami.Infrastructure.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("KambaDiami.Domain.Entities.Municipality", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProvinceId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProvinceId");
-
-                    b.ToTable("Municipalities");
-                });
-
             modelBuilder.Entity("KambaDiami.Domain.Entities.Neighborhood", b =>
                 {
                     b.Property<int>("Id")
@@ -608,16 +586,36 @@ namespace KambaDiami.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("MunicipalityId")
-                        .HasColumnType("integer");
+                    b.Property<string>("MunicipalityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("MunicipalitySlug")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("ProvinceName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ProvinceSlug")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MunicipalityId");
+                    b.HasIndex("MunicipalitySlug");
+
+                    b.HasIndex("ProvinceSlug");
 
                     b.ToTable("Neighborhoods");
                 });
@@ -675,23 +673,6 @@ namespace KambaDiami.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("PaymentReferences");
-                });
-
-            modelBuilder.Entity("KambaDiami.Domain.Entities.Province", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Provinces");
                 });
 
             modelBuilder.Entity("KambaDiami.Domain.Entities.Rating", b =>
@@ -1096,28 +1077,6 @@ namespace KambaDiami.Infrastructure.Migrations
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("KambaDiami.Domain.Entities.Municipality", b =>
-                {
-                    b.HasOne("KambaDiami.Domain.Entities.Province", "Province")
-                        .WithMany("Municipalities")
-                        .HasForeignKey("ProvinceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Province");
-                });
-
-            modelBuilder.Entity("KambaDiami.Domain.Entities.Neighborhood", b =>
-                {
-                    b.HasOne("KambaDiami.Domain.Entities.Municipality", "Municipality")
-                        .WithMany("Neighborhoods")
-                        .HasForeignKey("MunicipalityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Municipality");
-                });
-
             modelBuilder.Entity("KambaDiami.Domain.Entities.PaymentReference", b =>
                 {
                     b.HasOne("KambaDiami.Domain.Entities.Contract", "Contract")
@@ -1264,16 +1223,6 @@ namespace KambaDiami.Infrastructure.Migrations
                     b.Navigation("Contract");
 
                     b.Navigation("Conversation");
-                });
-
-            modelBuilder.Entity("KambaDiami.Domain.Entities.Municipality", b =>
-                {
-                    b.Navigation("Neighborhoods");
-                });
-
-            modelBuilder.Entity("KambaDiami.Domain.Entities.Province", b =>
-                {
-                    b.Navigation("Municipalities");
                 });
 
             modelBuilder.Entity("KambaDiami.Domain.Entities.ServiceCategory", b =>

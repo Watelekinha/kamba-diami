@@ -7,9 +7,9 @@ export type JobPostingStatus = 'Ativo' | 'Pausado' | 'Preenchido' | 'Removido';
 export interface JobPostingLocationDto {
   neighborhoodId: number;
   neighborhoodName: string;
-  municipalityId: number;
+  municipalitySlug: string;
   municipalityName: string;
-  provinceId: number;
+  provinceSlug: string;
   provinceName: string;
 }
 
@@ -50,8 +50,8 @@ export interface JobPostingFilter {
   type?: JobPostingType;
   categoryId?: number;
   paymentType?: PaymentType;
-  provinceId?: number;
-  municipalityId?: number;
+  provinceSlug?: string;
+  municipalitySlug?: string;
   neighborhoodId?: number;
   search?: string;
   page?: number;

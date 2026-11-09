@@ -106,6 +106,10 @@ app.UseRateLimiter();
 app.MapControllers();
 app.MapHub<ChatHub>("/hubs/chat");
 
+// Verificação de saúde usada pelo Railway: a API responde e consegue falar com a base de dados.
+app.MapGet("/health", async (KambaDiamiDbContext db, CancellationToken ct) =>
+    await db.Database.CanConnectAsync(ct) ? Results.Ok(new { status = "ok" }) : Results.StatusCode(StatusCodes.Status503ServiceUnavailable));
+
 // O Angular compilado fica em wwwroot e é servido pelo mesmo domínio da API (Capítulo VI), por isso
 // o navegador não precisa de CORS. Qualquer rota sem ponto e fora de /api, /hubs e /uploads devolve
 // o index.html, para a navegação interna funcionar ao actualizar a página ou abrir uma ligação directa.

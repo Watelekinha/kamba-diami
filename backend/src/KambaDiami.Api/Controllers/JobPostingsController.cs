@@ -34,7 +34,7 @@ public class JobPostingsController : ControllerBase
             .AsSplitQuery()
             .Include(j => j.Author)
             .Include(j => j.Categories).ThenInclude(c => c.ServiceCategory)
-            .Include(j => j.Locations).ThenInclude(l => l.Neighborhood).ThenInclude(n => n.Municipality).ThenInclude(m => m.Province);
+            .Include(j => j.Locations).ThenInclude(l => l.Neighborhood);
 
     [HttpGet]
     public async Task<ActionResult<PagedResult<JobPostingDto>>> GetFeed([FromQuery] JobPostingFilter filter)
@@ -47,10 +47,10 @@ public class JobPostingsController : ControllerBase
             query = query.Where(j => j.Categories.Any(c => c.ServiceCategoryId == filter.CategoryId));
         if (filter.NeighborhoodId.HasValue)
             query = query.Where(j => j.Locations.Any(l => l.NeighborhoodId == filter.NeighborhoodId));
-        else if (filter.MunicipalityId.HasValue)
-            query = query.Where(j => j.Locations.Any(l => l.Neighborhood.MunicipalityId == filter.MunicipalityId));
-        else if (filter.ProvinceId.HasValue)
-            query = query.Where(j => j.Locations.Any(l => l.Neighborhood.Municipality.ProvinceId == filter.ProvinceId));
+        else if (!string.IsNullOrWhiteSpace(filter.MunicipalitySlug))
+            query = query.Where(j => j.Locations.Any(l => l.Neighborhood.MunicipalitySlug == filter.MunicipalitySlug));
+        else if (!string.IsNullOrWhiteSpace(filter.ProvinceSlug))
+            query = query.Where(j => j.Locations.Any(l => l.Neighborhood.ProvinceSlug == filter.ProvinceSlug));
 
         if (!string.IsNullOrWhiteSpace(filter.Search))
         {

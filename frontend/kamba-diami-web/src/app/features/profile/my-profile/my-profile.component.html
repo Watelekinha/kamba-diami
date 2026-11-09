@@ -78,8 +78,8 @@
           <div class="form-field">
             <label>Morada</label>
             <app-location-picker
-              [initialProvinceId]="user.address.provinceId"
-              [initialMunicipalityId]="user.address.municipalityId"
+              [initialProvinceSlug]="user.address.provinceSlug"
+              [initialMunicipalitySlug]="user.address.municipalitySlug"
               [initialNeighborhoodId]="user.address.neighborhoodId"
               (neighborhoodChange)="onNeighborhoodChange($event)"
             ></app-location-picker>

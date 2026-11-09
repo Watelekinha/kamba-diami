@@ -27,9 +27,9 @@ public class AddressDto
 {
     public int NeighborhoodId { get; set; }
     public string NeighborhoodName { get; set; } = default!;
-    public int MunicipalityId { get; set; }
+    public string MunicipalitySlug { get; set; } = default!;
     public string MunicipalityName { get; set; } = default!;
-    public int ProvinceId { get; set; }
+    public string ProvinceSlug { get; set; } = default!;
     public string ProvinceName { get; set; } = default!;
     public string? StreetDetail { get; set; }
 }

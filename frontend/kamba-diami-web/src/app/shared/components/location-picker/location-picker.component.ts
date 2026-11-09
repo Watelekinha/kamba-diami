@@ -5,6 +5,10 @@ import { LocationService } from '../../../core/services/location.service';
 import { Municipality, Neighborhood, Province } from '../../../core/models/location.model';
 import { apiErrorMessage } from '../../../core/utils/api-error';
 
+/**
+ * Escolha de província, município e bairro. As províncias e os municípios vêm da API pública de Angola;
+ * os bairros são da plataforma, com as comunas da API como sugestão.
+ */
 @Component({
   selector: 'app-location-picker',
   standalone: true,
@@ -13,8 +17,8 @@ import { apiErrorMessage } from '../../../core/utils/api-error';
   styleUrl: './location-picker.component.scss'
 })
 export class LocationPickerComponent implements OnInit {
-  @Input() initialProvinceId: number | null = null;
-  @Input() initialMunicipalityId: number | null = null;
+  @Input() initialProvinceSlug: string | null = null;
+  @Input() initialMunicipalitySlug: string | null = null;
   @Input() initialNeighborhoodId: number | null = null;
   @Output() neighborhoodChange = new EventEmitter<number | null>();
 
@@ -22,13 +26,12 @@ export class LocationPickerComponent implements OnInit {
   municipalities: Municipality[] = [];
   neighborhoods: Neighborhood[] = [];
 
-  selectedProvinceId: number | null = null;
-  selectedMunicipalityId: number | null = null;
-  selectedNeighborhoodId: number | null = null;
+  selectedProvinceSlug: string | null = null;
+  selectedMunicipalitySlug: string | null = null;
+  selectedNeighborhood: Neighborhood | null = null;
 
-  addingMunicipality = signal(false);
-  newMunicipalityName = '';
-  savingMunicipality = signal(false);
+  loadingProvinces = signal(true);
+  loadError = signal<string | null>(null);
 
   addingNeighborhood = signal(false);
   newNeighborhoodName = '';
@@ -39,89 +42,98 @@ export class LocationPickerComponent implements OnInit {
   constructor(private locationService: LocationService) {}
 
   ngOnInit(): void {
-    this.selectedProvinceId = this.initialProvinceId;
-    this.selectedMunicipalityId = this.initialMunicipalityId;
-    this.selectedNeighborhoodId = this.initialNeighborhoodId;
+    this.selectedProvinceSlug = this.initialProvinceSlug;
+    this.selectedMunicipalitySlug = this.initialMunicipalitySlug;
 
-    this.locationService.getProvinces().subscribe((provinces) => {
-      this.provinces = provinces;
-      if (this.selectedProvinceId) {
-        this.onProvinceChange(this.selectedProvinceId, false);
+    this.locationService.getProvinces().subscribe({
+      next: (provinces) => {
+        this.loadingProvinces.set(false);
+        this.provinces = provinces;
+        if (this.selectedProvinceSlug) {
+          this.onProvinceChange(this.selectedProvinceSlug, false);
+        }
+      },
+      error: (err) => {
+        this.loadingProvinces.set(false);
+        this.loadError.set(apiErrorMessage(err, 'Não foi possível carregar as províncias. Actualiza a página e tenta de novo.'));
       }
     });
   }
 
-  onProvinceChange(provinceId: number | null, resetChildren = true): void {
-    this.selectedProvinceId = provinceId;
-    this.addingMunicipality.set(false);
+  /** Compara bairros pelo id ou, nas sugestões, pelo nome. */
+  sameNeighborhood = (a: Neighborhood | null, b: Neighborhood | null): boolean =>
+    a === b || (!!a && !!b && a.municipalitySlug === b.municipalitySlug && (a.id ?? a.name) === (b.id ?? b.name));
+
+  onProvinceChange(provinceSlug: string | null, resetChildren = true): void {
+    this.selectedProvinceSlug = provinceSlug;
     this.addingNeighborhood.set(false);
 
     if (resetChildren) {
-      this.selectedMunicipalityId = null;
-      this.selectedNeighborhoodId = null;
+      this.selectedMunicipalitySlug = null;
+      this.selectedNeighborhood = null;
       this.neighborhoods = [];
       this.neighborhoodChange.emit(null);
     }
 
-    if (!provinceId) {
+    if (!provinceSlug) {
       this.municipalities = [];
       return;
     }
 
-    this.locationService.getMunicipalities(provinceId).subscribe((municipalities) => {
-      this.municipalities = municipalities;
-      if (this.selectedMunicipalityId) {
-        this.onMunicipalityChange(this.selectedMunicipalityId, false);
-      }
+    this.locationService.getMunicipalities(provinceSlug).subscribe({
+      next: (municipalities) => {
+        this.municipalities = municipalities;
+        if (this.selectedMunicipalitySlug) {
+          this.onMunicipalityChange(this.selectedMunicipalitySlug, false);
+        }
+      },
+      error: (err) => this.loadError.set(apiErrorMessage(err, 'Não foi possível carregar os municípios.'))
     });
   }
 
-  onMunicipalityChange(municipalityId: number | null, resetChildren = true): void {
-    this.selectedMunicipalityId = municipalityId;
+  onMunicipalityChange(municipalitySlug: string | null, resetChildren = true): void {
+    this.selectedMunicipalitySlug = municipalitySlug;
     this.addingNeighborhood.set(false);
 
     if (resetChildren) {
-      this.selectedNeighborhoodId = null;
+      this.selectedNeighborhood = null;
       this.neighborhoodChange.emit(null);
     }
 
-    if (!municipalityId) {
+    if (!municipalitySlug) {
       this.neighborhoods = [];
       return;
     }
 
-    this.locationService.getNeighborhoods(municipalityId).subscribe((neighborhoods) => {
-      this.neighborhoods = neighborhoods;
+    this.locationService.getNeighborhoods(municipalitySlug).subscribe({
+      next: (neighborhoods) => {
+        this.neighborhoods = neighborhoods;
+        if (!resetChildren && this.initialNeighborhoodId !== null) {
+          this.selectedNeighborhood = neighborhoods.find((n) => n.id === this.initialNeighborhoodId) ?? null;
+        }
+      },
+      error: (err) => this.loadError.set(apiErrorMessage(err, 'Não foi possível carregar os bairros.'))
     });
   }
 
-  onNeighborhoodChange(neighborhoodId: number | null): void {
-    this.selectedNeighborhoodId = neighborhoodId;
-    this.neighborhoodChange.emit(neighborhoodId);
-  }
-
-  toggleAddMunicipality(): void {
+  onNeighborhoodChange(neighborhood: Neighborhood | null): void {
     this.addError.set(null);
-    this.addingMunicipality.update((v) => !v);
-    this.newMunicipalityName = '';
-  }
+    this.selectedNeighborhood = neighborhood;
+    if (!neighborhood) {
+      this.neighborhoodChange.emit(null);
+      return;
+    }
 
-  confirmAddMunicipality(): void {
-    const name = this.newMunicipalityName.trim();
-    if (!name || !this.selectedProvinceId) return;
-
-    this.addError.set(null);
-    this.savingMunicipality.set(true);
-    this.locationService.createMunicipality(this.selectedProvinceId, name).subscribe({
-      next: (municipality) => {
-        this.savingMunicipality.set(false);
-        this.addingMunicipality.set(false);
-        this.municipalities = [...this.municipalities, municipality].sort((a, b) => a.name.localeCompare(b.name));
-        this.onMunicipalityChange(municipality.id, true);
+    // Uma comuna sugerida pela API passa a bairro da plataforma quando é escolhida.
+    this.locationService.ensureNeighborhood(neighborhood).subscribe({
+      next: (saved) => {
+        this.replaceNeighborhood(neighborhood, saved);
+        this.neighborhoodChange.emit(saved.id);
       },
       error: (err) => {
-        this.savingMunicipality.set(false);
-        this.addError.set(apiErrorMessage(err, 'Não foi possível adicionar o município. Tenta de novo.'));
+        this.selectedNeighborhood = null;
+        this.neighborhoodChange.emit(null);
+        this.addError.set(apiErrorMessage(err, 'Não foi possível escolher este bairro. Tenta de novo.'));
       }
     });
   }
@@ -134,21 +146,30 @@ export class LocationPickerComponent implements OnInit {
 
   confirmAddNeighborhood(): void {
     const name = this.newNeighborhoodName.trim();
-    if (!name || !this.selectedMunicipalityId) return;
+    if (!name || !this.selectedMunicipalitySlug) return;
 
     this.addError.set(null);
     this.savingNeighborhood.set(true);
-    this.locationService.createNeighborhood(this.selectedMunicipalityId, name).subscribe({
+    this.locationService.createNeighborhood(this.selectedMunicipalitySlug, name).subscribe({
       next: (neighborhood) => {
         this.savingNeighborhood.set(false);
         this.addingNeighborhood.set(false);
-        this.neighborhoods = [...this.neighborhoods, neighborhood].sort((a, b) => a.name.localeCompare(b.name));
-        this.onNeighborhoodChange(neighborhood.id);
+        if (!this.neighborhoods.some((n) => n.id === neighborhood.id)) {
+          this.neighborhoods = [...this.neighborhoods, neighborhood].sort((a, b) => a.name.localeCompare(b.name));
+        }
+        this.selectedNeighborhood = neighborhood;
+        this.neighborhoodChange.emit(neighborhood.id);
       },
       error: (err) => {
         this.savingNeighborhood.set(false);
         this.addError.set(apiErrorMessage(err, 'Não foi possível adicionar o bairro. Tenta de novo.'));
       }
     });
+  }
+
+  private replaceNeighborhood(previous: Neighborhood, saved: Neighborhood): void {
+    if (previous === saved) return;
+    this.neighborhoods = this.neighborhoods.map((n) => (n === previous ? saved : n));
+    this.selectedNeighborhood = saved;
   }
 }
