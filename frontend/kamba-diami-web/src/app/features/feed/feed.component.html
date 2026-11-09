@@ -1,0 +1,128 @@
+<section class="feed-page">
+  <div class="feed-shell">
+    <div class="feed-header">
+      <div>
+        <span class="feed-kicker">Feed</span>
+        <h1>{{ heading }}</h1>
+      </div>
+      <div class="feed-header-actions">
+        <a class="pill-btn pill-btn-outline" routerLink="/job-postings/saved">Guardadas</a>
+        <a class="pill-btn pill-btn-outline" routerLink="/job-postings/mine">Minhas Publicações</a>
+        <a class="pill-btn pill-btn-primary" routerLink="/job-postings/new">+ Publicar</a>
+      </div>
+    </div>
+
+    <form class="search-bar" (ngSubmit)="onSearchSubmit($event)">
+      <div class="search-input">
+        <svg viewBox="0 0 24 24" class="icon"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
+        <input
+          type="text"
+          name="search"
+          [(ngModel)]="searchQuery"
+          placeholder="Função, palavra-chave ou nome…"
+        />
+      </div>
+
+      <select name="province" [(ngModel)]="provinceId" (ngModelChange)="onFilterChange()">
+        <option [ngValue]="''">Todas as províncias</option>
+        @for (province of provinces; track province.id) {
+          <option [ngValue]="province.id">{{ province.name }}</option>
+        }
+      </select>
+
+      <button type="submit" class="pill-btn pill-btn-primary">Pesquisar</button>
+    </form>
+
+    <div class="chip-row">
+      <button type="button" class="chip" [class.active]="typeFilter === ''" (click)="setTypeFilter('')">Todos</button>
+      <button type="button" class="chip" [class.active]="typeFilter === 'OfertaEmprego'" (click)="setTypeFilter('OfertaEmprego')">Ofertas</button>
+      <button type="button" class="chip" [class.active]="typeFilter === 'ProcuraEmprego'" (click)="setTypeFilter('ProcuraEmprego')">Procura</button>
+      <span class="chip-divider" aria-hidden="true"></span>
+      <button type="button" class="chip" [class.active]="paymentTypeFilter === ''" (click)="setPayment('')">Qualquer pagamento</button>
+      <button type="button" class="chip" [class.active]="paymentTypeFilter === 'Diaria'" (click)="setPayment('Diaria')">Diária</button>
+      <button type="button" class="chip" [class.active]="paymentTypeFilter === 'Mensal'" (click)="setPayment('Mensal')">Mensal</button>
+    </div>
+
+    <div class="results-meta">
+      @if (!loading()) {
+        <span>{{ totalCount }} {{ totalCount === 1 ? 'anúncio encontrado' : 'anúncios encontrados' }}</span>
+      }
+    </div>
+
+    @if (loading()) {
+      <div class="state-block">
+        <span class="state-spinner" aria-hidden="true"></span>
+        A carregar...
+      </div>
+    } @else if (postings.length === 0) {
+      <div class="state-block state-empty">
+        <svg viewBox="0 0 24 24" class="state-icon"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
+        Nenhum anúncio encontrado com estes filtros.
+      </div>
+    } @else {
+      <div class="feed-grid">
+        @for (posting of postings; track posting.id; let i = $index) {
+          <div class="posting-reveal" [style.--i]="i">
+            <app-job-posting-card [posting]="posting" [useModalOutput]="true" (viewDetails)="openDetails(posting)"></app-job-posting-card>
+          </div>
+        }
+      </div>
+
+      <div class="pagination">
+        <button class="page-btn" [disabled]="page <= 1" (click)="prevPage()">Anterior</button>
+        <span>Página {{ page }}</span>
+        <button class="page-btn" [disabled]="page * pageSize >= totalCount" (click)="nextPage()">
+          Seguinte
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (selectedPosting(); as p) {
+    <div class="modal-overlay" (click)="closeDetails()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <button type="button" class="modal-close" (click)="closeDetails()" aria-label="Fechar">
+          <svg viewBox="0 0 24 24" class="icon"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+
+        <div class="modal-header">
+          <span class="modal-avatar">
+            @if (p.authorPhotoPath) {
+              <img [src]="p.authorPhotoPath" [alt]="p.authorName" />
+            } @else {
+              {{ p.authorName.charAt(0) }}
+            }
+          </span>
+          <div>
+            <span class="type-badge" [class.oferta]="p.type === 'OfertaEmprego'">
+              {{ p.type === 'OfertaEmprego' ? 'Oferta de Emprego' : 'Procura Emprego' }}
+            </span>
+            <h2>{{ p.categories.length > 0 ? p.categories[0].name : 'Serviço doméstico' }}</h2>
+            <p class="modal-author">{{ p.authorName }} · {{ locationsSummary(p) }}</p>
+          </div>
+        </div>
+
+        <div class="modal-tags">
+          @for (category of p.categories; track category.id) {
+            <span class="category-chip">{{ category.name }}</span>
+          }
+          <span class="category-chip">{{ p.paymentType === 'Mensal' ? 'Mensal' : 'Diária' }}</span>
+          @if (p.hoursPerDay) {
+            <span class="category-chip">{{ p.hoursPerDay }}h/dia</span>
+          }
+        </div>
+
+        @if (p.comments) {
+          <p class="modal-description">{{ p.comments }}</p>
+        }
+
+        <div class="modal-footer">
+          <span class="modal-salary">{{ p.paymentValue | kwanza }}<small>/ {{ p.paymentType === 'Mensal' ? 'mês' : 'diária' }}</small></span>
+          <span class="modal-posted">Publicado {{ postedAgo(p) }}</span>
+        </div>
+
+        <a class="btn btn-primary modal-cta" [routerLink]="['/job-postings', p.id]">Ver página completa</a>
+      </div>
+    </div>
+  }
+</section>

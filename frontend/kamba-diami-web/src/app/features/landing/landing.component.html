@@ -1,0 +1,389 @@
+<section class="l-hero">
+  <div class="l-wash l-wash--rose" aria-hidden="true"></div>
+  <div class="l-wash l-wash--sage" aria-hidden="true"></div>
+  <div class="l-wash l-wash--sky" aria-hidden="true"></div>
+  <div class="l-wash l-wash--sun" aria-hidden="true"></div>
+  <svg class="l-sparkle l-sparkle--hero" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 2.5 13.2 9.2 20 10.4 13.2 11.6 12 18.3 10.8 11.6 4 10.4 10.8 9.2Z" />
+  </svg>
+
+  <div class="container l-hero-grid">
+    <div class="l-hero-copy">
+      <span class="l-eyebrow l-fade" style="--d: 0s">Seguro · Rápido · Prático</span>
+      <h1 class="l-headline l-fade" style="--d: .1s">
+        O seu lar em<br />
+        <em>boas mãos.</em>
+      </h1>
+      <p class="l-tagline l-fade" style="--d: .2s">
+        A Kamba Diami liga famílias a secretárias do lar de confiança,
+        tanto para quem procura ajuda em casa como para quem procura o seu próximo trabalho.
+      </p>
+      <div class="l-cta-group l-fade" style="--d: .3s">
+        <a class="l-btn l-btn-primary" routerLink="/register">Criar conta gratuita</a>
+        <a class="l-btn l-btn-outline" routerLink="/login">Já tenho conta</a>
+      </div>
+    </div>
+
+    <div class="l-hero-visual l-fade" style="--d: .22s">
+      <div class="l-hero-blob">
+        <img src="/assets/hero-kitchen.png" alt="Cozinha caseira com luz natural" />
+      </div>
+      <figure class="l-polaroid l-polaroid--hero">
+        <img src="/assets/scene-linens.png" alt="Roupa de cama dobrada" />
+        <figcaption>Cuidado no detalhe</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="l-market" id="explorar">
+  <div class="container">
+    <div class="l-section-head l-reveal">
+      <span class="l-kicker">À procura</span>
+      <h2>
+        {{ marketMode === 'secretarias' ? 'Secretárias do lar em Angola' : 'Ofertas de emprego em Angola' }}
+      </h2>
+      <p class="l-market-lead">
+        Uma amostra da plataforma. Cria conta para ver mais e falar com as pessoas.
+      </p>
+    </div>
+
+    <fieldset class="l-market-switch">
+      <legend>Estou à procura de</legend>
+      <label class="l-market-option">
+        <input
+          type="radio"
+          name="landing-market"
+          [checked]="marketMode === 'secretarias'"
+          (change)="setMarketMode('secretarias')"
+        />
+        Secretárias do lar
+      </label>
+      <label class="l-market-option">
+        <input
+          type="radio"
+          name="landing-market"
+          [checked]="marketMode === 'ofertas'"
+          (change)="setMarketMode('ofertas')"
+        />
+        Ofertas de emprego
+      </label>
+    </fieldset>
+
+    @if (listingsLoading) {
+      <p class="l-market-status">A carregar anúncios...</p>
+    } @else if (listingsError) {
+      <p class="l-market-status">{{ listingsError }}</p>
+    } @else if (listings.length === 0) {
+      <p class="l-market-status">Ainda não há anúncios para mostrar neste momento.</p>
+    } @else {
+      <div class="l-market-grid">
+        @for (item of listings; track item.id) {
+          <a class="l-listing" routerLink="/register" [queryParams]="{ role: registerRole }">
+            <header class="l-listing-head">
+              <span class="l-listing-avatar">
+                @if (item.authorPhotoPath) {
+                  <img [src]="item.authorPhotoPath" [alt]="item.authorName" />
+                } @else {
+                  {{ initials(item.authorName) }}
+                }
+              </span>
+              <div class="l-listing-meta">
+                <strong>{{ item.authorName }}</strong>
+                <span>{{ locationLabel(item) }}</span>
+              </div>
+              <span class="l-listing-pay">
+                {{ item.paymentValue | kwanza }}
+                <small>{{ item.paymentType === 'Mensal' ? 'por mês' : 'por dia' }}</small>
+              </span>
+            </header>
+            <h3>{{ headline(item) }}</h3>
+            <p>{{ snippet(item) }}</p>
+            <span class="l-listing-more">Ler mais</span>
+          </a>
+        }
+      </div>
+
+      <p class="l-market-foot">
+        Cria conta para ver todos os anúncios e contactar.
+      </p>
+      <div class="l-cta-group l-cta-group--center">
+        <a class="l-btn l-btn-primary" routerLink="/register" [queryParams]="{ role: registerRole }">
+          Criar conta gratuita
+        </a>
+      </div>
+    }
+  </div>
+</section>
+
+<section class="l-about" id="quem-somos">
+  <div class="container">
+    <div class="l-about-grid">
+      <div class="l-section-head l-section-head--left l-reveal">
+        <span class="l-kicker">Quem somos</span>
+        <h2>Uma ponte entre o lar e quem o <em>cuida.</em></h2>
+      </div>
+      <div class="l-about-copy l-reveal">
+        <p>
+          A Kamba Diami é uma plataforma angolana que liga famílias a secretárias do lar de confiança,
+          sem agências e sem intermediários.
+        </p>
+        <p>
+          Nasceu para tornar o trabalho doméstico mais seguro, mais justo e mais simples,
+          com contrato claro, avaliações recíprocas e respeito pelo Decreto Presidencial n.º 155/16.
+        </p>
+      </div>
+    </div>
+
+    <div class="l-about-points">
+      <article class="l-about-point l-reveal">
+        <h3>Para famílias</h3>
+        <p>Quem precisa de ajuda em casa encontra profissionais avaliados, perto da sua zona, com condições combinadas à partida.</p>
+      </article>
+      <article class="l-about-point l-reveal">
+        <h3>Para secretárias do lar</h3>
+        <p>Quem procura trabalho encontra vagas formais, diálogo seguro na plataforma e um contrato que protege os seus direitos.</p>
+      </article>
+      <article class="l-about-point l-reveal">
+        <h3>Feita para Angola</h3>
+        <p>Pensada para o contexto angolano, com valores em kwanzas, moradas locais e o enquadramento legal do trabalho doméstico.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="l-wave" aria-hidden="true">
+  <svg viewBox="0 0 1440 56" preserveAspectRatio="none">
+    <path d="M0 28C180 52 360 8 540 22C720 36 900 54 1080 32C1260 10 1380 6 1440 18V56H0Z" />
+  </svg>
+</div>
+
+<section class="l-how" id="como-funciona">
+  <div class="container">
+    <div class="l-section-head l-section-head--left l-reveal">
+      <span class="l-kicker">Como funciona</span>
+      <h2>Da procura ao contrato, <em>sem pressa.</em></h2>
+    </div>
+
+    <ol class="l-steps">
+      <li class="l-step l-reveal">
+        <span class="l-step-num">01</span>
+        <h3>Cria o teu perfil</h3>
+        <p>Regista-te como Família ou como Secretária do Lar, com a tua localização para recomendações mais precisas.</p>
+      </li>
+      <li class="l-step l-reveal">
+        <span class="l-step-num">02</span>
+        <h3>Publica ou encontra vagas</h3>
+        <p>Famílias publicam vagas de limpeza, cozinha, lavagem, engomar e babá. Secretárias publicam a sua disponibilidade.</p>
+      </li>
+      <li class="l-step l-reveal">
+        <span class="l-step-num">03</span>
+        <h3>Conversa e combina</h3>
+        <p>Usa o chat da plataforma para conversar em segurança e combinar os detalhes do trabalho antes de avançar.</p>
+      </li>
+      <li class="l-step l-reveal">
+        <span class="l-step-num">04</span>
+        <h3>Contrato e pagamento</h3>
+        <p>Gera um contrato com a marca Kamba Diami, assina e confirma o pagamento com a referência da plataforma.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<div class="l-wave l-wave--flip" aria-hidden="true">
+  <svg viewBox="0 0 1440 56" preserveAspectRatio="none">
+    <path d="M0 18C160 4 340 46 540 34C740 22 900 4 1100 24C1280 42 1380 48 1440 36V56H0Z" />
+  </svg>
+</div>
+
+<section class="l-why" id="porque">
+  <div class="container l-why-layout">
+    <div class="l-why-photo l-reveal">
+      <div class="l-frame">
+        <img src="/assets/scene-living.png" alt="Sala de estar acolhedora" />
+      </div>
+      <figure class="l-polaroid l-polaroid--why">
+        <img src="/assets/scene-garden.png" alt="Plantas num terraço" />
+        <figcaption>O lar, com calma</figcaption>
+      </figure>
+    </div>
+
+    <div class="l-why-copy">
+      <div class="l-section-head l-section-head--left l-reveal">
+        <span class="l-kicker">Porquê a Kamba Diami?</span>
+        <h2>Ligação directa, contrato justo e <em>confiança.</em></h2>
+      </div>
+
+      <div class="l-why-list">
+        <article class="l-why-item l-reveal">
+          <h3>Sem intermediários</h3>
+          <p>Contacto directo com as secretárias do lar, sem agências. Combinas tu mesma as condições, o horário e o valor.</p>
+        </article>
+        <article class="l-why-item l-reveal">
+          <h3>Contrato que protege os dois lados</h3>
+          <p>O contrato assegura os direitos da família e da secretária do lar, com termos claros antes de começares.</p>
+        </article>
+        <article class="l-why-item l-reveal">
+          <h3>Famílias e secretárias avaliadas</h3>
+          <p>Ambos os lados são avaliados na plataforma, para escolheres com base na experiência real de outras pessoas.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="l-wave" aria-hidden="true">
+  <svg viewBox="0 0 1440 56" preserveAspectRatio="none">
+    <path d="M0 18C160 4 340 46 540 34C740 22 900 4 1100 24C1280 42 1380 48 1440 36V56H0Z" />
+  </svg>
+</div>
+
+<section class="l-services" id="servicos">
+  <div class="container">
+    <div class="l-section-head l-reveal">
+      <span class="l-kicker">Serviços</span>
+      <h2>O que encontras na Kamba Diami</h2>
+    </div>
+
+    <div class="l-photo-strip l-reveal">
+      <figure class="l-photo l-photo--team">
+        <img src="/assets/staff-team.jpeg" alt="Secretárias do lar em uniforme" />
+      </figure>
+      <figure class="l-photo l-photo--towels">
+        <img src="/assets/staff-towels.jpeg" alt="Secretária do lar com toalhas preparadas" />
+      </figure>
+      <figure class="l-photo l-photo--cleaning">
+        <img src="/assets/staff-cleaning.jpeg" alt="Secretária do lar pronta para o trabalho" />
+      </figure>
+    </div>
+
+    <ul class="l-services-grid">
+      <li class="l-service l-reveal">Limpeza Geral</li>
+      <li class="l-service l-reveal">Cozinha</li>
+      <li class="l-service l-reveal">Lavagem de Roupa</li>
+      <li class="l-service l-reveal">Engomar</li>
+      <li class="l-service l-reveal">Babá / Cuidado de Crianças</li>
+      <li class="l-service l-reveal">Cuidado de Idosos</li>
+      <li class="l-service l-reveal">Jardinagem</li>
+      <li class="l-service l-reveal">Motorista Doméstico</li>
+    </ul>
+  </div>
+</section>
+
+<section class="l-legal" id="direitos">
+  <div class="container">
+    <div class="l-section-head l-reveal">
+      <span class="l-kicker">Enquadramento legal</span>
+      <h2>Protegida pela lei <em>angolana</em></h2>
+      <p class="l-legal-intro">
+        A Kamba Diami respeita o Decreto Presidencial n.º 155/16, de 9 de Agosto,
+        que aprova o Regime Jurídico do Trabalho Doméstico e de Protecção Social
+        do Trabalhador de Serviço Doméstico.
+      </p>
+    </div>
+
+    <div class="l-legal-grid">
+      <article class="l-legal-item l-reveal">
+        <h3>Idade mínima de 18 anos</h3>
+        <p>O trabalho doméstico é interdito a menores de idade (artigo 10.º).</p>
+      </article>
+      <article class="l-legal-item l-reveal">
+        <h3>Direito a descanso diário</h3>
+        <p>Pelo menos 1 hora de intervalo por dia para descanso e refeições (artigo 20.º).</p>
+      </article>
+      <article class="l-legal-item l-reveal">
+        <h3>Salário justo e com recibo</h3>
+        <p>Pagamento maioritariamente em dinheiro, com recibo assinado obrigatório (artigo 14.º).</p>
+      </article>
+      <article class="l-legal-item l-reveal">
+        <h3>Protecção social</h3>
+        <p>Contribuições para invalidez, velhice e morte, partilhadas entre família e secretária.</p>
+      </article>
+    </div>
+
+    <a
+      class="l-legal-source"
+      href="https://lex.ao/docs/presidente-da-republica/2016/decreto-presidencial-n-o-155-16-de-09-de-agosto/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Consultar o Decreto Presidencial n.º 155/16 em lex.ao →
+    </a>
+  </div>
+</section>
+
+<section class="l-audiences">
+  <div class="container l-audiences-grid">
+    <article class="l-audience l-reveal" id="familias">
+      <h3>Para famílias</h3>
+      <p>Encontra profissionais de confiança para o lar, limpeza, cozinha, roupa, crianças e idosos, com avaliações de outras famílias.</p>
+      <a class="l-text-link" routerLink="/register">Encontrar uma secretária →</a>
+    </article>
+    <article class="l-audience l-reveal" id="secretarias">
+      <h3>Para secretárias do lar</h3>
+      <p>Encontra trabalho perto de ti, com condições claras, contratos formais e pagamentos com referência rastreável.</p>
+      <a class="l-text-link" routerLink="/register">Procurar trabalho →</a>
+    </article>
+  </div>
+</section>
+
+<section class="l-final-cta l-reveal">
+  <svg class="l-sparkle l-sparkle--cta" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 2.5 13.2 9.2 20 10.4 13.2 11.6 12 18.3 10.8 11.6 4 10.4 10.8 9.2Z" />
+  </svg>
+  <h2>Pronta para começar?</h2>
+  <p>Cria a tua conta gratuita em poucos minutos, sem custos e sem compromisso.</p>
+  <div class="l-cta-group l-cta-group--center">
+    <a class="l-btn l-btn-primary" routerLink="/register">Criar conta gratuita</a>
+    <a class="l-btn l-btn-outline" routerLink="/login">Já tenho conta</a>
+  </div>
+</section>
+
+<footer class="l-footer" id="contacto">
+  <div class="container l-footer-top">
+    <div class="l-footer-brand">
+      <a routerLink="/" class="l-footer-mark">Kamba Diami</a>
+      <p>A forma segura, rápida e prática de encontrar profissionais de confiança para o lar em Angola.</p>
+    </div>
+
+    <div class="l-footer-col">
+      <h4>Plataforma</h4>
+      <ul>
+        <li><a routerLink="/" fragment="quem-somos" (click)="scrollToFragment($event, 'quem-somos')">Quem somos</a></li>
+        <li><a routerLink="/" fragment="como-funciona" (click)="scrollToFragment($event, 'como-funciona')">Como funciona</a></li>
+        <li><a routerLink="/" fragment="explorar" (click)="scrollToFragment($event, 'explorar')">À procura</a></li>
+        <li><a routerLink="/" fragment="porque" (click)="scrollToFragment($event, 'porque')">Porquê a Kamba Diami</a></li>
+        <li><a routerLink="/" fragment="servicos" (click)="scrollToFragment($event, 'servicos')">Serviços</a></li>
+        <li><a routerLink="/" fragment="familias" (click)="scrollToFragment($event, 'familias')">Para famílias</a></li>
+        <li><a routerLink="/" fragment="secretarias" (click)="scrollToFragment($event, 'secretarias')">Para secretárias</a></li>
+        <li><a routerLink="/register">Criar conta</a></li>
+        <li><a routerLink="/login">Entrar</a></li>
+      </ul>
+    </div>
+
+    <div class="l-footer-col">
+      <h4>Áreas de serviço</h4>
+      <ul>
+        <li>Limpeza Geral</li>
+        <li>Cozinha</li>
+        <li>Lavagem de Roupa</li>
+        <li>Engomar</li>
+        <li>Babá</li>
+        <li>Cuidado de Idosos</li>
+      </ul>
+    </div>
+
+    <div class="l-footer-col">
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="mailto:hustle.kambadiami@gmail.com">hustle.kambadiami&#64;gmail.com</a></li>
+        <li>Luanda, Angola</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container l-footer-bottom">
+    <span>© {{ currentYear }} Kamba Diami. Todos os direitos reservados.</span>
+    <span>Feito com cuidado para famílias e secretárias do lar angolanas.</span>
+  </div>
+</footer>

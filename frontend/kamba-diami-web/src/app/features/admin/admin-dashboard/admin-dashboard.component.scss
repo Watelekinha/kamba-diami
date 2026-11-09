@@ -1,0 +1,134 @@
+@use 'sass:meta';
+
+// Sem encapsulamento (ver o componente): tudo fica dentro de .admin-shell.
+.admin-shell {
+  --adm-ink: var(--kd-text);
+  --adm-ink-2: #52514e;
+  --adm-muted: #6f6e69;
+  --adm-line: #e4e6ea;
+  --adm-grid: #eceef1;
+  --adm-surface: #ffffff;
+  --adm-series: #2a78d6;
+  --adm-good: #0ca30c;
+  --adm-good-text: #006300;
+  --adm-bad: #d03b3b;
+  --adm-bad-text: #b42318;
+  --adm-warn: #fab219;
+
+  display: block;
+  min-height: calc(100vh - var(--kd-navbar-height));
+  padding: 2rem 1rem 4rem;
+  background: var(--kd-bg);
+  font-family: var(--kd-font-body);
+
+  @include meta.load-css('../admin-shared');
+}
+
+.admin-container {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  margin-bottom: 1.3rem;
+  padding: 1.6rem 1.7rem;
+  border-radius: 22px;
+  background: linear-gradient(120deg, #1877f2 0%, #145dbf 55%, #3b4fd1 100%);
+  color: #fff;
+  box-shadow: 0 22px 44px -28px rgba(20, 93, 191, 0.75);
+
+  h1 {
+    margin: 0.1rem 0 0.3rem;
+    font-size: 2.1rem;
+    line-height: 1.1;
+    color: #fff;
+  }
+
+  @media (max-width: 560px) {
+    padding: 1.3rem 1.2rem;
+    h1 { font-size: 1.7rem; }
+  }
+}
+
+.admin-header-text { position: relative; z-index: 1; }
+
+.admin-blob {
+  position: absolute;
+  z-index: 0;
+  border-radius: 62% 38% 48% 52% / 45% 55% 45% 55%;
+  background: #fff;
+  pointer-events: none;
+}
+.admin-blob--sun { width: 220px; height: 220px; top: -110px; right: -40px; opacity: 0.14; }
+.admin-blob--sage { width: 160px; height: 160px; bottom: -90px; right: 180px; opacity: 0.09; }
+
+.admin-mark {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 42% 58% 50% 50% / 48% 46% 54% 52%;
+  background: var(--kd-sun);
+  color: #145dbf;
+
+  svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  @media (max-width: 560px) { display: none; }
+}
+
+.admin-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--kd-sun);
+}
+
+.admin-sub {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.95rem;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 1.3rem;
+  padding: 0.3rem;
+  border-radius: 14px;
+  background: #e4e7eb;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.admin-tab {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  color: var(--kd-text-muted);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover { color: var(--kd-text); }
+  &:focus-visible { outline: 2px solid var(--kd-primary); outline-offset: 1px; }
+
+  &.active {
+    background: #fff;
+    color: var(--kd-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 -3px 0 var(--kd-primary);
+  }
+}

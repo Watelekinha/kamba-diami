@@ -1,0 +1,167 @@
+:host {
+  display: block;
+  font-family: var(--kd-font-body);
+}
+
+.contracts-page {
+  background: var(--kd-bg);
+  min-height: calc(100vh - 65px);
+  padding: 2.4rem 0 3.5rem;
+}
+
+.contracts-inner {
+  max-width: 1140px;
+}
+
+.page-head {
+  margin-bottom: 1.8rem;
+}
+
+.kicker {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--kd-sage-deep);
+  margin-bottom: 0.3rem;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--kd-font-display);
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.lead {
+  margin: 0.45rem 0 0;
+  color: var(--kd-text-muted);
+  max-width: 38rem;
+}
+
+.muted {
+  color: var(--kd-text-muted);
+}
+
+.empty {
+  background: var(--kd-surface);
+  border: 1px dashed var(--kd-border);
+  border-radius: var(--kd-radius);
+  padding: 2rem 1.4rem;
+  text-align: center;
+
+  p {
+    margin: 0 0 1rem;
+    color: var(--kd-text-muted);
+  }
+}
+
+.group {
+  margin-bottom: 2.2rem;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.9rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid var(--kd-border);
+    font-family: var(--kd-font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--kd-text-muted);
+
+    span {
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--kd-text);
+      background: var(--kd-paper);
+      padding: 0.08rem 0.5rem;
+      border-radius: 999px;
+    }
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 760px;
+}
+
+.contract-card {
+  display: block;
+  background: var(--kd-surface);
+  border: 1px solid var(--kd-border);
+  border-radius: 14px;
+  padding: 0.95rem 1.1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--kd-clay) 40%, var(--kd-border));
+    box-shadow: 0 8px 20px -16px rgba(28, 30, 33, 0.25);
+  }
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+
+  strong {
+    font-size: 0.98rem;
+    font-weight: 700;
+  }
+}
+
+.summary {
+  margin: 0.3rem 0 0;
+  font-size: 0.87rem;
+  color: var(--kd-text);
+  font-weight: 500;
+}
+
+.meta {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: var(--kd-text-muted);
+}
+
+.status-pill {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  background: var(--kd-paper);
+  color: var(--kd-text-muted);
+
+  &[data-status='Ativo'] {
+    background: color-mix(in srgb, var(--kd-sage-deep) 14%, white);
+    color: var(--kd-sage-deep);
+  }
+  &[data-status='Concluido'] {
+    background: var(--kd-paper);
+    color: var(--kd-text-muted);
+  }
+  &[data-status='PdfGerado'],
+  &[data-status='AguardandoAssinaturas'] {
+    background: color-mix(in srgb, var(--kd-clay) 12%, white);
+    color: var(--kd-clay-deep);
+  }
+  &[data-status='Cancelado'] {
+    background: color-mix(in srgb, var(--kd-danger) 10%, white);
+    color: var(--kd-danger);
+  }
+}

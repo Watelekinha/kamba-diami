@@ -1,0 +1,6 @@
+@KambaDiami.Api_HostAddress = http://localhost:5080
+
+GET {{KambaDiami.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

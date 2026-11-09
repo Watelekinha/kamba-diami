@@ -1,0 +1,180 @@
+<div class="toolbar">
+  <div class="period" role="group" aria-label="Período">
+    @for (p of periods; track p.days) {
+      <button type="button" class="period-btn" [class.active]="days() === p.days" [attr.aria-pressed]="days() === p.days" (click)="setPeriod(p.days)">
+        {{ p.label }}
+      </button>
+    }
+  </div>
+  <span class="spacer"></span>
+  @if (overview(); as o) {
+    <span class="generated">Actualizado às {{ o.generatedAt | date: 'HH:mm' }}</span>
+  }
+  <button type="button" class="btn-sm" (click)="load()" [disabled]="loading()">{{ loading() ? 'A carregar...' : 'Actualizar' }}</button>
+  <button type="button" class="btn-sm" (click)="exportCsv()" [disabled]="!overview()">Exportar CSV</button>
+</div>
+
+@if (error()) {
+  <div class="error-box" role="alert">{{ error() }}</div>
+}
+
+@if (overview(); as o) {
+  <div class="overview" [class.reloading]="loading()">
+    @if (isEmpty()) {
+      <div class="card welcome">
+        <strong>A plataforma ainda não tem utilizadores.</strong>
+        Os números aparecem aqui assim que as primeiras famílias e secretárias do lar criarem conta.
+        Cada registo, login, anúncio, match, contrato e mensagem fica contado por dia.
+      </div>
+    }
+
+    <div class="tiles">
+      @for (tile of tiles(); track tile.key) {
+        <button
+          type="button"
+          class="tile"
+          [class.selected]="tile.selectable && selectedSeries() === tile.key"
+          [class.static]="!tile.selectable"
+          [disabled]="!tile.selectable"
+          [attr.aria-pressed]="tile.selectable ? selectedSeries() === tile.key : null"
+          [title]="tile.hint"
+          [style.--tile]="tile.color"
+          (click)="selectTile(tile)"
+        >
+          <span class="tile-top">
+            <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path [attr.d]="tile.icon" /></svg></span>
+            <span class="tile-label">{{ tile.label }}</span>
+          </span>
+          <span class="tile-value">{{ tile.value.toLocaleString('pt-PT') }}</span>
+          <span class="tile-delta" [attr.data-tone]="tile.tone">{{ tile.delta }}</span>
+          @if (tile.spark) {
+            <svg class="spark" viewBox="0 0 96 28" aria-hidden="true">
+              <path [attr.d]="tile.spark" />
+              <circle [attr.cx]="tile.sparkEnd!.x" [attr.cy]="tile.sparkEnd!.y" r="2.5" />
+            </svg>
+          }
+        </button>
+      }
+    </div>
+
+    <div class="card chart-card">
+      <div class="card-head">
+        <div>
+          <h2><span class="title-key" [style.background]="metricColors[selectedSeries()]" aria-hidden="true"></span>{{ metricLabels[selectedSeries()] }} por dia</h2>
+          <p>{{ o.from | date: 'd MMM' }} a {{ o.to | date: 'd MMM y' }} · hora de Angola</p>
+        </div>
+        <label class="visually-hidden" for="series-select">Indicador do gráfico</label>
+        <select id="series-select" class="series-select" [value]="selectedSeries()" (change)="onSeriesChange($event)">
+          @for (key of seriesKeys; track key) {
+            <option [value]="key">{{ metricLabels[key] }}</option>
+          }
+        </select>
+      </div>
+      <app-admin-line-chart [points]="chartPoints()" [seriesLabel]="metricLabels[selectedSeries()]" [color]="metricColors[selectedSeries()]" />
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2>Funil de contratação</h2>
+            <p>Do anúncio ao contrato assinado, nos últimos {{ o.periodDays }} dias</p>
+          </div>
+        </div>
+        <ol class="funnel">
+          @for (step of funnel(); track step.label) {
+            <li>
+              <div class="bar-row-head">
+                <span>{{ step.label }}</span>
+                <span class="bar-value">
+                  {{ step.value }}
+                  @if (step.conversion !== null) {
+                    <small>{{ step.conversion }}% do passo anterior</small>
+                  }
+                </span>
+              </div>
+              <div class="bar-track"><span class="bar" [class.zero]="step.value === 0" [style.width.%]="step.width" [style.background]="step.color"></span></div>
+            </li>
+          }
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div><h2>Totais da plataforma</h2><p>Desde o início</p></div></div>
+        <dl class="totals">
+          <div><dt>Contas</dt><dd>{{ o.totals.users }}</dd><span>{{ o.totals.familias }} {{ o.totals.familias === 1 ? 'família' : 'famílias' }} · {{ o.totals.secretarias }} {{ o.totals.secretarias === 1 ? 'secretária' : 'secretárias' }}</span></div>
+          <div><dt>Activos hoje</dt><dd>{{ o.totals.activeUsersToday }}</dd><span>famílias e secretárias diferentes</span></div>
+          <div><dt>Anúncios activos</dt><dd>{{ o.totals.activePostings }}</dd><span>de {{ o.totals.postings }} publicados</span></div>
+          <div><dt>Contratos activos</dt><dd>{{ o.totals.activeContracts }}</dd><span>{{ o.totals.completedContracts }} concluídos · {{ o.totals.contracts }} no total</span></div>
+          <div><dt>Mensagens</dt><dd>{{ compact(o.totals.messages) }}</dd><span>{{ o.totals.matches }} matches</span></div>
+          <div>
+            <dt>Avaliação média</dt>
+            <dd>{{ o.totals.averageRating !== null ? (o.totals.averageRating | number: '1.1-1') : 'sem notas' }}</dd>
+            <span>{{ o.totals.ratings }} avaliações</span>
+          </div>
+          <div><dt>Contas suspensas</dt><dd>{{ o.totals.suspendedUsers }}</dd><span>{{ o.totals.admins }} {{ o.totals.admins === 1 ? 'administrador' : 'administradores' }}</span></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-head"><div><h3>Utilizadores por província</h3></div></div>
+        @for (b of provinces(); track b.label) {
+          <div class="bar-item">
+            <div class="bar-row-head"><span>{{ b.label }}</span><span class="bar-value">{{ b.count }}</span></div>
+            <div class="bar-track"><span class="bar" [style.width.%]="b.width" [style.background]="b.color"></span></div>
+          </div>
+        } @empty {
+          <p class="empty-small">Sem utilizadores ainda.</p>
+        }
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3>Serviços mais anunciados</h3></div></div>
+        @for (b of categories(); track b.label) {
+          <div class="bar-item">
+            <div class="bar-row-head"><span>{{ b.label }}</span><span class="bar-value">{{ b.count }}</span></div>
+            <div class="bar-track"><span class="bar" [style.width.%]="b.width" [style.background]="b.color"></span></div>
+          </div>
+        } @empty {
+          <p class="empty-small">Sem anúncios ainda.</p>
+        }
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3>Contratos por estado</h3></div></div>
+        @for (b of contractStatus(); track b.label) {
+          <div class="bar-item">
+            <div class="bar-row-head"><span>{{ b.label }}</span><span class="bar-value">{{ b.count }}</span></div>
+            <div class="bar-track"><span class="bar" [style.width.%]="b.width" [style.background]="b.color"></span></div>
+          </div>
+        } @empty {
+          <p class="empty-small">Sem contratos ainda.</p>
+        }
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h2>Actividade recente</h2><p>Os últimos acontecimentos na plataforma</p></div></div>
+      <ul class="activity">
+        @for (item of o.recentActivity; track $index) {
+          <li>
+            <span class="activity-icon" [style.--tile]="activityColors[item.type]" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path [attr.d]="activityIcons[item.type]" /></svg>
+            </span>
+            <span class="activity-body">
+              @if (item.userId) {
+                <button type="button" class="link" (click)="openUser.emit(item.userId!)">{{ item.userName }}</button>
+              }
+              {{ item.description }}
+            </span>
+            <time [attr.datetime]="item.occurredAt" [title]="item.occurredAt | date: 'd MMM y, HH:mm'">{{ timeAgo(item.occurredAt) }}</time>
+          </li>
+        } @empty {
+          <li class="empty-small">Ainda não há actividade.</li>
+        }
+      </ul>
+    </div>
+  </div>
+} @else if (loading()) {
+  <div class="empty">A carregar estatísticas...</div>
+}

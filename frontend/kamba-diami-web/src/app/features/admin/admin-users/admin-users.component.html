@@ -1,0 +1,246 @@
+<div class="toolbar">
+  <label class="visually-hidden" for="user-search">Pesquisar utilizadores</label>
+  <input
+    id="user-search"
+    type="search"
+    placeholder="Pesquisar por nome, email ou telefone"
+    [(ngModel)]="filter.search"
+    (ngModelChange)="onSearchInput()"
+  />
+  <label class="visually-hidden" for="user-role">Tipo de conta</label>
+  <select id="user-role" [(ngModel)]="filter.role" (ngModelChange)="onFilterChange()">
+    <option value="">Todos os tipos</option>
+    <option value="Familia">Famílias</option>
+    <option value="Secretaria">Secretárias do lar</option>
+    <option value="Admin">Administradores</option>
+  </select>
+  <label class="visually-hidden" for="user-status">Estado</label>
+  <select id="user-status" [(ngModel)]="filter.status" (ngModelChange)="onFilterChange()">
+    <option value="">Todos os estados</option>
+    <option value="Ativo">Activas</option>
+    <option value="Suspenso">Suspensas</option>
+  </select>
+  <label class="visually-hidden" for="user-sort">Ordenar</label>
+  <select id="user-sort" [(ngModel)]="filter.sort" (ngModelChange)="onFilterChange()">
+    <option value="recent">Mais recentes</option>
+    <option value="oldest">Mais antigos</option>
+    <option value="lastLogin">Último login</option>
+    <option value="name">Nome (A a Z)</option>
+  </select>
+  <button type="button" class="btn-sm primary" (click)="openCreate()">Novo administrador</button>
+</div>
+
+@if (error()) {
+  <div class="error-box" role="alert">{{ error() }}</div>
+}
+
+<div class="table-wrap" [class.reloading]="loading()">
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Utilizador</th>
+        <th>Tipo</th>
+        <th>Estado</th>
+        <th>Localidade</th>
+        <th class="num">Anúncios</th>
+        <th class="num">Contratos</th>
+        <th>Registo</th>
+        <th>Último login</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (user of items(); track user.id) {
+        <tr class="clickable" tabindex="0" (click)="openDetail(user.id)" (keydown.enter)="openDetail(user.id)">
+          <td>
+            <span class="person">
+              <span class="avatar" [ngClass]="roleTone(user.role)" aria-hidden="true">{{ initials(user.fullName) }}</span>
+              <span>
+                <span class="strong">{{ user.fullName }}</span>
+                <span class="sub">{{ user.email }}</span>
+              </span>
+            </span>
+          </td>
+          <td><span class="badge" [ngClass]="roleTone(user.role)">{{ label(roleLabels, user.role) }}</span></td>
+          <td>
+            <span class="badge" [ngClass]="statusTone(user.status)">{{ label(statusLabels, user.status) }}</span>
+            @if (user.isLockedOut) {
+              <span class="badge warn">Bloqueada</span>
+            }
+          </td>
+          <td class="muted">{{ user.location }}</td>
+          <td class="num">{{ user.postingsCount }}</td>
+          <td class="num">{{ user.contractsCount }}</td>
+          <td class="nowrap">{{ user.createdAt | date: 'd MMM y' }}</td>
+          <td class="nowrap muted">{{ user.lastLoginAt ? (user.lastLoginAt | date: 'd MMM, HH:mm') : 'Nunca' }}</td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="8">
+            <div class="empty">
+              @if (loading()) {
+                A carregar...
+              } @else {
+                <strong>Nenhum utilizador encontrado</strong>
+                {{ filter.search || filter.role || filter.status ? 'Experimenta mudar os filtros.' : 'Ainda ninguém criou conta.' }}
+              }
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="pager">
+  <span>{{ totalCount() }} {{ totalCount() === 1 ? 'utilizador' : 'utilizadores' }} · página {{ page() }} de {{ totalPages }}</span>
+  <span class="pager-buttons">
+    <button type="button" class="btn-sm" (click)="goToPage(page() - 1)" [disabled]="page() <= 1 || loading()">Anterior</button>
+    <button type="button" class="btn-sm" (click)="goToPage(page() + 1)" [disabled]="page() >= totalPages || loading()">Seguinte</button>
+  </span>
+</div>
+
+@if (detail() || detailLoading()) {
+  <div class="drawer-backdrop" (click)="closeDetail()" aria-hidden="true"></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+    <button type="button" class="drawer-close" (click)="closeDetail()" aria-label="Fechar">×</button>
+
+    @if (detail(); as u) {
+      <header class="drawer-head">
+        <span class="avatar avatar--lg" [ngClass]="roleTone(u.role)" aria-hidden="true">{{ initials(u.fullName) }}</span>
+        <div>
+          <h2 id="drawer-title">{{ u.fullName }}</h2>
+          <p>{{ u.email }} · {{ u.phoneNumber || 'sem telefone' }}</p>
+          <p>
+            <span class="badge" [ngClass]="roleTone(u.role)">{{ label(roleLabels, u.role) }}</span>
+            <span class="badge" [ngClass]="statusTone(u.status)">{{ label(statusLabels, u.status) }}</span>
+            @if (u.isLockedOut) {
+              <span class="badge warn">Bloqueada até {{ u.lockoutEnd | date: 'HH:mm' }}</span>
+            }
+          </p>
+        </div>
+      </header>
+
+      @if (actionMessage()) {
+        <div class="ok-box" role="status">{{ actionMessage() }}</div>
+      }
+      @if (actionError()) {
+        <div class="error-box" role="alert">{{ actionError() }}</div>
+      }
+
+      @if (u.status === 'Suspenso') {
+        <div class="notice">
+          <strong>Suspensa em {{ u.suspendedAt | date: 'd MMM y, HH:mm' }}</strong>
+          {{ u.suspensionReason }}
+        </div>
+      }
+
+      <dl class="facts">
+        <div><dt>Registo</dt><dd>{{ u.createdAt | date: 'd MMM y' }}</dd></div>
+        <div><dt>Último login</dt><dd>{{ u.lastLoginAt ? (u.lastLoginAt | date: 'd MMM, HH:mm') : 'Nunca' }}</dd></div>
+        <div><dt>Logins (30 dias)</dt><dd>{{ u.loginsLast30Days }}</dd></div>
+        <div><dt>Dias activos (30 dias)</dt><dd>{{ u.activeDaysLast30Days }}</dd></div>
+        <div><dt>Anúncios</dt><dd>{{ u.postingsCount }}</dd></div>
+        <div><dt>Matches</dt><dd>{{ u.matchesCount }}</dd></div>
+        <div><dt>Contratos</dt><dd>{{ u.contractsCount }}</dd></div>
+        <div><dt>Mensagens enviadas</dt><dd>{{ u.messagesCount }}</dd></div>
+        <div><dt>Avaliação</dt><dd>{{ u.averageRating !== null ? (u.averageRating | number: '1.1-1') + ' (' + u.ratingsCount + ')' : 'Sem avaliações' }}</dd></div>
+        <div><dt>Tentativas falhadas</dt><dd>{{ u.failedLoginAttempts }}</dd></div>
+      </dl>
+      <p class="location">{{ u.location }}</p>
+
+      @if (u.id !== currentAdminId) {
+        <div class="actions">
+          @if (u.status === 'Suspenso') {
+            <button type="button" class="btn-sm primary" (click)="reactivate()" [disabled]="actionBusy()">Reactivar conta</button>
+          } @else if (u.role !== 'Admin') {
+            <button type="button" class="btn-sm danger" (click)="suspendOpen.set(!suspendOpen())" [disabled]="actionBusy()" [attr.aria-expanded]="suspendOpen()">Suspender conta</button>
+          }
+          @if (u.isLockedOut || u.failedLoginAttempts > 0) {
+            <button type="button" class="btn-sm" (click)="unlock()" [disabled]="actionBusy()">Desbloquear login</button>
+          }
+          @if (u.status !== 'Suspenso') {
+            <button type="button" class="btn-sm" (click)="sendReset()" [disabled]="actionBusy()">Enviar recuperação de palavra-passe</button>
+          }
+        </div>
+
+        @if (suspendOpen()) {
+          <div class="suspend-form">
+            <label for="suspend-reason">Motivo da suspensão</label>
+            <textarea id="suspend-reason" rows="3" maxlength="500" [(ngModel)]="suspendReason" placeholder="Ex.: denúncias de anúncios falsos"></textarea>
+            <small>A pessoa deixa de conseguir entrar, as sessões abertas terminam e os anúncios dela saem do feed.</small>
+            <div class="actions">
+              <button type="button" class="btn-sm danger solid" (click)="suspend()" [disabled]="actionBusy()">Confirmar suspensão</button>
+              <button type="button" class="btn-sm" (click)="suspendOpen.set(false)">Cancelar</button>
+            </div>
+          </div>
+        }
+      } @else {
+        <p class="muted-note">Esta é a tua conta. Para mudar a palavra-passe usa a página de perfil.</p>
+      }
+
+      <h3>Últimos logins</h3>
+      <ul class="mini-list">
+        @for (e of u.recentLogins; track e.id) {
+          <li>
+            <span class="badge" [ngClass]="e.succeeded ? 'good' : 'bad'">{{ e.succeeded ? 'Sucesso' : label(failureLabels, e.failureReason) }}</span>
+            <span>{{ e.occurredAt | date: 'd MMM, HH:mm' }}</span>
+            <span class="muted">{{ describeUserAgent(e.userAgent) }} · {{ e.ipAddress || 'IP desconhecido' }}</span>
+          </li>
+        } @empty {
+          <li class="muted">Sem logins registados.</li>
+        }
+      </ul>
+
+      <h3>Anúncios</h3>
+      <ul class="mini-list">
+        @for (p of u.recentPostings; track p.id) {
+          <li>
+            <span class="badge plain">{{ label(postingTypeLabels, p.type) }}</span>
+            <span>{{ p.categories.join(', ') }} · {{ p.paymentValue | kwanza }}</span>
+            <span class="muted">{{ label(postingStatusLabels, p.status) }} · {{ p.createdAt | date: 'd MMM y' }}</span>
+          </li>
+        } @empty {
+          <li class="muted">Sem anúncios.</li>
+        }
+      </ul>
+
+      <h3>Contratos</h3>
+      <ul class="mini-list">
+        @for (c of u.recentContracts; track c.id) {
+          <li>
+            <span class="badge plain">{{ contractReference(c.id) }}</span>
+            <span>{{ c.familiaName }} com {{ c.secretariaName }}</span>
+            <span class="muted">{{ label(contractStatusLabels, c.status) }} · {{ c.paymentValue | kwanza }}</span>
+          </li>
+        } @empty {
+          <li class="muted">Sem contratos.</li>
+        }
+      </ul>
+    } @else {
+      <div class="empty">A carregar...</div>
+    }
+  </aside>
+}
+
+@if (createOpen()) {
+  <div class="drawer-backdrop" (click)="createOpen.set(false)" aria-hidden="true"></div>
+  <form class="modal" role="dialog" aria-modal="true" aria-labelledby="create-title" (ngSubmit)="createAdmin()" #createForm="ngForm">
+    <h2 id="create-title">Novo administrador</h2>
+    <p class="muted-note">Os administradores vêem todos os dados da plataforma. Cria contas só para pessoas da equipa.</p>
+    <div class="modal-grid">
+      <label>Nome próprio<input name="firstName" [(ngModel)]="newAdmin.firstName" required maxlength="100" /></label>
+      <label>Apelido<input name="lastName" [(ngModel)]="newAdmin.lastName" required maxlength="100" /></label>
+      <label>Email<input name="email" type="email" [(ngModel)]="newAdmin.email" required email /></label>
+      <label>Telefone<input name="phoneNumber" type="tel" [(ngModel)]="newAdmin.phoneNumber" required placeholder="923 456 789" /></label>
+      <label class="full">Palavra-passe inicial<input name="password" type="text" [(ngModel)]="newAdmin.password" required minlength="8" autocomplete="off" /></label>
+    </div>
+    <small class="muted-note">Pelo menos 8 caracteres, com letras e números.</small>
+    @if (createError()) {
+      <div class="error-box" role="alert">{{ createError() }}</div>
+    }
+    <div class="actions">
+      <button type="submit" class="btn-sm primary" [disabled]="createForm.invalid || createBusy()">{{ createBusy() ? 'A criar...' : 'Criar administrador' }}</button>
+      <button type="button" class="btn-sm" (click)="createOpen.set(false)">Cancelar</button>
+    </div>
+  </form>
+}

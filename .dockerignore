@@ -1,0 +1,21 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/.angular/
+**/dist/
+.vs/
+.git/
+.claude/
+**/*.user
+Dockerfile
+.dockerignore
+
+# Texto da tese e figuras não fazem parte da aplicação.
+/*.md
+/*.docx
+/figuras/
+
+# Dados de teste e segredos de desenvolvimento não vão para a imagem.
+backend/src/KambaDiami.Api/App_Data/
+backend/src/KambaDiami.Api/wwwroot/uploads/
+backend/src/KambaDiami.Api/appsettings.Development.json

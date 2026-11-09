@@ -1,0 +1,24 @@
+# Compilação e dependências
+bin/
+obj/
+node_modules/
+.angular/
+dist/
+.vs/
+*.user
+
+# Dados de teste gerados em desenvolvimento (contratos e fotografias de pessoas)
+backend/src/KambaDiami.Api/App_Data/
+backend/src/KambaDiami.Api/wwwroot/uploads/
+
+# Texto da tese e figuras: não fazem parte da aplicação
+/*.md
+/*.docx
+/figuras/
+
+# Ferramentas
+.claude/
+
+# Variáveis de ambiente com segredos
+railway.env
+*.env

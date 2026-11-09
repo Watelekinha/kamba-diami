@@ -1,0 +1,107 @@
+<section class="contracts-page">
+  <div class="container contracts-inner">
+    <header class="page-head">
+      <span class="kicker">Contratos</span>
+      <h1>Os teus contratos</h1>
+      <p class="lead">Aqui vês os contratos activos, os já concluídos e os que ainda estão a ser preparados.</p>
+    </header>
+
+    @if (loading()) {
+      <p class="muted">A carregar contratos...</p>
+    } @else if (error()) {
+      <p class="error-text">{{ error() }}</p>
+    } @else if (contracts().length === 0) {
+      <div class="empty">
+        <p>Ainda não tens contratos. Aceita um interesse nas mensagens e abre o contrato a partir da conversa.</p>
+        <a class="btn btn-outline" routerLink="/messages">Ir às mensagens</a>
+      </div>
+    } @else {
+      <section class="group">
+        <h2>Activos <span>{{ active().length }}</span></h2>
+        @if (active().length === 0) {
+          <p class="muted">Não há contratos activos neste momento.</p>
+        } @else {
+          <div class="list">
+            @for (c of active(); track c.id) {
+              <a class="contract-card" [routerLink]="['/contracts/match', c.matchId]">
+                <div class="card-top">
+                  <strong>{{ c.counterpartName }}</strong>
+                  <span class="status-pill" [attr.data-status]="c.status">{{ statusLabel(c.status) }}</span>
+                </div>
+                <p class="summary">{{ c.jobPostingSummary }} · {{ paymentLabel(c) }}</p>
+                <p class="meta">
+                  {{ contractNumber(c.id) }} · actualizado em {{ c.updatedAt | date: 'dd/MM/yyyy' }}
+                  @if (c.canRate) { · podes avaliar }
+                </p>
+              </a>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="group">
+        <h2>Concluídos <span>{{ concluded().length }}</span></h2>
+        @if (concluded().length === 0) {
+          <p class="muted">Ainda não há contratos concluídos.</p>
+        } @else {
+          <div class="list">
+            @for (c of concluded(); track c.id) {
+              <a class="contract-card" [routerLink]="['/contracts/match', c.matchId]">
+                <div class="card-top">
+                  <strong>{{ c.counterpartName }}</strong>
+                  <span class="status-pill" [attr.data-status]="c.status">{{ statusLabel(c.status) }}</span>
+                </div>
+                <p class="summary">{{ c.jobPostingSummary }} · {{ paymentLabel(c) }}</p>
+                <p class="meta">
+                  {{ contractNumber(c.id) }}
+                  @if (c.endDate) {
+                    · concluído em {{ c.endDate | date: 'dd/MM/yyyy' }}
+                  } @else {
+                    · actualizado em {{ c.updatedAt | date: 'dd/MM/yyyy' }}
+                  }
+                  @if (c.canRate) { · podes avaliar }
+                </p>
+              </a>
+            }
+          </div>
+        }
+      </section>
+
+      @if (inProgress().length > 0) {
+        <section class="group">
+          <h2>Em preparação <span>{{ inProgress().length }}</span></h2>
+          <div class="list">
+            @for (c of inProgress(); track c.id) {
+              <a class="contract-card" [routerLink]="['/contracts/match', c.matchId]">
+                <div class="card-top">
+                  <strong>{{ c.counterpartName }}</strong>
+                  <span class="status-pill" [attr.data-status]="c.status">{{ statusLabel(c.status) }}</span>
+                </div>
+                <p class="summary">{{ c.jobPostingSummary }} · {{ paymentLabel(c) }}</p>
+                <p class="meta">{{ contractNumber(c.id) }} · actualizado em {{ c.updatedAt | date: 'dd/MM/yyyy' }}</p>
+              </a>
+            }
+          </div>
+        </section>
+      }
+
+      @if (cancelled().length > 0) {
+        <section class="group">
+          <h2>Cancelados <span>{{ cancelled().length }}</span></h2>
+          <div class="list">
+            @for (c of cancelled(); track c.id) {
+              <a class="contract-card" [routerLink]="['/contracts/match', c.matchId]">
+                <div class="card-top">
+                  <strong>{{ c.counterpartName }}</strong>
+                  <span class="status-pill" [attr.data-status]="c.status">{{ statusLabel(c.status) }}</span>
+                </div>
+                <p class="summary">{{ c.jobPostingSummary }} · {{ paymentLabel(c) }}</p>
+                <p class="meta">{{ contractNumber(c.id) }} · actualizado em {{ c.updatedAt | date: 'dd/MM/yyyy' }}</p>
+              </a>
+            }
+          </div>
+        </section>
+      }
+    }
+  </div>
+</section>

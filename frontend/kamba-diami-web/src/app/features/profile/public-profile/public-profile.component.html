@@ -1,0 +1,81 @@
+<section class="profile-page container">
+  @if (loading()) {
+    <p class="muted">A carregar perfil...</p>
+  } @else {
+    @if (profile(); as user) {
+    <a class="back-link" routerLink="/feed">&larr; Voltar ao feed</a>
+
+    <div class="card profile-header">
+      <div class="photo-block">
+        <img
+          [src]="user.photoPath ? user.photoPath : '/assets/avatar-placeholder.svg'"
+          alt="Foto de perfil"
+          class="avatar"
+        />
+      </div>
+      <div class="header-info">
+        <h1>{{ user.firstName }} {{ user.lastName }}</h1>
+        <span class="role-badge">{{ roleLabel(user.role) }}</span>
+        <p class="muted">{{ user.address.neighborhoodName }}, {{ user.address.municipalityName }}, {{ user.address.provinceName }}</p>
+        @if (user.ratingsCount > 0) {
+          <p class="rating">⭐ {{ user.averageRating?.toFixed(1) }} ({{ user.ratingsCount }} avaliações)</p>
+        } @else {
+          <p class="muted">Ainda sem avaliações</p>
+        }
+        @if (isOwnProfile) {
+          <a class="btn btn-outline edit-link" routerLink="/profile">Editar o meu perfil</a>
+        }
+      </div>
+    </div>
+
+    @if (user.role === 'Secretaria' && (user.bio || user.yearsOfExperience)) {
+      <div class="card">
+        <h2>Sobre a secretária</h2>
+        @if (user.yearsOfExperience) {
+          <p>{{ user.yearsOfExperience }} {{ user.yearsOfExperience === 1 ? 'ano' : 'anos' }} de experiência</p>
+        }
+        @if (user.bio) {
+          <p class="bio">{{ user.bio }}</p>
+        }
+      </div>
+    }
+
+    @if (user.role === 'Familia' && (user.familyDescription || user.householdSize)) {
+      <div class="card">
+        <h2>Sobre a família</h2>
+        @if (user.householdSize) {
+          <p>Agregado: {{ user.householdSize }} {{ user.householdSize === 1 ? 'pessoa' : 'pessoas' }}</p>
+        }
+        @if (user.familyDescription) {
+          <p class="bio">{{ user.familyDescription }}</p>
+        }
+      </div>
+    }
+
+    <div class="card">
+      <h2>Avaliações</h2>
+      @if (ratings().length === 0) {
+        <p class="muted">Ainda ninguém avaliou este perfil. As avaliações aparecem depois de um contrato activo.</p>
+      } @else {
+        <ul class="rating-list">
+          @for (r of ratings(); track r.id) {
+            <li class="rating-item">
+              <div class="rating-item-head">
+                <strong>{{ r.raterName }}</strong>
+                <span class="stars-read">{{ starLabel(r.score) }}</span>
+              </div>
+              @if (r.comment) {
+                <p>{{ r.comment }}</p>
+              }
+              <time>{{ r.createdAt | date: 'dd/MM/yyyy' }}</time>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+    } @else {
+      <p class="muted">Perfil não encontrado.</p>
+      <a class="btn btn-outline" routerLink="/feed">Voltar ao feed</a>
+    }
+  }
+</section>

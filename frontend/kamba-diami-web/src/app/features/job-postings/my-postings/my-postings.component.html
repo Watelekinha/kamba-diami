@@ -1,0 +1,22 @@
+<section class="container my-postings-page">
+  <div class="page-header">
+    <h1>As minhas publicações</h1>
+    <a class="btn btn-primary" routerLink="/job-postings/new">+ Publicar</a>
+  </div>
+
+  @if (loading()) {
+    <p class="muted">A carregar...</p>
+  } @else if (postings.length === 0) {
+    <p class="muted">Ainda não tens publicações. Cria a primeira!</p>
+  } @else {
+    <div class="postings-grid">
+      @for (posting of postings; track posting.id) {
+        <app-job-posting-card
+          [posting]="posting"
+          [showDeleteButton]="true"
+          (deleteRequested)="onDelete($event)"
+        ></app-job-posting-card>
+      }
+    </div>
+  }
+</section>

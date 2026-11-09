@@ -1,0 +1,68 @@
+<section class="auth-page">
+  <div class="auth-blob auth-blob--yellow" aria-hidden="true"></div>
+  <div class="auth-blob auth-blob--blue" aria-hidden="true"></div>
+
+  <form class="auth-card auth-fade" (ngSubmit)="submit()" #form="ngForm">
+    <span class="auth-mark">
+      <svg viewBox="0 0 24 24" class="auth-mark-icon"><path d="M4 11 12 4l8 7" /><path d="M6 9.5V20h12V9.5" /><path d="M10 20v-5.5h4V20" /></svg>
+    </span>
+    <h1>Entrar</h1>
+    <p class="subtitle">Acede à tua conta Kamba Diami.</p>
+
+    @if (infoMessage()) {
+      <p class="info-text" role="status">{{ infoMessage() }}</p>
+    }
+
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        [(ngModel)]="email"
+        required
+        email
+        autocomplete="email"
+        inputmode="email"
+      />
+    </div>
+
+    <div class="form-field">
+      <div class="label-row">
+        <label for="password">Palavra-passe</label>
+        <a class="forgot-link" routerLink="/forgot-password" [queryParams]="email ? { email: email } : {}">Esqueci-me da palavra-passe</a>
+      </div>
+      <div class="password-wrap">
+        <input
+          id="password"
+          name="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          [(ngModel)]="password"
+          required
+          autocomplete="current-password"
+        />
+        <button
+          type="button"
+          class="toggle-visibility"
+          (click)="showPassword.set(!showPassword())"
+          [attr.aria-label]="showPassword() ? 'Esconder palavra-passe' : 'Mostrar palavra-passe'"
+          [attr.aria-pressed]="showPassword()"
+        >
+          {{ showPassword() ? 'Esconder' : 'Mostrar' }}
+        </button>
+      </div>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="error-text" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <button class="btn-auth-primary" type="submit" [disabled]="form.invalid || loading()">
+      {{ loading() ? 'A entrar...' : 'Entrar' }}
+    </button>
+
+    <p class="switch-link">
+      Ainda não tens conta? <a routerLink="/register">Cria uma agora</a>
+    </p>
+  </form>
+</section>

@@ -1,0 +1,45 @@
+.posting-cell {
+  min-width: 260px;
+  max-width: 380px;
+
+  .badge { margin-bottom: 0.25rem; }
+  .strong { display: block; }
+}
+
+.comment {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 0.2rem;
+}
+
+.row-actions {
+  white-space: nowrap;
+  text-align: right;
+
+  .btn-sm + .btn-sm { margin-left: 0.35rem; }
+  a.btn-sm { text-decoration: none; }
+}
+
+.remove-row td {
+  background: #fdf6f6;
+
+  label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; }
+}
+
+.remove-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  input {
+    flex: 1 1 260px;
+    height: 36px;
+    padding: 0 0.7rem;
+    border: 1px solid var(--kd-border);
+    border-radius: 10px;
+    font: inherit;
+    font-size: 0.86rem;
+  }
+}

@@ -1,0 +1,73 @@
+<div class="toolbar">
+  <label class="visually-hidden" for="contract-search">Pesquisar contratos</label>
+  <input
+    id="contract-search"
+    type="search"
+    placeholder="Pesquisar por referência (KD-000012) ou nome"
+    [(ngModel)]="filter.search"
+    (ngModelChange)="onSearchInput()"
+  />
+  <label class="visually-hidden" for="contract-status">Estado</label>
+  <select id="contract-status" [(ngModel)]="filter.status" (ngModelChange)="onFilterChange()">
+    <option value="">Todos os estados</option>
+    @for (s of statuses; track s) {
+      <option [value]="s">{{ statusLabels[s] }}</option>
+    }
+  </select>
+</div>
+
+@if (error()) {
+  <div class="error-box" role="alert">{{ error() }}</div>
+}
+
+<div class="table-wrap" [class.reloading]="loading()">
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Referência</th>
+        <th>Família</th>
+        <th>Secretária do lar</th>
+        <th>Pagamento</th>
+        <th>Estado</th>
+        <th>Criado</th>
+        <th>Última alteração</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (c of items(); track c.id) {
+        <tr>
+          <td class="strong nowrap">{{ contractReference(c.id) }}</td>
+          <td><button type="button" class="link" (click)="openUser.emit(c.familiaId)">{{ c.familiaName }}</button></td>
+          <td><button type="button" class="link" (click)="openUser.emit(c.secretariaId)">{{ c.secretariaName }}</button></td>
+          <td class="nowrap">{{ c.paymentValue | kwanza }}<span class="sub">{{ c.paymentType === 'Mensal' ? 'mensal' : 'diária' }}</span></td>
+          <td><span class="badge" [ngClass]="statusTone(c.status)">{{ label(statusLabels, c.status) }}</span></td>
+          <td class="nowrap muted">{{ c.createdAt | date: 'd MMM y' }}</td>
+          <td class="nowrap muted">{{ c.updatedAt | date: 'd MMM y, HH:mm' }}</td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="7">
+            <div class="empty">
+              @if (loading()) {
+                A carregar...
+              } @else {
+                <strong>Nenhum contrato encontrado</strong>
+                {{ filter.search || filter.status ? 'Experimenta mudar os filtros.' : 'Os contratos aparecem aqui quando uma família e uma secretária do lar chegarem a acordo.' }}
+              }
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="pager">
+  <span>{{ totalCount() }} {{ totalCount() === 1 ? 'contrato' : 'contratos' }} · página {{ page() }} de {{ totalPages }}</span>
+  <span class="pager-buttons">
+    <button type="button" class="btn-sm" (click)="goToPage(page() - 1)" [disabled]="page() <= 1 || loading()">Anterior</button>
+    <button type="button" class="btn-sm" (click)="goToPage(page() + 1)" [disabled]="page() >= totalPages || loading()">Seguinte</button>
+  </span>
+</div>
+
+<p class="privacy-note">O painel mostra o estado dos contratos. Os PDFs e as cláusulas só estão disponíveis para a família e a secretária do lar envolvidas.</p>

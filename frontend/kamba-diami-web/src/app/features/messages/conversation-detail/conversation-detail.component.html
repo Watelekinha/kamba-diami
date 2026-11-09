@@ -1,0 +1,85 @@
+<section class="chat-page">
+  <div class="container chat-inner">
+    <a class="back-link" routerLink="/messages">&larr; Voltar às mensagens</a>
+
+    @if (conversation(); as c) {
+      <div class="chat-card">
+        <div class="chat-head">
+          <div class="chat-head-info">
+            <div class="conv-avatar" [class.conv-avatar--seek]="c.counterpart.role === 'Secretaria'">{{ initials(c.counterpart.name) }}</div>
+            <div class="chat-head-text">
+              <span class="chat-name">
+                <strong>{{ c.counterpart.name }}</strong>
+                <span class="role-chip" [class.role-chip--seek]="c.counterpart.role === 'Secretaria'">{{ roleLabel(c.counterpart.role) }}</span>
+              </span>
+              <span class="chat-job">
+                {{ context(c) }} ·
+                <a [routerLink]="['/job-postings', c.jobPostingId]">{{ c.jobPostingSummary }}</a>
+              </span>
+            </div>
+          </div>
+          <span class="conv-status" [attr.data-status]="c.matchStatus">{{ statusLabels[c.matchStatus] }}</span>
+        </div>
+
+        @if (c.matchStatus === 'Pendente' && !c.isInitiatedByMe) {
+          <div class="respond-bar">
+            <span>{{ c.counterpart.name }} está à espera da tua resposta a este interesse.</span>
+            <div class="respond-actions">
+              <button type="button" class="mini-btn mini-btn-accept" [disabled]="responding()" (click)="respond(true)">
+                Aceitar
+              </button>
+              <button type="button" class="mini-btn mini-btn-reject" [disabled]="responding()" (click)="respond(false)">
+                Recusar
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (c.matchStatus === 'Aceite') {
+          <div class="contract-bar">
+            @if (authService.currentUser()?.role === 'Familia') {
+              <span>O interesse foi aceite. Prepara as cláusulas, gera o PDF, assina-o e carrega-o. Depois {{ c.counterpart.name.split(' ')[0] }} assina o mesmo documento.</span>
+              <a class="mini-btn mini-btn-contract" [routerLink]="['/contracts/match', c.matchId]">Gerar contrato</a>
+            } @else {
+              <span>O interesse foi aceite. {{ c.counterpart.name.split(' ')[0] }} prepara e assina o contrato; depois tu descarregas, assinas e carregas o mesmo documento.</span>
+              <a class="mini-btn mini-btn-contract" [routerLink]="['/contracts/match', c.matchId]">Ver contrato</a>
+            }
+          </div>
+        }
+
+        <div class="chat-messages">
+          @if (loading()) {
+            <p class="muted">A carregar mensagens...</p>
+          } @else if (chatService.messages().length === 0) {
+            <p class="muted">Ainda não há mensagens. Diz olá!</p>
+          } @else {
+            @for (m of chatService.messages(); track m.id) {
+              <div class="msg-row" [class.mine]="isMine(m.senderUserId)">
+                <div class="msg-bubble">
+                  <p>{{ m.content }}</p>
+                  <span class="msg-time">{{ m.sentAt | date: 'HH:mm' }}</span>
+                </div>
+              </div>
+            }
+          }
+          <div #scrollAnchor></div>
+        </div>
+
+        <form class="chat-input" (ngSubmit)="send()">
+          <input
+            type="text"
+            name="draft"
+            [(ngModel)]="draft"
+            placeholder="Escreve uma mensagem..."
+            autocomplete="off"
+          />
+          <button type="submit" class="pill-btn pill-btn-primary" [disabled]="sending() || !draft.trim()">Enviar</button>
+        </form>
+      </div>
+    } @else if (notFound()) {
+      <p class="muted">Conversa não encontrada.</p>
+    } @else {
+      <p class="muted">A carregar...</p>
+    }
+  </div>
+</section>

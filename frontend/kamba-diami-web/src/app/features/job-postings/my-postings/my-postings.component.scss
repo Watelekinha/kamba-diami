@@ -1,0 +1,21 @@
+.my-postings-page {
+  padding: 2.5rem 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.muted {
+  color: var(--kd-text-muted);
+}
+
+.postings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-width: 720px;
+}

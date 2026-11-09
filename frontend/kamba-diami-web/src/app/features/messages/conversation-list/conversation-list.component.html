@@ -1,0 +1,62 @@
+<section class="msgs-page">
+  <div class="container msgs-inner">
+    <div class="msgs-header">
+      <span class="msgs-kicker">Mensagens</span>
+      <h1>As tuas conversas</h1>
+    </div>
+
+    @if (loading()) {
+      <div class="state-block">A carregar...</div>
+    } @else if (conversations().length === 0) {
+      <div class="state-block state-empty">
+        <svg viewBox="0 0 24 24" class="state-icon"><path d="M4 5.5h16v10H9l-4 3.5v-3.5H4v-10Z" /></svg>
+        Ainda não tens conversas. Manifesta interesse numa publicação do feed para começares.
+      </div>
+    } @else {
+      <div class="conv-list">
+        @for (c of conversations(); track c.id) {
+          <a class="conv-card" [routerLink]="['/messages', c.id]" [class.unread]="c.unreadCount > 0">
+            <div class="conv-avatar" [class.conv-avatar--seek]="c.counterpart.role === 'Secretaria'">{{ initials(c.counterpart.name) }}</div>
+            <div class="conv-body">
+              <div class="conv-top">
+                <strong>{{ c.counterpart.name }} <span class="conv-role">· {{ roleLabel(c.counterpart.role) }}</span></strong>
+                <span class="conv-status" [attr.data-status]="c.matchStatus">{{ statusLabels[c.matchStatus] }}</span>
+              </div>
+              <p class="conv-job">{{ contextShort(c) }} · {{ c.jobPostingSummary }}</p>
+              @if (c.lastMessage) {
+                <p class="conv-preview">{{ c.lastMessage }}</p>
+              } @else {
+                <p class="conv-preview muted">Ainda sem mensagens.</p>
+              }
+            </div>
+            <div class="conv-meta">
+              @if (c.unreadCount > 0) {
+                <span class="conv-badge">{{ c.unreadCount }}</span>
+              }
+              @if (c.matchStatus === 'Pendente' && !c.isInitiatedByMe) {
+                <div class="conv-actions">
+                  <button
+                    type="button"
+                    class="mini-btn mini-btn-accept"
+                    [disabled]="respondingId() === c.matchId"
+                    (click)="respond(c.matchId, true, $event)"
+                  >
+                    Aceitar
+                  </button>
+                  <button
+                    type="button"
+                    class="mini-btn mini-btn-reject"
+                    [disabled]="respondingId() === c.matchId"
+                    (click)="respond(c.matchId, false, $event)"
+                  >
+                    Recusar
+                  </button>
+                </div>
+              }
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</section>

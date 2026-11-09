@@ -1,0 +1,364 @@
+<section class="contract-page">
+  <div class="container contract-inner">
+    @if (contract(); as c) {
+      <div class="back-row">
+        <a class="back-link" routerLink="/contracts">&larr; Os meus contratos</a>
+        @if (c.conversationId) {
+          <a class="back-link" [routerLink]="['/messages', c.conversationId]">Conversa</a>
+        }
+      </div>
+    } @else {
+      <a class="back-link" routerLink="/contracts">&larr; Os meus contratos</a>
+    }
+
+    @if (loading()) {
+      <p class="muted">A preparar o contrato...</p>
+    } @else {
+      @if (contract(); as c) {
+      <header class="brand-banner">
+        <div class="brand-mark">KD</div>
+        <div class="brand-copy">
+          <p class="brand-name">Kamba Diami</p>
+          <p class="brand-tag">O seu lar em boas mãos.</p>
+        </div>
+        <div class="brand-meta">
+          <span>Contrato de trabalho doméstico</span>
+          <strong>KD-{{ c.id.toString().padStart(6, '0') }}</strong>
+        </div>
+      </header>
+
+      <div class="card intro-card">
+        <div class="intro-top">
+          <div>
+            <h1>Contrato</h1>
+            <p class="muted">{{ c.jobPostingSummary }} · {{ paymentLabel(c) }}</p>
+          </div>
+          <span class="status-pill" [attr.data-status]="c.status">{{ statusLabel(c.status) }}</span>
+        </div>
+        <ol class="flow-steps">
+          <li [class.done]="c.hasGeneratedPdf">A família prepara as cláusulas e gera o PDF</li>
+          <li [class.done]="c.familiaSigned">A família assina e carrega o contrato</li>
+          <li [class.done]="c.secretariaSigned">A secretária do lar assina esse mesmo documento e carrega-o</li>
+        </ol>
+      </div>
+
+      @if (c.status === 'Cancelado') {
+        <div class="cancelled-banner" role="status">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" /></svg>
+          <div>
+            <strong>
+              Contrato cancelado {{ c.cancelledByMe ? 'por ti' : 'por ' + c.cancelledByName }}
+              @if (c.cancelledAt) {
+                em {{ c.cancelledAt | date: 'd/MM/y' }}
+              }
+            </strong>
+            @if (c.cancellationReason) {
+              <p>Motivo: {{ c.cancellationReason }}</p>
+            }
+          </div>
+        </div>
+      }
+
+      @if (error()) {
+        <p class="error-text">{{ error() }}</p>
+      }
+      @if (success()) {
+        <p class="ok-text">{{ success() }}</p>
+      }
+
+      <div class="parties">
+        <article class="card party-card">
+          <span class="party-label">Família</span>
+          <strong><a [routerLink]="['/users', c.familia.userId]">{{ c.familia.name }}</a></strong>
+          <p>{{ c.familia.email }}</p>
+          <p>{{ c.familia.phoneNumber }}</p>
+          <p class="muted">{{ c.familia.address }}</p>
+        </article>
+        <article class="card party-card">
+          <span class="party-label">Secretária do lar</span>
+          <strong><a [routerLink]="['/users', c.secretaria.userId]">{{ c.secretaria.name }}</a></strong>
+          <p>{{ c.secretaria.email }}</p>
+          <p>{{ c.secretaria.phoneNumber }}</p>
+          <p class="muted">{{ c.secretaria.address }}</p>
+        </article>
+      </div>
+
+      <div class="card">
+        <div class="section-head">
+          <h2>Cláusulas</h2>
+          @if (c.canEdit) {
+            <button type="button" class="btn btn-outline" (click)="addClause()">Adicionar cláusula</button>
+          }
+        </div>
+
+        @if (!c.currentUserIsFamilia && !c.hasGeneratedPdf && c.status !== 'Cancelado') {
+          <p class="hint">
+            A família está a preparar as cláusulas. Se quiseres mudar alguma coisa, combina na conversa antes de ela gerar o PDF.
+          </p>
+        }
+
+        @if (clauses.length === 0) {
+          <p class="muted">Ainda não há cláusulas. Adiciona pelo menos uma antes de gerar o PDF.</p>
+        }
+
+        @for (clause of clauses; track clause.key; let i = $index) {
+          <article class="clause">
+            <div class="clause-head">
+              <span class="clause-num">Cláusula {{ i + 1 }}.ª</span>
+              @if (c.canEdit) {
+                <button type="button" class="link-btn" (click)="removeClause(i)">Remover</button>
+              }
+            </div>
+            @if (c.canEdit) {
+              <div class="form-field">
+                <label [attr.for]="'title-' + i">Título</label>
+                <input [id]="'title-' + i" name="title-{{ i }}" [(ngModel)]="clause.title" />
+              </div>
+              <div class="form-field">
+                <label [attr.for]="'body-' + i">Texto</label>
+                <textarea [id]="'body-' + i" name="body-{{ i }}" rows="4" [(ngModel)]="clause.body"></textarea>
+              </div>
+            } @else {
+              <h3>{{ clause.title }}</h3>
+              <p class="clause-body">{{ clause.body }}</p>
+            }
+          </article>
+        }
+
+        @if (c.canEdit) {
+          <div class="actions">
+            <button type="button" class="btn btn-outline" [disabled]="saving()" (click)="saveClauses()">
+              {{ saving() ? 'A guardar...' : 'Guardar cláusulas' }}
+            </button>
+            <button type="button" class="btn btn-primary" [disabled]="generating()" (click)="generateAndDownload()">
+              {{ generating() ? 'A gerar...' : 'Gerar e descarregar PDF' }}
+            </button>
+          </div>
+        } @else if (c.hasGeneratedPdf) {
+          <div class="actions">
+            <button type="button" class="btn btn-outline" (click)="downloadExisting()">Descarregar PDF</button>
+          </div>
+        }
+      </div>
+
+      <div class="card">
+        <h2>Assinaturas</h2>
+        <p class="hint">
+          Primeiro assina a família. Depois a secretária do lar descarrega o documento já assinado pela família, assina-o e
+          carrega-o. Assim fica um só contrato com as duas assinaturas.
+        </p>
+        <div class="sign-grid">
+          <div class="sign-item" [class.done]="c.familiaSigned">
+            <span>1.º Família</span>
+            <strong>{{ c.familiaSigned ? 'Assinou e carregou o contrato' : 'Ainda não assinou' }}</strong>
+            @if (c.familiaSigned) {
+              <div class="doc-actions">
+                <button type="button" class="doc-link" [disabled]="openingSigned() === 'familia'" (click)="viewSigned('familia')">
+                  {{ openingSigned() === 'familia' ? 'A abrir...' : 'Ver documento' }}
+                </button>
+                <button type="button" class="doc-link" (click)="downloadSigned('familia')">Descarregar</button>
+              </div>
+            }
+          </div>
+          <div class="sign-item" [class.done]="c.secretariaSigned">
+            <span>2.º Secretária do lar</span>
+            <strong>
+              {{ c.secretariaSigned ? 'Assinou o contrato da família' : c.familiaSigned ? 'Falta assinar' : 'À espera da assinatura da família' }}
+            </strong>
+            @if (c.secretariaSigned) {
+              <div class="doc-actions">
+                <button type="button" class="doc-link" [disabled]="openingSigned() === 'secretaria'" (click)="viewSigned('secretaria')">
+                  {{ openingSigned() === 'secretaria' ? 'A abrir...' : 'Ver documento' }}
+                </button>
+                <button type="button" class="doc-link" (click)="downloadSigned('secretaria')">Descarregar</button>
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (c.status !== 'Ativo' && c.status !== 'Cancelado' && c.status !== 'Concluido') {
+          @if (c.currentUserIsFamilia) {
+            @if (!c.hasGeneratedPdf) {
+              <p class="hint">Gera o PDF primeiro para o poderes assinar.</p>
+            } @else {
+              <label class="upload-btn" [class.disabled]="uploading() || !c.canUploadSigned">
+                {{ uploading() ? 'A carregar...' : c.currentUserSigned ? 'Substituir o contrato que assinei' : 'Carregar o contrato assinado por mim' }}
+                <input type="file" accept="application/pdf,.pdf" (change)="onSignedSelected($event)" [disabled]="uploading() || !c.canUploadSigned" hidden />
+              </label>
+              @if (c.familiaSigned) {
+                <p class="hint">Agora {{ c.secretaria.name }} descarrega o teu documento assinado, assina-o e carrega-o.</p>
+              }
+            }
+          } @else {
+            @if (!c.familiaSigned) {
+              <p class="hint">
+                Espera que a família assine. Quando ela carregar o contrato assinado, aparece aqui para o descarregares e assinares.
+              </p>
+            } @else {
+              <div class="actions">
+                <button type="button" class="btn btn-outline" (click)="downloadSigned('familia')">
+                  Descarregar o contrato assinado pela família
+                </button>
+                <label class="upload-btn" [class.disabled]="uploading() || !c.canUploadSigned">
+                  {{ uploading() ? 'A carregar...' : 'Carregar o contrato com as duas assinaturas' }}
+                  <input type="file" accept="application/pdf,.pdf" (change)="onSignedSelected($event)" [disabled]="uploading() || !c.canUploadSigned" hidden />
+                </label>
+              </div>
+              <p class="hint">Assina o documento que a família já assinou, e não o PDF original, para o contrato ficar com as duas assinaturas.</p>
+            }
+          }
+        } @else if (c.status === 'Ativo') {
+          <p class="ok-text">O contrato está activo. As duas partes já carregaram o documento assinado.</p>
+          <div class="actions">
+            <button type="button" class="btn btn-primary" (click)="downloadSignedByBoth()">
+              Descarregar o contrato assinado pelas duas partes
+            </button>
+          </div>
+        } @else if (c.status === 'Concluido') {
+          <p class="ok-text">Este contrato está concluído.</p>
+          <div class="actions">
+            <button type="button" class="btn btn-outline" (click)="downloadSignedByBoth()">
+              Descarregar o contrato assinado pelas duas partes
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (c.status === 'Ativo' || c.status === 'Concluido') {
+        <div class="card">
+          <h2>Fim do trabalho e avaliação</h2>
+          <p class="hint">
+            Quando o trabalho terminar, ambas as partes confirmam. Podes avaliar {{ c.counterpartName }} com 1 a 5 estrelas;
+            a média fica visível no perfil.
+          </p>
+
+          <div class="sign-grid">
+            <div class="sign-item" [class.done]="c.endConfirmedByFamilia">
+              <span>Família</span>
+              <strong>{{ c.endConfirmedByFamilia ? 'Confirmou o fim do trabalho' : 'Ainda não confirmou o fim' }}</strong>
+            </div>
+            <div class="sign-item" [class.done]="c.endConfirmedBySecretaria">
+              <span>Secretária do lar</span>
+              <strong>{{ c.endConfirmedBySecretaria ? 'Confirmou o fim do trabalho' : 'Ainda não confirmou o fim' }}</strong>
+            </div>
+          </div>
+
+          @if (c.canConfirmEnd) {
+            <button type="button" class="btn btn-outline" [disabled]="confirmingEnd()" (click)="confirmEnd()">
+              {{ confirmingEnd() ? 'A confirmar...' : 'Confirmar o fim do trabalho' }}
+            </button>
+          }
+
+          @if (c.myRating; as mine) {
+            <div class="my-rating">
+              <p class="ok-text">Já avaliaste {{ c.counterpartName }}.</p>
+              <p class="stars-read">{{ starLabel(mine.score) }} ({{ mine.score }}/5)</p>
+              @if (mine.comment) {
+                <p class="clause-body">{{ mine.comment }}</p>
+              }
+            </div>
+          } @else if (c.canRate) {
+            <form class="rate-form" (ngSubmit)="submitRating()">
+              <p class="rate-label">Como correu o trabalho com {{ c.counterpartName }}?</p>
+              <div class="star-picker" role="group" aria-label="Classificação">
+                @for (n of [1, 2, 3, 4, 5]; track n) {
+                  <button
+                    type="button"
+                    class="star-btn"
+                    [class.on]="n <= ratingScore"
+                    (click)="ratingScore = n"
+                    [attr.aria-label]="n + ' estrelas'"
+                  >
+                    ★
+                  </button>
+                }
+              </div>
+              <div class="form-field">
+                <label for="ratingComment">Comentário (opcional)</label>
+                <textarea
+                  id="ratingComment"
+                  name="ratingComment"
+                  rows="3"
+                  maxlength="500"
+                  [(ngModel)]="ratingComment"
+                  placeholder="O que gostarias de dizer sobre esta experiência?"
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary" [disabled]="submittingRating() || ratingScore < 1">
+                {{ submittingRating() ? 'A enviar...' : 'Enviar avaliação' }}
+              </button>
+            </form>
+          }
+        </div>
+      }
+
+      @if (c.status !== 'Cancelado') {
+        <div class="card payments-card">
+          <div class="section-head">
+            <h2>Pagamentos</h2>
+            <span class="soon-badge">Em breve</span>
+          </div>
+          <p class="hint">
+            Aqui vão ficar registados os pagamentos de {{ paymentLabel(c) }}. A família marca cada pagamento, a secretária do lar
+            confirma que o recebeu e fica um recibo em PDF, como pede o artigo 14.º do Decreto Presidencial n.º 155/16.
+          </p>
+          <ul class="payment-preview" aria-label="Pré-visualização dos períodos de pagamento">
+            @for (period of paymentPreview(c); track period) {
+              <li>
+                <span class="payment-period">{{ period }}</span>
+                <span class="payment-amount">{{ c.paymentValue | kwanza }}</span>
+                <span class="payment-state">A implementar</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      @if (c.canCancel) {
+        <div class="card cancel-card">
+          <h2>Cancelar contrato</h2>
+          <p class="hint">
+            Enquanto o contrato não estiver activo, qualquer das partes pode cancelá-lo. A outra parte é avisada na
+            conversa e o anúncio volta a ficar visível no mural. Depois de as duas partes assinarem, o contrato só termina com a
+            confirmação de ambas.
+          </p>
+          @if (!cancelOpen()) {
+            <button type="button" class="btn btn-danger-outline" (click)="cancelOpen.set(true)">Cancelar este contrato</button>
+          } @else {
+            <div class="form-field">
+              <label for="cancelReason">Motivo do cancelamento</label>
+              <textarea
+                id="cancelReason"
+                name="cancelReason"
+                rows="3"
+                maxlength="500"
+                [(ngModel)]="cancelReason"
+                placeholder="Ex.: não chegámos a acordo sobre o horário"
+              ></textarea>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn btn-danger" [disabled]="cancelling()" (click)="cancelContract()">
+                {{ cancelling() ? 'A cancelar...' : 'Confirmar cancelamento' }}
+              </button>
+              <button type="button" class="btn btn-outline" [disabled]="cancelling()" (click)="cancelOpen.set(false)">Voltar</button>
+            </div>
+          }
+        </div>
+      }
+      } @else if (waitingForFamilia()) {
+        <div class="card waiting-card">
+          <h1>O contrato ainda não foi preparado</h1>
+          <p class="hint">
+            A família prepara as cláusulas e gera o contrato. Quando estiver pronto aparece no separador Contratos, e tu
+            assinas depois de a família assinar.
+          </p>
+          <div class="actions">
+            <a class="btn btn-primary" routerLink="/contracts">Ver os meus contratos</a>
+          </div>
+        </div>
+      } @else {
+        <p class="error-text">{{ error() || 'Não foi possível abrir o contrato.' }}</p>
+      }
+    }
+  </div>
+</section>

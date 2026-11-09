@@ -1,0 +1,78 @@
+<div class="chart-frame" #frame>
+  <svg
+    class="chart"
+    [attr.width]="width()"
+    [attr.height]="height"
+    [attr.viewBox]="'0 0 ' + width() + ' ' + height"
+    role="img"
+    tabindex="0"
+    [attr.aria-label]="seriesLabel + ': ' + total() + ' no período. Usa as setas para percorrer os dias.'"
+    (pointermove)="onPointerMove($event)"
+    (pointerleave)="hoverIndex.set(null)"
+    (keydown)="onKeydown($event)"
+    (blur)="hoverIndex.set(null)"
+  >
+    @for (tick of yTicks(); track tick; let first = $first) {
+      <line
+        class="grid"
+        [class.baseline]="first"
+        [attr.x1]="margin.left"
+        [attr.x2]="width() - margin.right"
+        [attr.y1]="margin.top + plotHeight - (tick / yMax()) * plotHeight"
+        [attr.y2]="margin.top + plotHeight - (tick / yMax()) * plotHeight"
+      />
+      <text class="tick" [attr.x]="margin.left - 8" [attr.y]="margin.top + plotHeight - (tick / yMax()) * plotHeight + 4" text-anchor="end">
+        {{ formatTick(tick) }}
+      </text>
+    }
+
+    @for (label of xLabels(); track label.x) {
+      <text class="tick" [attr.x]="label.x" [attr.y]="height - 8" [attr.text-anchor]="label.anchor">{{ label.text }}</text>
+    }
+
+    <path class="area" [attr.d]="areaPath()" />
+    <path class="line" [attr.d]="linePath()" />
+
+    @if (peak(); as p) {
+      <circle class="dot" [attr.cx]="p.x" [attr.cy]="p.y" r="4" />
+      <text class="value-label" [attr.x]="p.x" [attr.y]="p.y - 10" text-anchor="middle">{{ p.value }}</text>
+    }
+
+    @if (last(); as l) {
+      <circle class="dot" [attr.cx]="l.x" [attr.cy]="l.y" r="4.5" />
+      <text class="value-label" [attr.x]="l.x + 9" [attr.y]="l.y + 4" text-anchor="start">{{ l.value }}</text>
+    }
+
+    @if (hover(); as h) {
+      <line class="crosshair" [attr.x1]="h.x" [attr.x2]="h.x" [attr.y1]="margin.top" [attr.y2]="margin.top + plotHeight" />
+      <circle class="dot dot--hover" [attr.cx]="h.x" [attr.cy]="h.y" r="5" />
+    }
+  </svg>
+
+  @if (hover(); as h) {
+    <div class="tooltip" [style.left.px]="h.left" aria-live="polite">
+      <strong>{{ h.point.value }}</strong>
+      <span class="tooltip-series"><i aria-hidden="true"></i>{{ seriesLabel }}</span>
+      <span class="tooltip-date">{{ h.label }}</span>
+    </div>
+  }
+</div>
+
+<button type="button" class="table-toggle" (click)="showTable.set(!showTable())" [attr.aria-expanded]="showTable()">
+  {{ showTable() ? 'Esconder tabela' : 'Ver dados em tabela' }}
+</button>
+
+@if (showTable()) {
+  <div class="chart-table">
+    <table>
+      <thead>
+        <tr><th>Dia</th><th class="num">{{ seriesLabel }}</th></tr>
+      </thead>
+      <tbody>
+        @for (p of data(); track p.date) {
+          <tr><td>{{ longDate(p.date) }}</td><td class="num">{{ p.value }}</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

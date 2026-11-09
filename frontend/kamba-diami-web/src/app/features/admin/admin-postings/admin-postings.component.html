@@ -1,0 +1,107 @@
+<div class="toolbar">
+  <label class="visually-hidden" for="posting-search">Pesquisar anúncios</label>
+  <input
+    id="posting-search"
+    type="search"
+    placeholder="Pesquisar por autor, serviço ou texto"
+    [(ngModel)]="filter.search"
+    (ngModelChange)="onSearchInput()"
+  />
+  <label class="visually-hidden" for="posting-type">Tipo</label>
+  <select id="posting-type" [(ngModel)]="filter.type" (ngModelChange)="onFilterChange()">
+    <option value="">Vagas e disponibilidades</option>
+    <option value="OfertaEmprego">Só vagas</option>
+    <option value="ProcuraEmprego">Só disponibilidades</option>
+  </select>
+  <label class="visually-hidden" for="posting-status">Estado</label>
+  <select id="posting-status" [(ngModel)]="filter.status" (ngModelChange)="onFilterChange()">
+    <option value="">Todos os estados</option>
+    <option value="Ativo">Activos</option>
+    <option value="Pausado">Pausados</option>
+    <option value="Preenchido">Preenchidos</option>
+    <option value="Removido">Removidos</option>
+  </select>
+</div>
+
+@if (message()) {
+  <div class="ok-box" role="status">{{ message() }}</div>
+}
+@if (error()) {
+  <div class="error-box" role="alert">{{ error() }}</div>
+}
+
+<div class="table-wrap" [class.reloading]="loading()">
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Anúncio</th>
+        <th>Autor</th>
+        <th>Valor</th>
+        <th class="num">Matches</th>
+        <th>Estado</th>
+        <th>Publicado</th>
+        <th><span class="visually-hidden">Acções</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (p of items(); track p.id) {
+        <tr>
+          <td class="posting-cell">
+            <span class="badge plain">{{ label(typeLabels, p.type) }}</span>
+            <span class="strong">{{ p.categories.join(', ') }}</span>
+            <span class="sub">{{ p.locations.join(' · ') }}</span>
+            @if (p.comments) {
+              <span class="sub comment">{{ p.comments }}</span>
+            }
+          </td>
+          <td><button type="button" class="link" (click)="openUser.emit(p.authorId)">{{ p.authorName }}</button></td>
+          <td class="nowrap">{{ p.paymentValue | kwanza }}<span class="sub">{{ p.paymentType === 'Mensal' ? 'por mês' : 'por dia' }}</span></td>
+          <td class="num">{{ p.matchesCount }}</td>
+          <td><span class="badge" [ngClass]="statusTone(p.status)">{{ label(statusLabels, p.status) }}</span></td>
+          <td class="nowrap muted">{{ p.createdAt | date: 'd MMM y' }}</td>
+          <td class="row-actions">
+            <a class="btn-sm" [routerLink]="['/job-postings', p.id]">Ver</a>
+            @if (p.status === 'Removido') {
+              <button type="button" class="btn-sm" (click)="restore(p)" [disabled]="busyId() === p.id">Repor</button>
+            } @else {
+              <button type="button" class="btn-sm danger" (click)="startRemove(p.id)" [attr.aria-expanded]="removingId() === p.id">Remover</button>
+            }
+          </td>
+        </tr>
+        @if (removingId() === p.id) {
+          <tr class="remove-row">
+            <td colspan="7">
+              <label [for]="'remove-reason-' + p.id">Motivo da remoção (fica no registo de auditoria)</label>
+              <div class="remove-form">
+                <input [id]="'remove-reason-' + p.id" [(ngModel)]="removeReason" maxlength="500" placeholder="Ex.: anúncio duplicado ou com contactos externos" />
+                <button type="button" class="btn-sm danger solid" (click)="confirmRemove(p)" [disabled]="busyId() === p.id">Confirmar</button>
+                <button type="button" class="btn-sm" (click)="removingId.set(null)">Cancelar</button>
+              </div>
+            </td>
+          </tr>
+        }
+      } @empty {
+        <tr>
+          <td colspan="7">
+            <div class="empty">
+              @if (loading()) {
+                A carregar...
+              } @else {
+                <strong>Nenhum anúncio encontrado</strong>
+                {{ filter.search || filter.status || filter.type ? 'Experimenta mudar os filtros.' : 'Ainda não foram publicados anúncios.' }}
+              }
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="pager">
+  <span>{{ totalCount() }} {{ totalCount() === 1 ? 'anúncio' : 'anúncios' }} · página {{ page() }} de {{ totalPages }}</span>
+  <span class="pager-buttons">
+    <button type="button" class="btn-sm" (click)="goToPage(page() - 1)" [disabled]="page() <= 1 || loading()">Anterior</button>
+    <button type="button" class="btn-sm" (click)="goToPage(page() + 1)" [disabled]="page() >= totalPages || loading()">Seguinte</button>
+  </span>
+</div>

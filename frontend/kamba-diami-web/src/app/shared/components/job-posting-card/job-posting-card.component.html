@@ -1,0 +1,90 @@
+<article class="posting-card">
+  <div class="card-top-row">
+    <div class="top-badges">
+      <span class="type-badge" [class.oferta]="posting.type === 'OfertaEmprego'">
+        {{ posting.type === 'OfertaEmprego' ? 'Oferta' : 'Procura' }}
+      </span>
+      @if (posting.status !== 'Ativo') {
+        <span class="status-badge" [attr.data-status]="posting.status">{{ statusLabel }}</span>
+      }
+    </div>
+    <time class="posted-at">{{ postedAgo }}</time>
+  </div>
+
+  <div class="card-main">
+    <span class="author-avatar">
+      @if (posting.authorPhotoPath) {
+        <img [src]="posting.authorPhotoPath" [alt]="posting.authorName" />
+      } @else {
+        {{ posting.authorName.charAt(0) }}
+      }
+    </span>
+
+    <div class="title-block">
+      <h3>
+        <a [routerLink]="['/job-postings', posting.id]">{{ title }}</a>
+      </h3>
+      <p class="subtitle">
+        <a class="author-name" [routerLink]="['/users', posting.authorUserId]">{{ posting.authorName }}</a>
+        <span class="meta-dot" aria-hidden="true">·</span>
+        {{ locationsSummary }}
+        @if (posting.authorRatingsCount > 0) {
+          <span class="meta-dot" aria-hidden="true">·</span>
+          <span class="rating">
+            <svg viewBox="0 0 24 24" class="icon-star"><path d="M12 3.5l2.6 5.5 6 .7-4.4 4.1 1.2 6-5.4-3-5.4 3 1.2-6-4.4-4.1 6-.7Z" /></svg>
+            {{ posting.authorAverageRating?.toFixed(1) }}
+          </span>
+        }
+      </p>
+    </div>
+  </div>
+
+  @if (posting.comments) {
+    <p class="comments">{{ posting.comments }}</p>
+  }
+
+  <div class="tags-row">
+    <span class="tag-chip">{{ posting.paymentType === 'Mensal' ? 'Contrato mensal' : 'Diária' }}</span>
+    @if (posting.hoursPerDay) {
+      <span class="tag-chip">{{ posting.hoursPerDay }}h/dia</span>
+    }
+    @for (category of extraCategories; track category.id) {
+      <span class="tag-chip">{{ category.name }}</span>
+    }
+  </div>
+
+  <div class="price-row">
+    <span class="payment">
+      {{ posting.paymentValue | kwanza }}<small>/ {{ posting.paymentType === 'Mensal' ? 'mês' : 'dia' }}</small>
+    </span>
+  </div>
+
+  <footer class="post-foot">
+    @if (canSave) {
+      <button
+        type="button"
+        class="card-btn card-btn-save"
+        [class.saved]="savedPostings.isSaved(posting.id)"
+        (click)="toggleSave($event)"
+      >
+        <svg viewBox="0 0 24 24" class="icon-save" aria-hidden="true">
+          <path d="M7 4.5h10a1 1 0 0 1 1 1V20l-6-3.4L6 20V5.5a1 1 0 0 1 1-1Z" />
+        </svg>
+        {{ savedPostings.isSaved(posting.id) ? 'Guardado' : 'Guardar' }}
+      </button>
+    }
+
+    <div class="post-foot-spacer"></div>
+
+    @if (useModalOutput) {
+      <button type="button" class="card-btn card-btn-primary" (click)="viewDetails.emit()">Ver detalhes</button>
+    } @else {
+      <a class="card-btn card-btn-primary" [routerLink]="['/job-postings', posting.id]">Ver detalhes</a>
+    }
+    @if (showDeleteButton) {
+      <button class="card-btn card-btn-danger" type="button" (click)="deleteRequested.emit(posting.id)">
+        Remover
+      </button>
+    }
+  </footer>
+</article>

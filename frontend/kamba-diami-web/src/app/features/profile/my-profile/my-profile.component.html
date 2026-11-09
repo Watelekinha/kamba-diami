@@ -1,0 +1,177 @@
+@if (user) {
+  <section class="profile-page container">
+    <div class="card profile-header">
+      <div class="photo-block">
+        <img
+          [src]="user.photoPath ? user.photoPath : '/assets/avatar-placeholder.svg'"
+          alt="Foto de perfil"
+          class="avatar"
+        />
+        <label class="photo-upload-btn">
+          {{ uploadingPhoto() ? 'A enviar...' : 'Alterar foto' }}
+          <input type="file" accept="image/jpeg,image/png" (change)="onPhotoSelected($event)" hidden />
+        </label>
+      </div>
+      <div class="header-info">
+        <h1>{{ user.firstName }} {{ user.lastName }}</h1>
+        <span class="role-badge">{{ roleLabel(user.role) }}</span>
+        <p class="muted">{{ user.address.neighborhoodName }}, {{ user.address.municipalityName }}, {{ user.address.provinceName }}</p>
+        @if (user.role !== 'Admin') {
+          @if (user.ratingsCount > 0) {
+            <p class="rating">⭐ {{ user.averageRating?.toFixed(1) }} ({{ user.ratingsCount }} avaliações)</p>
+          } @else {
+            <p class="muted">Ainda sem avaliações</p>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-header">
+        <h2>Dados pessoais</h2>
+        @if (!editMode()) {
+          <button class="btn btn-outline" (click)="enterEditMode()">Editar</button>
+        }
+      </div>
+
+      @if (profileMessage()) {
+        <p class="success-text">{{ profileMessage() }}</p>
+      }
+      @if (profileError()) {
+        <p class="error-text">{{ profileError() }}</p>
+      }
+
+      @if (!editMode()) {
+        <dl class="info-grid">
+          <dt>Nome</dt>
+          <dd>{{ user.firstName }} {{ user.lastName }}</dd>
+          <dt>Email</dt>
+          <dd>{{ user.email }}</dd>
+          <dt>Telefone</dt>
+          <dd>{{ user.phoneNumber }}</dd>
+          <dt>Morada</dt>
+          <dd>{{ user.address.neighborhoodName }}, {{ user.address.municipalityName }}</dd>
+        </dl>
+      } @else {
+        <form (ngSubmit)="saveProfile()" #profileForm="ngForm">
+          <div class="grid-2">
+            <div class="form-field">
+              <label for="firstName">Nome próprio</label>
+              <input id="firstName" name="firstName" [(ngModel)]="firstName" required />
+            </div>
+            <div class="form-field">
+              <label for="lastName">Apelido</label>
+              <input id="lastName" name="lastName" [(ngModel)]="lastName" required />
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" [(ngModel)]="email" required email />
+            </div>
+            <div class="form-field">
+              <label for="phoneNumber">Telefone</label>
+              <input id="phoneNumber" name="phoneNumber" [(ngModel)]="phoneNumber" required />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Morada</label>
+            <app-location-picker
+              [initialProvinceId]="user.address.provinceId"
+              [initialMunicipalityId]="user.address.municipalityId"
+              [initialNeighborhoodId]="user.address.neighborhoodId"
+              (neighborhoodChange)="onNeighborhoodChange($event)"
+            ></app-location-picker>
+          </div>
+
+          <div class="form-field">
+            <label for="streetDetail">Referência da rua</label>
+            <input id="streetDetail" name="streetDetail" [(ngModel)]="streetDetail" />
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" type="submit" [disabled]="profileForm.invalid || savingProfile()">
+              {{ savingProfile() ? 'A guardar...' : 'Guardar' }}
+            </button>
+            <button class="btn btn-outline" type="button" (click)="cancelEdit()">Cancelar</button>
+          </div>
+        </form>
+      }
+    </div>
+
+    <div class="card">
+      <h2>Alterar palavra-passe</h2>
+
+      @if (passwordMessage()) {
+        <p class="success-text">{{ passwordMessage() }}</p>
+      }
+      @if (passwordError()) {
+        <p class="error-text">{{ passwordError() }}</p>
+      }
+
+      <form (ngSubmit)="changePassword()" #passwordForm="ngForm">
+        <div class="form-field">
+          <label for="currentPassword">Palavra-passe actual</label>
+          <input
+            id="currentPassword"
+            name="currentPassword"
+            type="password"
+            [(ngModel)]="currentPassword"
+            required
+          />
+        </div>
+        <div class="grid-2">
+          <div class="form-field">
+            <label for="newPassword">Nova palavra-passe</label>
+            <input
+              id="newPassword"
+              name="newPassword"
+              type="password"
+              [(ngModel)]="newPassword"
+              required
+              minlength="6"
+            />
+          </div>
+          <div class="form-field">
+            <label for="confirmNewPassword">Confirmar nova palavra-passe</label>
+            <input
+              id="confirmNewPassword"
+              name="confirmNewPassword"
+              type="password"
+              [(ngModel)]="confirmNewPassword"
+              required
+            />
+          </div>
+        </div>
+        <button class="btn btn-primary" type="submit" [disabled]="passwordForm.invalid || savingPassword()">
+          {{ savingPassword() ? 'A alterar...' : 'Alterar palavra-passe' }}
+        </button>
+      </form>
+    </div>
+
+    @if (user.role !== 'Admin') {
+      <div class="card">
+        <h2>As minhas avaliações</h2>
+        @if (ratings().length === 0) {
+          <p class="muted">Ainda não recebeste avaliações. Aparecem aqui depois de um contrato activo.</p>
+        } @else {
+          <ul class="rating-list">
+            @for (r of ratings(); track r.id) {
+              <li class="rating-item">
+                <div class="rating-item-head">
+                  <strong>{{ r.raterName }}</strong>
+                  <span class="stars-read">{{ starLabel(r.score) }}</span>
+                </div>
+                @if (r.comment) {
+                  <p>{{ r.comment }}</p>
+                }
+                <time>{{ r.createdAt | date: 'dd/MM/yyyy' }}</time>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </section>
+}

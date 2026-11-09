@@ -1,0 +1,111 @@
+<section class="auth-page">
+  <div class="auth-blob auth-blob--yellow" aria-hidden="true"></div>
+  <div class="auth-blob auth-blob--blue" aria-hidden="true"></div>
+
+  <form class="auth-card auth-fade" (ngSubmit)="submit()" #form="ngForm">
+    <span class="auth-mark">
+      <svg viewBox="0 0 24 24" class="auth-mark-icon"><path d="M4 11 12 4l8 7" /><path d="M6 9.5V20h12V9.5" /><path d="M10 20v-5.5h4V20" /></svg>
+    </span>
+    <h1>Criar conta</h1>
+    <p class="subtitle">Junta-te à Kamba Diami como família ou secretária do lar.</p>
+
+    <div class="role-toggle">
+      <button
+        type="button"
+        class="role-btn"
+        [class.active]="role === 'Familia'"
+        (click)="role = 'Familia'"
+      >
+        Sou Família / Dona de Casa
+      </button>
+      <button
+        type="button"
+        class="role-btn"
+        [class.active]="role === 'Secretaria'"
+        (click)="role = 'Secretaria'"
+      >
+        Sou Secretária do Lar
+      </button>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-field">
+        <label for="firstName">Nome próprio *</label>
+        <input id="firstName" name="firstName" [(ngModel)]="firstName" required maxlength="100" autocomplete="given-name" />
+      </div>
+      <div class="form-field">
+        <label for="lastName">Apelido *</label>
+        <input id="lastName" name="lastName" [(ngModel)]="lastName" required maxlength="100" autocomplete="family-name" />
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-field">
+        <label for="phoneNumber">Número de telefone *</label>
+        <input id="phoneNumber" name="phoneNumber" type="tel" inputmode="tel" [(ngModel)]="phoneNumber" required placeholder="923 456 789" autocomplete="tel-national" />
+        <small class="hint">Número móvel angolano.</small>
+      </div>
+      <div class="form-field">
+        <label for="email">Email *</label>
+        <input id="email" name="email" type="email" [(ngModel)]="email" required email autocomplete="email" inputmode="email" />
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-field">
+        <label for="password">Palavra-passe *</label>
+        <input
+          id="password"
+          name="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          [(ngModel)]="password"
+          required
+          [minlength]="minLength"
+          autocomplete="new-password"
+        />
+        <ul class="rules" aria-label="Requisitos da palavra-passe">
+          @for (rule of passwordRules(); track rule.label) {
+            <li [class.met]="rule.met">{{ rule.label }}</li>
+          }
+        </ul>
+      </div>
+      <div class="form-field">
+        <label for="confirmPassword">Confirmar palavra-passe *</label>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          [type]="showPassword() ? 'text' : 'password'"
+          [(ngModel)]="confirmPassword"
+          required
+          autocomplete="new-password"
+        />
+        <button type="button" class="show-toggle" (click)="showPassword.set(!showPassword())" [attr.aria-pressed]="showPassword()">
+          {{ showPassword() ? 'Esconder palavras-passe' : 'Mostrar palavras-passe' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label>Morada *</label>
+      <app-location-picker (neighborhoodChange)="onNeighborhoodChange($event)"></app-location-picker>
+      <small class="hint">Usamos a tua morada para sugerir vagas/profissionais perto de ti.</small>
+    </div>
+
+    <div class="form-field">
+      <label for="streetDetail">Referência da rua (opcional)</label>
+      <input id="streetDetail" name="streetDetail" [(ngModel)]="streetDetail" maxlength="200" />
+    </div>
+
+    @if (errorMessage()) {
+      <p class="error-text" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <button class="btn-auth-primary" type="submit" [disabled]="form.invalid || loading()">
+      {{ loading() ? 'A criar conta...' : 'Criar conta' }}
+    </button>
+
+    <p class="privacy-note">Ao criar conta aceitas que os teus dados (nome, contacto e morada) sejam usados apenas para pôr famílias e secretárias do lar em contacto, nos termos da Lei n.º 22/11 de Protecção de Dados Pessoais.</p>
+
+    <p class="switch-link">Já tens conta? <a routerLink="/login">Entrar</a></p>
+  </form>
+</section>

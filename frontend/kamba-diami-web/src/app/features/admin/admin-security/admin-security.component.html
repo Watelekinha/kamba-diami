@@ -1,0 +1,108 @@
+<div class="toolbar">
+  <div class="segmented" role="group" aria-label="Registo a mostrar">
+    <button type="button" [class.active]="view() === 'logins'" [attr.aria-pressed]="view() === 'logins'" (click)="setView('logins')">Logins</button>
+    <button type="button" [class.active]="view() === 'audit'" [attr.aria-pressed]="view() === 'audit'" (click)="setView('audit')">Acções dos administradores</button>
+  </div>
+
+  @if (view() === 'logins') {
+    <label class="visually-hidden" for="login-search">Pesquisar por email ou IP</label>
+    <input id="login-search" type="search" placeholder="Pesquisar por email ou IP" [(ngModel)]="search" (ngModelChange)="onSearchInput()" />
+    <label class="visually-hidden" for="login-outcome">Resultado</label>
+    <select id="login-outcome" [(ngModel)]="outcome" (ngModelChange)="onOutcomeChange()">
+      <option value="">Todos</option>
+      <option value="true">Só com sucesso</option>
+      <option value="false">Só falhados</option>
+    </select>
+  }
+</div>
+
+@if (error()) {
+  <div class="error-box" role="alert">{{ error() }}</div>
+}
+
+@if (view() === 'logins') {
+  <div class="table-wrap" [class.reloading]="loading()">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Quando</th>
+          <th>Resultado</th>
+          <th>Conta</th>
+          <th>Dispositivo</th>
+          <th>IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (e of logins(); track e.id) {
+          <tr>
+            <td class="nowrap">{{ e.occurredAt | date: 'd MMM y, HH:mm:ss' }}</td>
+            <td>
+              <span class="badge" [ngClass]="e.succeeded ? 'good' : 'bad'">{{ e.succeeded ? 'Sucesso' : label(failureLabels, e.failureReason) }}</span>
+            </td>
+            <td>
+              @if (e.userId) {
+                <button type="button" class="link" (click)="openUser.emit(e.userId!)">{{ e.userName }}</button>
+              }
+              <span class="sub">{{ e.email }}</span>
+            </td>
+            <td class="muted" [title]="e.userAgent || ''">{{ describeUserAgent(e.userAgent) }}</td>
+            <td class="muted nowrap">{{ e.ipAddress || 'Desconhecido' }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="5"><div class="empty">{{ loading() ? 'A carregar...' : 'Sem tentativas de login registadas.' }}</div></td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pager">
+    <span>{{ loginTotal() }} tentativas · página {{ loginPage() }} de {{ loginPages }}</span>
+    <span class="pager-buttons">
+      <button type="button" class="btn-sm" (click)="goToLoginPage(loginPage() - 1)" [disabled]="loginPage() <= 1 || loading()">Anterior</button>
+      <button type="button" class="btn-sm" (click)="goToLoginPage(loginPage() + 1)" [disabled]="loginPage() >= loginPages || loading()">Seguinte</button>
+    </span>
+  </div>
+
+  <p class="privacy-note">
+    Depois de 5 tentativas falhadas seguidas a conta fica bloqueada 15 minutos. Muitas falhas para emails diferentes a partir do mesmo IP
+    costumam indicar um ataque automático.
+  </p>
+} @else {
+  <div class="table-wrap" [class.reloading]="loading()">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Quando</th>
+          <th>Administrador</th>
+          <th>Acção</th>
+          <th>Detalhes</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of audit(); track a.id) {
+          <tr>
+            <td class="nowrap">{{ a.createdAt | date: 'd MMM y, HH:mm' }}</td>
+            <td class="strong">{{ a.adminName }}</td>
+            <td>{{ label(auditLabels, a.action) }}</td>
+            <td class="muted">
+              {{ a.details }}
+              @if (a.targetType === 'Utilizador' && a.targetId) {
+                <button type="button" class="link small" (click)="openUser.emit(a.targetId!)">Abrir conta</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4"><div class="empty">{{ loading() ? 'A carregar...' : 'Ainda nenhum administrador fez alterações.' }}</div></td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pager">
+    <span>{{ auditTotal() }} acções · página {{ auditPage() }} de {{ auditPages }}</span>
+    <span class="pager-buttons">
+      <button type="button" class="btn-sm" (click)="goToAuditPage(auditPage() - 1)" [disabled]="auditPage() <= 1 || loading()">Anterior</button>
+      <button type="button" class="btn-sm" (click)="goToAuditPage(auditPage() + 1)" [disabled]="auditPage() >= auditPages || loading()">Seguinte</button>
+    </span>
+  </div>
+}

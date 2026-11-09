@@ -1,0 +1,20 @@
+<section class="container saved-page">
+  <div class="page-header">
+    <h1>Publicações guardadas</h1>
+    <a class="btn btn-outline" routerLink="/feed">Voltar ao feed</a>
+  </div>
+
+  @if (loading()) {
+    <p class="muted">A carregar...</p>
+  } @else if (postings.length === 0) {
+    <p class="muted">Ainda não guardaste nenhuma publicação.</p>
+  } @else {
+    <div class="postings-list">
+      @for (posting of postings; track posting.id) {
+        @if (savedPostingsService.isSaved(posting.id)) {
+          <app-job-posting-card [posting]="posting"></app-job-posting-card>
+        }
+      }
+    </div>
+  }
+</section>

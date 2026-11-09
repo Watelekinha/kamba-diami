@@ -1,0 +1,55 @@
+<section class="admin-shell">
+  <div class="admin-container">
+    <header class="admin-header">
+      <span class="admin-blob admin-blob--sun" aria-hidden="true"></span>
+      <span class="admin-blob admin-blob--sage" aria-hidden="true"></span>
+      <span class="admin-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" /></svg>
+      </span>
+      <div class="admin-header-text">
+        <p class="admin-eyebrow">Painel de administração</p>
+        <h1>Olá, {{ adminName() }}</h1>
+        <p class="admin-sub">Acompanha o crescimento da Kamba Diami e gere contas, anúncios e segurança.</p>
+      </div>
+    </header>
+
+    <div class="admin-tabs" role="tablist" aria-label="Secções do painel">
+      @for (tab of tabs; track tab.id; let i = $index) {
+        <button
+          type="button"
+          role="tab"
+          class="admin-tab"
+          [id]="'adm-tab-' + tab.id"
+          [class.active]="activeTab() === tab.id"
+          [attr.aria-selected]="activeTab() === tab.id"
+          [attr.aria-controls]="'adm-panel-' + tab.id"
+          [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
+          (click)="select(tab.id)"
+          (keydown)="onTabKeydown($event, i)"
+        >
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+
+    <div class="admin-panel" role="tabpanel" [id]="'adm-panel-' + activeTab()" [attr.aria-labelledby]="'adm-tab-' + activeTab()">
+      @switch (activeTab()) {
+        @case ('overview') {
+          <app-admin-overview (openUser)="openUser($event)" />
+        }
+        @case ('users') {
+          <app-admin-users [focusUserId]="focusUserId()" />
+        }
+        @case ('postings') {
+          <app-admin-postings (openUser)="openUser($event)" />
+        }
+        @case ('contracts') {
+          <app-admin-contracts (openUser)="openUser($event)" />
+        }
+        @case ('security') {
+          <app-admin-security (openUser)="openUser($event)" />
+        }
+      }
+    </div>
+  </div>
+</section>
