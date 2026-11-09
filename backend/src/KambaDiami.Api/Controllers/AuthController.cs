@@ -50,7 +50,8 @@ public class AuthController : ControllerBase
     [EnableRateLimiting(RateLimitPolicies.Register)]
     public async Task<ActionResult<AuthResponse>> Register(
         RegisterRequest request,
-        [FromServices] IValidator<RegisterRequest> validator)
+        [FromServices] IValidator<RegisterRequest> validator,
+        [FromServices] MunicipalityAreaResolver areas)
     {
         request.Email = NormalizeEmail(request.Email);
         request.FirstName = request.FirstName?.Trim() ?? string.Empty;
@@ -62,23 +63,31 @@ public class AuthController : ControllerBase
             return ValidationProblem(BuildModelState(validation));
         }
 
-        var neighborhoodExists = await _db.Neighborhoods.AnyAsync(n => n.Id == request.NeighborhoodId);
-        if (!neighborhoodExists)
-        {
-            return BadRequest(new { message = "Bairro inválido." });
-        }
-
         var existing = await _userManager.FindByEmailAsync(request.Email);
         if (existing is not null)
         {
             return Conflict(new { message = "Já existe uma conta com este email." });
         }
 
+        Neighborhood? area;
+        try
+        {
+            area = await areas.ResolveAsync(request.MunicipalitySlug, HttpContext.RequestAborted);
+        }
+        catch (AngolaLocationsUnavailableException ex)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = ex.Message });
+        }
+        if (area is null)
+        {
+            return BadRequest(new { message = "Município inválido." });
+        }
+
         await using var transaction = await _db.Database.BeginTransactionAsync();
 
         var address = new Address
         {
-            NeighborhoodId = request.NeighborhoodId,
+            NeighborhoodId = area.Id,
             StreetDetail = string.IsNullOrWhiteSpace(request.StreetDetail) ? null : request.StreetDetail.Trim()
         };
         _db.Addresses.Add(address);

@@ -14,7 +14,7 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
         RuleFor(x => x.Email).NotEmpty().EmailAddress().WithMessage("Indica um email válido.").MaximumLength(256);
         RuleFor(x => x.Password).StrongPassword();
         RuleFor(x => x.ConfirmPassword).Equal(x => x.Password).WithMessage("As palavras-passe não coincidem.");
-        RuleFor(x => x.NeighborhoodId).GreaterThan(0).WithMessage("Morada é obrigatória.");
+        RuleFor(x => x.MunicipalitySlug).NotEmpty().WithMessage("Selecciona a província e o município.");
         RuleFor(x => x.StreetDetail).MaximumLength(200);
         RuleFor(x => x.Role)
             .Must(r => r is UserRole.Familia or UserRole.Secretaria)

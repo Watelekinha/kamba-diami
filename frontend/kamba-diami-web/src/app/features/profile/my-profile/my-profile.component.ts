@@ -24,7 +24,7 @@ export class MyProfileComponent implements OnInit {
   email = '';
   phoneNumber = '';
   streetDetail = '';
-  neighborhoodId: number | null = null;
+  municipalitySlug: string | null = null;
 
   currentPassword = '';
   newPassword = '';
@@ -70,7 +70,7 @@ export class MyProfileComponent implements OnInit {
     this.email = user.email;
     this.phoneNumber = user.phoneNumber;
     this.streetDetail = user.address.streetDetail ?? '';
-    this.neighborhoodId = user.address.neighborhoodId;
+    this.municipalitySlug = user.address.municipalitySlug;
   }
 
   enterEditMode(): void {
@@ -84,16 +84,16 @@ export class MyProfileComponent implements OnInit {
     this.editMode.set(false);
   }
 
-  onNeighborhoodChange(neighborhoodId: number | null): void {
-    this.neighborhoodId = neighborhoodId;
+  onMunicipalityChange(municipalitySlug: string | null): void {
+    this.municipalitySlug = municipalitySlug;
   }
 
   saveProfile(): void {
     this.profileMessage.set(null);
     this.profileError.set(null);
 
-    if (!this.neighborhoodId) {
-      this.profileError.set('Selecciona a tua morada.');
+    if (!this.municipalitySlug) {
+      this.profileError.set('Selecciona a província e o município da tua morada.');
       return;
     }
 
@@ -104,7 +104,7 @@ export class MyProfileComponent implements OnInit {
         lastName: this.lastName,
         email: this.email,
         phoneNumber: this.phoneNumber,
-        neighborhoodId: this.neighborhoodId,
+        municipalitySlug: this.municipalitySlug,
         streetDetail: this.streetDetail || null
       })
       .subscribe({

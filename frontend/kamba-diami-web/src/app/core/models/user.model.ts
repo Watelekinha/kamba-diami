@@ -44,7 +44,7 @@ export interface UpdateProfileRequest {
   lastName: string;
   email: string;
   phoneNumber: string;
-  neighborhoodId: number;
+  municipalitySlug: string;
   streetDetail?: string | null;
 }
 

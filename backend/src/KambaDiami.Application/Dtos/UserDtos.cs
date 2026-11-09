@@ -40,7 +40,7 @@ public class UpdateProfileRequest
     public string LastName { get; set; } = default!;
     public string Email { get; set; } = default!;
     public string PhoneNumber { get; set; } = default!;
-    public int NeighborhoodId { get; set; }
+    public string MunicipalitySlug { get; set; } = default!;
     public string? StreetDetail { get; set; }
 }
 

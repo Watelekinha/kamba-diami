@@ -11,17 +11,6 @@ export interface Municipality {
   provinceSlug: string;
 }
 
-/**
- * Bairro de um município. Os bairros já criados na plataforma têm id; as comunas da API que ainda
- * não foram usadas chegam como sugestão (id nulo) e são criadas quando alguém as escolhe.
- */
-export interface Neighborhood {
-  id: number | null;
-  name: string;
-  municipalitySlug: string;
-  isSuggestion: boolean;
-}
-
 export interface ServiceCategory {
   id: number;
   name: string;

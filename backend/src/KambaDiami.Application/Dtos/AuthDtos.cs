@@ -12,7 +12,8 @@ public class RegisterRequest
     public string ConfirmPassword { get; set; } = default!;
     public UserRole Role { get; set; }
 
-    public int NeighborhoodId { get; set; }
+    /// <summary>Município da API angolaprovinciasapi.ao (ex.: "belas"). A plataforma já não pede o bairro.</summary>
+    public string MunicipalitySlug { get; set; } = default!;
     public string? StreetDetail { get; set; }
 }
 

@@ -30,8 +30,9 @@ export class JobPostingCardComponent {
   }
 
   get locationsSummary(): string {
-    const names = this.posting.locations.slice(0, 3).map((l) => l.neighborhoodName);
-    const extra = this.posting.locations.length - names.length;
+    const all = [...new Set(this.posting.locations.map((l) => l.municipalityName))];
+    const names = all.slice(0, 3);
+    const extra = all.length - names.length;
     return names.join(', ') + (extra > 0 ? ` +${extra}` : '');
   }
 

@@ -43,7 +43,7 @@ export interface CreateJobPostingRequest {
   paymentValue: number;
   hoursPerDay?: number | null;
   comments?: string | null;
-  neighborhoodIds: number[];
+  municipalitySlugs: string[];
 }
 
 export interface JobPostingFilter {

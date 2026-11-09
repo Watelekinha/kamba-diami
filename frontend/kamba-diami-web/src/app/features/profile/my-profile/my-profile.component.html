@@ -15,7 +15,7 @@
       <div class="header-info">
         <h1>{{ user.firstName }} {{ user.lastName }}</h1>
         <span class="role-badge">{{ roleLabel(user.role) }}</span>
-        <p class="muted">{{ user.address.neighborhoodName }}, {{ user.address.municipalityName }}, {{ user.address.provinceName }}</p>
+        <p class="muted">{{ user.address.municipalityName }}, {{ user.address.provinceName }}</p>
         @if (user.role !== 'Admin') {
           @if (user.ratingsCount > 0) {
             <p class="rating">⭐ {{ user.averageRating?.toFixed(1) }} ({{ user.ratingsCount }} avaliações)</p>
@@ -50,7 +50,7 @@
           <dt>Telefone</dt>
           <dd>{{ user.phoneNumber }}</dd>
           <dt>Morada</dt>
-          <dd>{{ user.address.neighborhoodName }}, {{ user.address.municipalityName }}</dd>
+          <dd>{{ user.address.municipalityName }}, {{ user.address.provinceName }}</dd>
         </dl>
       } @else {
         <form (ngSubmit)="saveProfile()" #profileForm="ngForm">
@@ -80,8 +80,7 @@
             <app-location-picker
               [initialProvinceSlug]="user.address.provinceSlug"
               [initialMunicipalitySlug]="user.address.municipalitySlug"
-              [initialNeighborhoodId]="user.address.neighborhoodId"
-              (neighborhoodChange)="onNeighborhoodChange($event)"
+              (municipalityChange)="onMunicipalityChange($event)"
             ></app-location-picker>
           </div>
 

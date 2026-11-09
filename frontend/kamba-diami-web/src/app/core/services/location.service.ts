@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of, shareReplay } from 'rxjs';
-import { Municipality, Neighborhood, Province, ServiceCategory } from '../models/location.model';
+import { Observable, shareReplay } from 'rxjs';
+import { Municipality, Province, ServiceCategory } from '../models/location.model';
 
 /**
  * As províncias e os municípios vêm da API pública de Angola, através do nosso backend
- * (que guarda a resposta em cache). Os bairros são da plataforma.
+ * (que guarda a resposta em cache). A plataforma já não pede o bairro.
  */
 @Injectable({ providedIn: 'root' })
 export class LocationService {
@@ -28,23 +28,6 @@ export class LocationService {
       this.municipalities$.set(provinceSlug, cached);
     }
     return cached;
-  }
-
-  getNeighborhoods(municipalitySlug: string): Observable<Neighborhood[]> {
-    return this.http.get<Neighborhood[]>(
-      `/api/locations/municipalities/${encodeURIComponent(municipalitySlug)}/neighborhoods`
-    );
-  }
-
-  createNeighborhood(municipalitySlug: string, name: string): Observable<Neighborhood> {
-    return this.http.post<Neighborhood>('/api/locations/neighborhoods', { municipalitySlug, name });
-  }
-
-  /** Devolve o bairro com id; uma comuna sugerida pela API é criada como bairro primeiro. */
-  ensureNeighborhood(neighborhood: Neighborhood): Observable<Neighborhood> {
-    return neighborhood.id !== null
-      ? of(neighborhood)
-      : this.createNeighborhood(neighborhood.municipalitySlug, neighborhood.name);
   }
 
   getServiceCategories(): Observable<ServiceCategory[]> {

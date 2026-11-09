@@ -40,7 +40,7 @@ export class RegisterComponent {
   showPassword = signal(false);
   confirmPassword = '';
   streetDetail = '';
-  neighborhoodId: number | null = null;
+  municipalitySlug: string | null = null;
 
   loading = signal(false);
   errorMessage = signal<string | null>(null);
@@ -56,8 +56,8 @@ export class RegisterComponent {
     }
   }
 
-  onNeighborhoodChange(neighborhoodId: number | null): void {
-    this.neighborhoodId = neighborhoodId;
+  onMunicipalityChange(municipalitySlug: string | null): void {
+    this.municipalitySlug = municipalitySlug;
   }
 
   submit(): void {
@@ -79,8 +79,8 @@ export class RegisterComponent {
       return;
     }
 
-    if (!this.neighborhoodId) {
-      this.errorMessage.set('Por favor selecciona a tua morada (bairro).');
+    if (!this.municipalitySlug) {
+      this.errorMessage.set('Por favor selecciona a tua morada (província e município).');
       return;
     }
 
@@ -95,7 +95,7 @@ export class RegisterComponent {
         password: this.password,
         confirmPassword: this.confirmPassword,
         role: this.role,
-        neighborhoodId: this.neighborhoodId,
+        municipalitySlug: this.municipalitySlug,
         streetDetail: this.streetDetail || null
       })
       .subscribe({

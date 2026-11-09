@@ -8,7 +8,7 @@ export interface RegisterRequest {
   password: string;
   confirmPassword: string;
   role: UserRole;
-  neighborhoodId: number;
+  municipalitySlug: string;
   streetDetail?: string | null;
 }
 

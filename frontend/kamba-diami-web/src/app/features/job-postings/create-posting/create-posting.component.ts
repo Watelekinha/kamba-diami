@@ -34,7 +34,7 @@ export class CreatePostingComponent implements OnInit {
   paymentValue: number | null = null;
   hoursPerDay: number | null = null;
   comments = '';
-  neighborhoodIds: number[] = [];
+  municipalitySlugs: string[] = [];
   locationLabels: string[] = [];
 
   submitting = signal(false);
@@ -84,7 +84,7 @@ export class CreatePostingComponent implements OnInit {
   }
 
   get locationsDone(): boolean {
-    return this.neighborhoodIds.length > 0;
+    return this.municipalitySlugs.length > 0;
   }
 
   get completedSteps(): number {
@@ -103,8 +103,8 @@ export class CreatePostingComponent implements OnInit {
     }
   }
 
-  onLocationsChange(neighborhoodIds: number[]): void {
-    this.neighborhoodIds = neighborhoodIds;
+  onLocationsChange(municipalitySlugs: string[]): void {
+    this.municipalitySlugs = municipalitySlugs;
   }
 
   onLocationLabelsChange(labels: string[]): void {
@@ -130,8 +130,8 @@ export class CreatePostingComponent implements OnInit {
       this.errorMessage.set('Para contratos mensais, o valor mínimo é 50.000 Kzs.');
       return;
     }
-    if (this.neighborhoodIds.length === 0) {
-      this.errorMessage.set('Adiciona pelo menos uma localidade.');
+    if (this.municipalitySlugs.length === 0) {
+      this.errorMessage.set('Adiciona pelo menos um município.');
       return;
     }
 
@@ -167,7 +167,7 @@ export class CreatePostingComponent implements OnInit {
       paymentValue: this.paymentValue!,
       hoursPerDay: this.hoursPerDay,
       comments: this.comments.trim() || null,
-      neighborhoodIds: this.neighborhoodIds
+      municipalitySlugs: this.municipalitySlugs
     });
   }
 

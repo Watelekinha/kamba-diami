@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using FluentValidation;
+using KambaDiami.Api.Services;
+using KambaDiami.Application.Abstractions;
 using KambaDiami.Application.Dtos;
 using KambaDiami.Application.Mapping;
 using KambaDiami.Domain.Entities;
@@ -132,7 +134,9 @@ public class JobPostingsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Familia,Secretaria")]
-    public async Task<ActionResult<JobPostingDto>> Create(CreateJobPostingRequest request)
+    public async Task<ActionResult<JobPostingDto>> Create(
+        CreateJobPostingRequest request,
+        [FromServices] MunicipalityAreaResolver areas)
     {
         var validation = await _validator.ValidateAsync(request);
         if (!validation.IsValid)
@@ -146,9 +150,22 @@ public class JobPostingsController : ControllerBase
         if (categoriesExist != request.CategoryIds.Distinct().Count())
             return BadRequest(new { message = "Uma ou mais categorias são inválidas." });
 
-        var neighborhoodsExist = await _db.Neighborhoods.CountAsync(n => request.NeighborhoodIds.Contains(n.Id));
-        if (neighborhoodsExist != request.NeighborhoodIds.Distinct().Count())
-            return BadRequest(new { message = "Uma ou mais localidades são inválidas." });
+        var areaIds = new List<int>();
+        foreach (var slug in request.MunicipalitySlugs.Select(s => s?.Trim().ToLowerInvariant()).Distinct())
+        {
+            Neighborhood? area;
+            try
+            {
+                area = await areas.ResolveAsync(slug, HttpContext.RequestAborted);
+            }
+            catch (AngolaLocationsUnavailableException ex)
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = ex.Message });
+            }
+            if (area is null)
+                return BadRequest(new { message = "Um ou mais municípios são inválidos." });
+            if (!areaIds.Contains(area.Id)) areaIds.Add(area.Id);
+        }
 
         var type = CurrentUserRole == UserRole.Familia.ToString()
             ? JobPostingType.OfertaEmprego
@@ -166,7 +183,7 @@ public class JobPostingsController : ControllerBase
             Categories = request.CategoryIds.Distinct()
                 .Select(id => new JobPostingCategory { ServiceCategoryId = id })
                 .ToList(),
-            Locations = request.NeighborhoodIds.Distinct()
+            Locations = areaIds
                 .Select(id => new JobPostingLocation { NeighborhoodId = id })
                 .ToList()
         };

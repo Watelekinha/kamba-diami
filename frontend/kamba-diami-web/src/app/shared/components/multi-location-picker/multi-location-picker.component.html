@@ -13,46 +13,23 @@
         <option [ngValue]="municipality.slug">{{ municipality.name }}</option>
       }
     </select>
-
-    <select [ngModel]="selectedNeighborhood" (ngModelChange)="onNeighborhoodChange($event)" name="mlpNeighborhood" [disabled]="!selectedMunicipalitySlug">
-      <option [ngValue]="null">Bairro</option>
-      @for (neighborhood of neighborhoods; track neighborhood.id ?? neighborhood.name) {
-        <option [ngValue]="neighborhood">{{ neighborhood.name }}</option>
-      }
-    </select>
   </div>
 
-  <div class="create-row">
-    @if (selectedMunicipalitySlug) {
-      @if (!addingNeighborhood()) {
-        <button type="button" class="add-link" (click)="toggleAddNeighborhood()">+ Novo bairro</button>
-      } @else {
-        <span class="add-inline">
-          <input type="text" [(ngModel)]="newNeighborhoodName" name="mlpNewNeighborhood" placeholder="Nome do bairro" maxlength="80" (keydown.enter)="$event.preventDefault(); confirmAddNeighborhood()" />
-          <button type="button" class="add-confirm" [disabled]="savingNeighborhood() || !newNeighborhoodName.trim()" (click)="confirmAddNeighborhood()">
-            {{ savingNeighborhood() ? '...' : 'Criar' }}
-          </button>
-          <button type="button" class="add-cancel" (click)="toggleAddNeighborhood()">Cancelar</button>
-        </span>
-      }
-    }
-  </div>
-
-  @if (addError()) {
-    <p class="add-error" role="alert">{{ addError() }}</p>
+  @if (loadError()) {
+    <p class="add-error" role="alert">{{ loadError() }}</p>
   }
 
   @if (selectedLocations.length > 0) {
     <div class="chips">
-      @for (location of selectedLocations; track location.neighborhoodId) {
+      @for (location of selectedLocations; track location.municipalitySlug) {
         <span class="chip">
           <svg class="chip-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" /><circle cx="12" cy="10" r="2.3" /></svg>
           {{ location.label }}
-          <button type="button" (click)="removeLocation(location.neighborhoodId)" [attr.aria-label]="'Remover ' + location.label">×</button>
+          <button type="button" (click)="removeLocation(location.municipalitySlug)" [attr.aria-label]="'Remover ' + location.label">×</button>
         </span>
       }
     </div>
   } @else {
-    <p class="hint">Escolhe a província, o município e o bairro. O bairro é adicionado à lista automaticamente.</p>
+    <p class="hint">Escolhe a província e o município. O município é adicionado à lista automaticamente; podes juntar vários.</p>
   }
 </div>

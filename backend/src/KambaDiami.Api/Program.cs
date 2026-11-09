@@ -30,6 +30,7 @@ builder.Services.AddSignalR();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<PasswordResetSender>();
+builder.Services.AddScoped<MunicipalityAreaResolver>();
 builder.Services.AddKambaDiamiRateLimits();
 
 // Atrás de um proxy (Nginx/IIS), o IP real do cliente chega neste cabeçalho; é usado no
@@ -95,7 +96,16 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    // O index.html aponta para os ficheiros JS com hash de cada compilação. Se o navegador o guardar em
+    // cache, depois de um deploy continua a pedir ficheiros que já não existem e a página deixa de funcionar.
+    OnPrepareResponse = ctx =>
+    {
+        if (ctx.File.Name.Equals("index.html", StringComparison.OrdinalIgnoreCase))
+            ctx.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+    }
+});
 
 app.UseCors("AllowAngularDev");
 
@@ -113,6 +123,9 @@ app.MapGet("/health", async (KambaDiamiDbContext db, CancellationToken ct) =>
 // O Angular compilado fica em wwwroot e é servido pelo mesmo domínio da API (Capítulo VI), por isso
 // o navegador não precisa de CORS. Qualquer rota sem ponto e fora de /api, /hubs e /uploads devolve
 // o index.html, para a navegação interna funcionar ao actualizar a página ou abrir uma ligação directa.
-app.MapFallbackToFile("{*path:regex(^(?!(api|hubs|uploads)(/|$))[^.]*$)}", "index.html");
+app.MapFallbackToFile("{*path:regex(^(?!(api|hubs|uploads)(/|$))[^.]*$)}", "index.html", new StaticFileOptions
+{
+    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate"
+});
 
 app.Run();

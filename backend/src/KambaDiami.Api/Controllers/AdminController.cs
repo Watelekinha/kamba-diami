@@ -685,8 +685,7 @@ public class AdminController : ControllerBase
             PhotoPath = u.PhotoPath,
             Role = u.Role,
             Status = u.Status,
-            Location = u.Address.Neighborhood.Name + ", " + u.Address.Neighborhood.MunicipalityName
-                       + " (" + u.Address.Neighborhood.ProvinceName + ")",
+            Location = u.Address.Neighborhood.MunicipalityName + " (" + u.Address.Neighborhood.ProvinceName + ")",
             CreatedAt = u.CreatedAt,
             LastLoginAt = u.LastLoginAt,
             IsLockedOut = u.LockoutEnd != null && u.LockoutEnd > now,
@@ -707,7 +706,7 @@ public class AdminController : ControllerBase
             AuthorId = j.AuthorUserId,
             AuthorName = j.Author.FirstName + " " + j.Author.LastName,
             Categories = j.Categories.Select(c => c.ServiceCategory.Name).ToList(),
-            Locations = j.Locations.Select(l => l.Neighborhood.Name + ", " + l.Neighborhood.MunicipalityName).ToList(),
+            Locations = j.Locations.Select(l => l.Neighborhood.MunicipalityName + ", " + l.Neighborhood.ProvinceName).Distinct().ToList(),
             MatchesCount = j.Matches.Count,
             CreatedAt = j.CreatedAt
         });

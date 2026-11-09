@@ -43,7 +43,8 @@ public class CreateJobPostingRequest
     public decimal PaymentValue { get; set; }
     public decimal? HoursPerDay { get; set; }
     public string? Comments { get; set; }
-    public List<int> NeighborhoodIds { get; set; } = [];
+    /// <summary>Municípios onde o trabalho é prestado (slugs da API angolaprovinciasapi.ao).</summary>
+    public List<string> MunicipalitySlugs { get; set; } = [];
 }
 
 public class JobPostingFilter

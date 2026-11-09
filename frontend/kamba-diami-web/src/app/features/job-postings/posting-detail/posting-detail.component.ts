@@ -38,6 +38,10 @@ export class PostingDetailComponent implements OnInit {
     return `${names.slice(0, -1).join(', ')} e ${names[names.length - 1]}`;
   });
 
+  /** "Município, Província", sem repetições (anúncios antigos podiam ter vários bairros no mesmo município). */
+  readonly placeLabels = computed(() => [
+    ...new Set((this.posting()?.locations ?? []).map((l) => `${l.municipalityName}, ${l.provinceName}`))
+  ]);
   readonly authorRoleLabel = computed(() => {
     const role = this.posting()?.authorRole;
     return role === 'Familia' ? 'Família' : role === 'Secretaria' ? 'Secretária do lar' : 'Administrador';

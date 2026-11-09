@@ -32,44 +32,4 @@
       }
     </select>
   </div>
-
-  <div class="field">
-    <label>Bairro</label>
-    <select
-      [ngModel]="selectedNeighborhood"
-      (ngModelChange)="onNeighborhoodChange($event)"
-      [compareWith]="sameNeighborhood"
-      name="neighborhood"
-      [disabled]="!selectedMunicipalitySlug"
-    >
-      <option [ngValue]="null">Seleccione o bairro</option>
-      @for (neighborhood of neighborhoods; track neighborhood.id ?? neighborhood.name) {
-        <option [ngValue]="neighborhood">{{ neighborhood.name }}</option>
-      }
-    </select>
-
-    @if (selectedMunicipalitySlug) {
-      @if (!addingNeighborhood()) {
-        <button type="button" class="add-link" (click)="toggleAddNeighborhood()">+ Adicionar bairro</button>
-      } @else {
-        <div class="add-row">
-          <input
-            type="text"
-            [(ngModel)]="newNeighborhoodName"
-            name="newNeighborhoodName"
-            placeholder="Nome do bairro"
-            maxlength="80"
-            (keydown.enter)="$event.preventDefault(); confirmAddNeighborhood()"
-          />
-          <button type="button" class="add-confirm" [disabled]="savingNeighborhood() || !newNeighborhoodName.trim()" (click)="confirmAddNeighborhood()">
-            {{ savingNeighborhood() ? '...' : 'Adicionar' }}
-          </button>
-          <button type="button" class="add-cancel" (click)="toggleAddNeighborhood()">Cancelar</button>
-        </div>
-      }
-    }
-    @if (addError()) {
-      <p class="add-error" role="alert">{{ addError() }}</p>
-    }
-  </div>
 </div>

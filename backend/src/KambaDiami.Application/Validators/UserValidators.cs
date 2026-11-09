@@ -11,7 +11,7 @@ public class UpdateProfileRequestValidator : AbstractValidator<UpdateProfileRequ
         RuleFor(x => x.LastName).PersonName();
         RuleFor(x => x.Email).NotEmpty().EmailAddress().WithMessage("Indica um email válido.").MaximumLength(256);
         RuleFor(x => x.PhoneNumber).AngolanMobile();
-        RuleFor(x => x.NeighborhoodId).GreaterThan(0).WithMessage("Morada é obrigatória.");
+        RuleFor(x => x.MunicipalitySlug).NotEmpty().WithMessage("Selecciona a província e o município.");
         RuleFor(x => x.StreetDetail).MaximumLength(200);
     }
 }

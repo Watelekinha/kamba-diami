@@ -94,7 +94,7 @@ export class LandingComponent implements OnInit, AfterViewInit {
       return 'Angola';
     }
 
-    return `${location.neighborhoodName}, ${location.municipalityName}`;
+    return `${location.municipalityName}, ${location.provinceName}`;
   }
 
   snippet(posting: JobPosting): string {

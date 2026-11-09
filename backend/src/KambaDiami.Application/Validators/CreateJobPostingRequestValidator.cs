@@ -10,7 +10,8 @@ public class CreateJobPostingRequestValidator : AbstractValidator<CreateJobPosti
     public CreateJobPostingRequestValidator()
     {
         RuleFor(x => x.CategoryIds).NotEmpty().WithMessage("Selecciona pelo menos uma área/categoria.");
-        RuleFor(x => x.NeighborhoodIds).NotEmpty().WithMessage("Selecciona pelo menos uma localidade.");
+        RuleFor(x => x.MunicipalitySlugs).NotEmpty().WithMessage("Selecciona pelo menos um município.");
+        RuleFor(x => x.MunicipalitySlugs.Count).LessThanOrEqualTo(20).WithMessage("Indica no máximo 20 municípios.");
         RuleFor(x => x.PaymentValue).GreaterThan(0).WithMessage("O valor de pagamento deve ser maior que zero.");
         RuleFor(x => x.PaymentValue)
             .GreaterThanOrEqualTo(ContractConstants.MinimumMonthlyValue)

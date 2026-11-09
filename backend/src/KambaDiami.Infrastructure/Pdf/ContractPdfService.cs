@@ -171,6 +171,6 @@ public class ContractPdfService : IContractPdfService
         var neighborhood = address?.Neighborhood;
         if (address is null || neighborhood is null) return "Morada registada na plataforma Kamba Diami";
         var street = string.IsNullOrWhiteSpace(address.StreetDetail) ? "" : $", {address.StreetDetail}";
-        return $"{neighborhood.Name}, {neighborhood.MunicipalityName}, {neighborhood.ProvinceName}{street}";
+        return $"{neighborhood.MunicipalityName}, {neighborhood.ProvinceName}{street}";
     }
 }

@@ -85,7 +85,9 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("me")]
-    public async Task<ActionResult<UserProfileDto>> UpdateMe(UpdateProfileRequest request)
+    public async Task<ActionResult<UserProfileDto>> UpdateMe(
+        UpdateProfileRequest request,
+        [FromServices] MunicipalityAreaResolver areas)
     {
         request.Email = (request.Email ?? string.Empty).Trim().ToLowerInvariant();
         request.FirstName = request.FirstName?.Trim() ?? string.Empty;
@@ -99,10 +101,9 @@ public class UsersController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var neighborhoodExists = await _db.Neighborhoods.AnyAsync(n => n.Id == request.NeighborhoodId);
-        if (!neighborhoodExists) return BadRequest(new { message = "Bairro inválido." });
-
-        var user = await _userManager.Users.Include(u => u.Address).FirstOrDefaultAsync(u => u.Id == CurrentUserId);
+        var user = await _userManager.Users
+            .Include(u => u.Address).ThenInclude(a => a.Neighborhood)
+            .FirstOrDefaultAsync(u => u.Id == CurrentUserId);
         if (user is null) return NotFound();
 
         if (!string.Equals(user.Email, request.Email, StringComparison.OrdinalIgnoreCase))
@@ -117,7 +118,21 @@ public class UsersController : ControllerBase
         user.FirstName = request.FirstName;
         user.LastName = request.LastName;
         user.PhoneNumber = AngolaPhone.Normalize(request.PhoneNumber);
-        user.Address.NeighborhoodId = request.NeighborhoodId;
+        // Quem não mudou de município mantém o registo de morada que já tinha.
+        if (!string.Equals(user.Address.Neighborhood.MunicipalitySlug, request.MunicipalitySlug?.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            Neighborhood? area;
+            try
+            {
+                area = await areas.ResolveAsync(request.MunicipalitySlug, HttpContext.RequestAborted);
+            }
+            catch (AngolaLocationsUnavailableException ex)
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, new { message = ex.Message });
+            }
+            if (area is null) return BadRequest(new { message = "Município inválido." });
+            user.Address.NeighborhoodId = area.Id;
+        }
         user.Address.StreetDetail = string.IsNullOrWhiteSpace(request.StreetDetail) ? null : request.StreetDetail.Trim();
         user.UpdatedAt = DateTime.UtcNow;
 
