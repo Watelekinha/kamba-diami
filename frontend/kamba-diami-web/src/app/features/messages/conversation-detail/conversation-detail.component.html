@@ -65,6 +65,9 @@
           <div #scrollAnchor></div>
         </div>
 
+        @if (sendError()) {
+          <p class="chat-send-error" role="alert">{{ sendError() }}</p>
+        }
         <form class="chat-input" (ngSubmit)="send()">
           <input
             type="text"

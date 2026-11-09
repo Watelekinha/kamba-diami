@@ -89,6 +89,10 @@ public class MatchesController : ControllerBase
         if (match.CounterpartUserId != CurrentUserId) return Forbid();
         if (match.Status != MatchStatus.Pendente) return BadRequest(new { message = "Este interesse já foi respondido." });
 
+        // Aceitar outro interesse num anúncio já preenchido daria dois contratos para a mesma vaga.
+        if (request.Accept && match.JobPosting.Status != JobPostingStatus.Ativo)
+            return BadRequest(new { message = "Este anúncio já não está activo. Já aceitaste outro interesse nele ou foi retirado." });
+
         match.Status = request.Accept ? MatchStatus.Aceite : MatchStatus.Recusado;
         match.RespondedAt = DateTime.UtcNow;
 

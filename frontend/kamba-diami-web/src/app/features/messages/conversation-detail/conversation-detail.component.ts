@@ -27,6 +27,7 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
   loading = signal(true);
   draft = '';
   sending = signal(false);
+  sendError = signal<string | null>(null);
   responding = signal(false);
 
   @ViewChild('scrollAnchor') scrollAnchor?: ElementRef<HTMLDivElement>;
@@ -70,11 +71,18 @@ export class ConversationDetailComponent implements OnInit, OnDestroy {
     const content = this.draft.trim();
     if (!content) return;
     this.sending.set(true);
-    this.chatService.sendMessage(this.conversationId, content).then(() => {
-      this.draft = '';
-      this.sending.set(false);
-      this.scrollToBottom();
-    });
+    this.sendError.set(null);
+    this.chatService
+      .sendMessage(this.conversationId, content)
+      .then(() => {
+        this.draft = '';
+        this.scrollToBottom();
+      })
+      .catch(() => {
+        // O texto fica no campo para se poder tentar de novo.
+        this.sendError.set('Não foi possível enviar a mensagem. Verifica a ligação e tenta de novo.');
+      })
+      .finally(() => this.sending.set(false));
   }
 
   respond(accept: boolean): void {

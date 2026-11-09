@@ -45,6 +45,7 @@ public static class DbSeeder
         "Bié",
         "Cabinda",
         "Cuando",
+        "Cubango",
         "Cuanza Norte",
         "Cuanza Sul",
         "Cunene",

@@ -59,6 +59,11 @@ public class ChatHub : Hub
 
     public async Task MarkAsRead(int conversationId)
     {
+        // Só as partes do interesse podem marcar as mensagens desta conversa como lidas.
+        var isParticipant = await _db.Conversations.AnyAsync(c => c.Id == conversationId
+            && (c.Match.InitiatorUserId == CurrentUserId || c.Match.CounterpartUserId == CurrentUserId));
+        if (!isParticipant) throw new HubException("Não tens acesso a esta conversa.");
+
         var unread = await _db.Messages
             .Where(m => m.ConversationId == conversationId && m.SenderUserId != CurrentUserId && m.ReadAt == null)
             .ToListAsync();

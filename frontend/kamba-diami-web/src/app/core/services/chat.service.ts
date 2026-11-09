@@ -8,6 +8,8 @@ import { ConversationSummary, Message } from '../models/chat.model';
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private hubConnection: signalR.HubConnection | null = null;
+  /** Conversa aberta: é preciso voltar a entrar no grupo depois de cada reconexão. */
+  private currentConversationId: number | null = null;
 
   readonly messages = signal<Message[]>([]);
   readonly connected = signal(false);
@@ -35,16 +37,21 @@ export class ChatService {
 
   async joinConversation(conversationId: number, history: Message[]): Promise<void> {
     this.messages.set(history);
+    this.currentConversationId = conversationId;
     await this.connect();
     await this.hubConnection?.invoke('JoinConversation', conversationId);
     await this.hubConnection?.invoke('MarkAsRead', conversationId);
   }
 
   async sendMessage(conversationId: number, content: string): Promise<void> {
-    await this.hubConnection?.invoke('SendMessage', conversationId, content);
+    if (!this.hubConnection || this.hubConnection.state !== signalR.HubConnectionState.Connected) {
+      throw new Error('Sem ligação ao chat.');
+    }
+    await this.hubConnection.invoke('SendMessage', conversationId, content);
   }
 
   async disconnect(): Promise<void> {
+    this.currentConversationId = null;
     if (!this.hubConnection) return;
     await this.hubConnection.stop();
     this.hubConnection = null;
@@ -61,8 +68,35 @@ export class ChatService {
       .build();
 
     this.hubConnection.on('ReceiveMessage', (message: Message) => {
+      if (message.conversationId !== this.currentConversationId) return;
       this.messages.update((list) => [...list, message]);
+      // A conversa está aberta: a mensagem da outra parte fica logo lida.
+      if (message.senderUserId !== this.authService.currentUser()?.id) {
+        this.hubConnection?.invoke('MarkAsRead', message.conversationId).catch(() => {});
+      }
     });
+
+    // O servidor esquece os grupos de uma ligação que caiu; ao reconectar, volta-se a entrar na
+    // conversa e recarrega-se o histórico para não perder mensagens enviadas entretanto.
+    this.hubConnection.onreconnecting(() => this.connected.set(false));
+    this.hubConnection.onreconnected(async () => {
+      this.connected.set(true);
+      const conversationId = this.currentConversationId;
+      if (conversationId === null) return;
+      try {
+        await this.hubConnection?.invoke('JoinConversation', conversationId);
+        this.getMessages(conversationId).subscribe({
+          next: (history) => {
+            if (this.currentConversationId === conversationId) this.messages.set(history);
+          },
+          error: () => {}
+        });
+        await this.hubConnection?.invoke('MarkAsRead', conversationId);
+      } catch {
+        // A falha volta a aparecer ao tentar enviar; não há mais nada a fazer aqui.
+      }
+    });
+    this.hubConnection.onclose(() => this.connected.set(false));
 
     await this.hubConnection.start();
     this.connected.set(true);
