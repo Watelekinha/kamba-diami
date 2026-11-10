@@ -152,38 +152,19 @@
               </span>
             </legend>
 
-            <div class="pay-options" role="radiogroup" aria-label="Tipo de pagamento">
-              <button
-                type="button"
-                role="radio"
-                class="pay-option"
-                [class.selected]="paymentType === 'Diaria'"
-                [attr.aria-checked]="paymentType === 'Diaria'"
-                (click)="paymentType = 'Diaria'"
-              >
-                <span class="pay-radio" aria-hidden="true"></span>
-                <span>
-                  <span class="pay-title">Diária</span>
-                  <span class="pay-desc">Por cada dia de trabalho</span>
-                </span>
-              </button>
-              <button
-                type="button"
-                role="radio"
-                class="pay-option"
-                [class.selected]="paymentType === 'Mensal'"
-                [attr.aria-checked]="paymentType === 'Mensal'"
-                (click)="paymentType = 'Mensal'"
-              >
-                <span class="pay-radio" aria-hidden="true"></span>
-                <span>
-                  <span class="pay-title">Mensal</span>
-                  <span class="pay-desc">Salário fixo todos os meses</span>
-                </span>
-              </button>
-            </div>
+            <div class="grid-3">
+              <div class="form-field">
+                <label for="paymentType">Tipo de pagamento *</label>
+                <div class="select-wrap">
+                  <select id="paymentType" name="paymentType" [(ngModel)]="paymentType">
+                    <option value="Diaria">Diária</option>
+                    <option value="Mensal">Mensal</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                </div>
+                <small class="hint">{{ paymentType === 'Mensal' ? 'Salário fixo todos os meses.' : 'Por cada dia de trabalho.' }}</small>
+              </div>
 
-            <div class="grid-2">
               <div class="form-field">
                 <label for="paymentValue">Valor {{ paymentType === 'Mensal' ? 'mensal' : 'por dia' }} *</label>
                 <div class="input-affix" [class.input-affix--warn]="isBelowMonthlyMinimum">
