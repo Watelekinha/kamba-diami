@@ -184,6 +184,7 @@ svg {
 // Dropdown de escolha múltipla: o botão mostra os serviços escolhidos como etiquetas.
 .services-select {
   position: relative;
+  max-width: 460px;
 }
 
 .services-trigger {
@@ -191,11 +192,11 @@ svg {
   align-items: center;
   gap: 0.6rem;
   width: 100%;
-  min-height: 48px;
-  padding: 0.45rem 0.8rem;
-  border: 1.5px solid var(--kd-border);
+  min-height: 46px;
+  padding: 0.4rem 0.8rem;
+  border: 1.5px solid color-mix(in srgb, var(--kd-primary) 22%, var(--kd-border));
   border-radius: 12px;
-  background: #fff;
+  background: color-mix(in srgb, var(--kd-primary) 4%, white);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -465,11 +466,47 @@ input[type='number'] {
   &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 }
 
+.details-field { max-width: 560px; }
+
 textarea {
-  min-height: 84px;
+  min-height: 72px;
   border-radius: 12px !important;
+  border-color: color-mix(in srgb, #2f8a5c 25%, var(--kd-border)) !important;
+  background: color-mix(in srgb, #2f8a5c 4%, white) !important;
   line-height: 1.5;
   resize: vertical;
+
+  &:focus {
+    border-color: #2f8a5c !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, #2f8a5c 18%, transparent) !important;
+  }
+}
+
+/* ---------- detalhes de cor ---------- */
+
+// Faixa com o degradê da marca no topo do cartão.
+.posting-card {
+  background:
+    linear-gradient(120deg, #2f8a5c, #1e8a9a, #1877f2) top / 100% 5px no-repeat,
+    var(--kd-surface);
+}
+
+// Cada passo tem a sua cor: azul, verde, laranja e lilás.
+.step:nth-of-type(1) .step-badge { background: #e3eefc; color: #1877f2; }
+.step:nth-of-type(2) .step-badge { background: #e2f3ea; color: #1f6b47; }
+.step:nth-of-type(3) .step-badge { background: #fdeedd; color: #c76a12; }
+.step:nth-of-type(4) .step-badge { background: #efe9fb; color: #6b46c1; }
+.step.step--done .step-badge { background: var(--kd-sage-deep); color: #fff; }
+
+.step:nth-of-type(3) .step-title::after,
+.step:nth-of-type(1) .step-title::after,
+.step:nth-of-type(2) .step-title::after {
+  content: ' *';
+  color: #e0703a;
+}
+
+.progress-box {
+  border-top: 4px solid #1877f2;
 }
 
 .hint {
