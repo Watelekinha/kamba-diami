@@ -3,7 +3,7 @@
   <div class="page-blob page-blob--sky" aria-hidden="true"></div>
 
   <div class="posting-layout">
-    <form class="posting-card" (ngSubmit)="submit()" #form="ngForm" novalidate>
+    <form class="posting-form" (ngSubmit)="submit()" #form="ngForm" novalidate>
       <header class="posting-header">
         <span class="header-mark" aria-hidden="true">
           <img src="assets/logo/kamba-diami-simbolo.svg" alt="" />
@@ -22,6 +22,7 @@
       </header>
 
       <!-- Uma coluna, pela ordem em que se preenche: serviços, pagamento, local e detalhes. -->
+      <div class="posting-card">
       <fieldset class="step" [class.step--done]="servicesDone">
         <legend class="step-head">
           <span class="step-badge">
@@ -246,6 +247,7 @@
             {{ submitting() ? 'A publicar...' : (isFamilia ? 'Publicar vaga' : 'Publicar disponibilidade') }}
           </button>
         </div>
+      </div>
       </div>
     </form>
   </div>
