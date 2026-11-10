@@ -21,189 +21,193 @@
         </div>
       </header>
 
-      <fieldset class="step" [class.step--done]="servicesDone">
-        <legend class="step-head">
-          <span class="step-badge">
-            @if (servicesDone) {
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-            } @else { 1 }
-          </span>
-          <span>
-            <span class="step-title">{{ isFamilia ? 'Que serviços precisas?' : 'Que serviços fazes?' }}</span>
-            <span class="step-desc">Podes escolher mais do que um.</span>
-          </span>
-        </legend>
-
-        <div class="category-grid" role="group" aria-label="Categorias de serviço">
-          @for (category of categories; track category.id) {
-            <button
-              type="button"
-              class="category-chip"
-              [class.selected]="selectedCategoryIds.has(category.id)"
-              [attr.aria-pressed]="selectedCategoryIds.has(category.id)"
-              (click)="toggleCategory(category.id)"
-            >
-              <span class="chip-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  @for (d of iconFor(category.name); track $index) {
-                    <path [attr.d]="d" />
-                  }
-                </svg>
+      <!-- Duas colunas para caber quase tudo no ecrã: serviços e detalhes à esquerda, pagamento e local à direita. -->
+      <div class="form-cols">
+        <div class="form-col">
+          <fieldset class="step" [class.step--done]="servicesDone">
+            <legend class="step-head">
+              <span class="step-badge">
+                @if (servicesDone) {
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+                } @else { 1 }
               </span>
-              <span class="chip-label">{{ category.name }}</span>
-              <span class="chip-check" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+              <span>
+                <span class="step-title">{{ isFamilia ? 'Que serviços precisas?' : 'Que serviços fazes?' }}</span>
+                <span class="step-desc">Podes escolher mais do que um.</span>
               </span>
-            </button>
-          }
-        </div>
+            </legend>
 
-        @if (isOtherCategorySelected) {
-          <div class="form-field other-field">
-            <label for="customCategoryName">Qual é o serviço? *</label>
-            <input
-              id="customCategoryName"
-              name="customCategoryName"
-              [(ngModel)]="customCategoryName"
-              placeholder="Ex.: Explicações escolares"
-              maxlength="60"
-            />
-            <small class="hint">Este serviço passa a estar disponível para todos os utilizadores.</small>
-          </div>
-        }
-      </fieldset>
-
-      <fieldset class="step" [class.step--done]="conditionsDone">
-        <legend class="step-head">
-          <span class="step-badge">
-            @if (conditionsDone) {
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-            } @else { 2 }
-          </span>
-          <span>
-            <span class="step-title">Condições de pagamento</span>
-            <span class="step-desc">Estas condições passam para o contrato, se houver acordo.</span>
-          </span>
-        </legend>
-
-        <div class="pay-options" role="radiogroup" aria-label="Tipo de pagamento">
-          <button
-            type="button"
-            role="radio"
-            class="pay-option"
-            [class.selected]="paymentType === 'Diaria'"
-            [attr.aria-checked]="paymentType === 'Diaria'"
-            (click)="paymentType = 'Diaria'"
-          >
-            <span class="pay-radio" aria-hidden="true"></span>
-            <span>
-              <span class="pay-title">Diária</span>
-              <span class="pay-desc">Pagamento por cada dia de trabalho</span>
-            </span>
-          </button>
-          <button
-            type="button"
-            role="radio"
-            class="pay-option"
-            [class.selected]="paymentType === 'Mensal'"
-            [attr.aria-checked]="paymentType === 'Mensal'"
-            (click)="paymentType = 'Mensal'"
-          >
-            <span class="pay-radio" aria-hidden="true"></span>
-            <span>
-              <span class="pay-title">Mensal</span>
-              <span class="pay-desc">Salário fixo todos os meses</span>
-            </span>
-          </button>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-field">
-            <label for="paymentValue">Valor {{ paymentType === 'Mensal' ? 'mensal' : 'por dia' }} *</label>
-            <div class="input-affix" [class.input-affix--warn]="isBelowMonthlyMinimum">
-              <input
-                id="paymentValue"
-                name="paymentValue"
-                type="number"
-                inputmode="numeric"
-                min="1"
-                step="500"
-                [placeholder]="paymentType === 'Mensal' ? '50000' : '5000'"
-                [(ngModel)]="paymentValue"
-                required
-              />
-              <span class="affix">Kzs</span>
+            <div class="category-grid" role="group" aria-label="Categorias de serviço">
+              @for (category of categories; track category.id) {
+                <button
+                  type="button"
+                  class="category-chip"
+                  [class.selected]="selectedCategoryIds.has(category.id)"
+                  [attr.aria-pressed]="selectedCategoryIds.has(category.id)"
+                  (click)="toggleCategory(category.id)"
+                >
+                  <span class="chip-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      @for (d of iconFor(category.name); track $index) {
+                        <path [attr.d]="d" />
+                      }
+                    </svg>
+                  </span>
+                  <span class="chip-label">{{ category.name }}</span>
+                </button>
+              }
             </div>
-            @if (isBelowMonthlyMinimum) {
-              <small class="hint hint--warn">O valor mensal mínimo é de {{ minimumMonthlyValue | kwanza }}.</small>
-            } @else if (paymentType === 'Mensal') {
-              <small class="hint">Mínimo de {{ minimumMonthlyValue | kwanza }} por mês.</small>
+
+            @if (isOtherCategorySelected) {
+              <div class="form-field other-field">
+                <label for="customCategoryName">Qual é o serviço? *</label>
+                <input
+                  id="customCategoryName"
+                  name="customCategoryName"
+                  [(ngModel)]="customCategoryName"
+                  placeholder="Ex.: Explicações escolares"
+                  maxlength="60"
+                />
+                <small class="hint">Este serviço passa a estar disponível para todos os utilizadores.</small>
+              </div>
             }
-          </div>
+          </fieldset>
 
-          <div class="form-field">
-            <label for="hoursPerDay">Horas por dia <span class="optional">(opcional)</span></label>
-            <div class="input-affix">
-              <input
-                id="hoursPerDay"
-                name="hoursPerDay"
-                type="number"
-                inputmode="numeric"
-                min="1"
-                max="24"
-                placeholder="8"
-                [(ngModel)]="hoursPerDay"
-              />
-              <span class="affix">horas</span>
+          <fieldset class="step">
+            <legend class="step-head">
+              <span class="step-badge step-badge--soft">4</span>
+              <span>
+                <span class="step-title">Mais detalhes <span class="optional">(opcional)</span></span>
+                <span class="step-desc">
+                  {{ isFamilia ? 'Rotina, dias da semana, número de pessoas em casa...' : 'Experiência, disponibilidade, referências...' }}
+                </span>
+              </span>
+            </legend>
+
+            <div class="form-field">
+              <label for="comments" class="visually-hidden">Comentário</label>
+              <textarea
+                id="comments"
+                name="comments"
+                rows="3"
+                [maxlength]="commentsMaxLength"
+                [placeholder]="isFamilia ? 'Ex.: Procuramos uma pessoa pontual para limpeza e cozinha, de segunda a sexta.' : 'Ex.: Tenho 5 anos de experiência com crianças e posso começar já.'"
+                [(ngModel)]="comments"
+              ></textarea>
+              <small class="hint counter">{{ comments.length }} / {{ commentsMaxLength }}</small>
             </div>
-            <small class="hint">A lei garante pelo menos 1 hora de intervalo por dia.</small>
-          </div>
+          </fieldset>
         </div>
-      </fieldset>
 
-      <fieldset class="step" [class.step--done]="locationsDone">
-        <legend class="step-head">
-          <span class="step-badge">
-            @if (locationsDone) {
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-            } @else { 3 }
-          </span>
-          <span>
-            <span class="step-title">{{ isFamilia ? 'Onde é o trabalho?' : 'Onde podes trabalhar?' }}</span>
-            <span class="step-desc">Adiciona um ou mais municípios.</span>
-          </span>
-        </legend>
+        <div class="form-col">
+          <fieldset class="step" [class.step--done]="conditionsDone">
+            <legend class="step-head">
+              <span class="step-badge">
+                @if (conditionsDone) {
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+                } @else { 2 }
+              </span>
+              <span>
+                <span class="step-title">Condições de pagamento</span>
+                <span class="step-desc">Passam para o contrato, se houver acordo.</span>
+              </span>
+            </legend>
 
-        <app-multi-location-picker
-          (selectionChange)="onLocationsChange($event)"
-          (labelsChange)="onLocationLabelsChange($event)"
-        ></app-multi-location-picker>
-      </fieldset>
+            <div class="pay-options" role="radiogroup" aria-label="Tipo de pagamento">
+              <button
+                type="button"
+                role="radio"
+                class="pay-option"
+                [class.selected]="paymentType === 'Diaria'"
+                [attr.aria-checked]="paymentType === 'Diaria'"
+                (click)="paymentType = 'Diaria'"
+              >
+                <span class="pay-radio" aria-hidden="true"></span>
+                <span>
+                  <span class="pay-title">Diária</span>
+                  <span class="pay-desc">Por cada dia de trabalho</span>
+                </span>
+              </button>
+              <button
+                type="button"
+                role="radio"
+                class="pay-option"
+                [class.selected]="paymentType === 'Mensal'"
+                [attr.aria-checked]="paymentType === 'Mensal'"
+                (click)="paymentType = 'Mensal'"
+              >
+                <span class="pay-radio" aria-hidden="true"></span>
+                <span>
+                  <span class="pay-title">Mensal</span>
+                  <span class="pay-desc">Salário fixo todos os meses</span>
+                </span>
+              </button>
+            </div>
 
-      <fieldset class="step step--last">
-        <legend class="step-head">
-          <span class="step-badge step-badge--soft">4</span>
-          <span>
-            <span class="step-title">Mais detalhes <span class="optional">(opcional)</span></span>
-            <span class="step-desc">
-              {{ isFamilia ? 'Rotina, dias da semana, número de pessoas em casa...' : 'Experiência, disponibilidade, referências...' }}
-            </span>
-          </span>
-        </legend>
+            <div class="grid-2">
+              <div class="form-field">
+                <label for="paymentValue">Valor {{ paymentType === 'Mensal' ? 'mensal' : 'por dia' }} *</label>
+                <div class="input-affix" [class.input-affix--warn]="isBelowMonthlyMinimum">
+                  <input
+                    id="paymentValue"
+                    name="paymentValue"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    step="500"
+                    [placeholder]="paymentType === 'Mensal' ? '50000' : '5000'"
+                    [(ngModel)]="paymentValue"
+                    required
+                  />
+                  <span class="affix">Kzs</span>
+                </div>
+                @if (isBelowMonthlyMinimum) {
+                  <small class="hint hint--warn">O valor mensal mínimo é de {{ minimumMonthlyValue | kwanza }}.</small>
+                } @else if (paymentType === 'Mensal') {
+                  <small class="hint">Mínimo de {{ minimumMonthlyValue | kwanza }} por mês.</small>
+                }
+              </div>
 
-        <div class="form-field">
-          <label for="comments" class="visually-hidden">Comentário</label>
-          <textarea
-            id="comments"
-            name="comments"
-            rows="4"
-            [maxlength]="commentsMaxLength"
-            [placeholder]="isFamilia ? 'Ex.: Procuramos uma pessoa pontual para limpeza e cozinha, de segunda a sexta.' : 'Ex.: Tenho 5 anos de experiência com crianças e posso começar já.'"
-            [(ngModel)]="comments"
-          ></textarea>
-          <small class="hint counter">{{ comments.length }} / {{ commentsMaxLength }}</small>
+              <div class="form-field">
+                <label for="hoursPerDay">Horas por dia <span class="optional">(opcional)</span></label>
+                <div class="input-affix">
+                  <input
+                    id="hoursPerDay"
+                    name="hoursPerDay"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    max="24"
+                    placeholder="8"
+                    [(ngModel)]="hoursPerDay"
+                  />
+                  <span class="affix">horas</span>
+                </div>
+                <small class="hint">Pelo menos 1 hora de intervalo por dia.</small>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="step" [class.step--done]="locationsDone">
+            <legend class="step-head">
+              <span class="step-badge">
+                @if (locationsDone) {
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+                } @else { 3 }
+              </span>
+              <span>
+                <span class="step-title">{{ isFamilia ? 'Onde é o trabalho?' : 'Onde podes trabalhar?' }}</span>
+                <span class="step-desc">Adiciona um ou mais municípios.</span>
+              </span>
+            </legend>
+
+            <app-multi-location-picker
+              (selectionChange)="onLocationsChange($event)"
+              (labelsChange)="onLocationLabelsChange($event)"
+            ></app-multi-location-picker>
+          </fieldset>
         </div>
-      </fieldset>
+      </div>
 
       @if (errorMessage()) {
         <div class="error-banner" role="alert">
@@ -212,74 +216,23 @@
         </div>
       }
 
+      <!-- Barra fixa no fundo: o progresso e o botão de publicar estão sempre à vista. -->
       <div class="actions">
-        <a class="btn btn-outline" routerLink="/feed">Cancelar</a>
-        <button class="btn btn-primary btn-publish" type="submit" [disabled]="submitting()">
-          {{ submitting() ? 'A publicar...' : (isFamilia ? 'Publicar vaga' : 'Publicar disponibilidade') }}
-        </button>
-      </div>
-    </form>
-
-    <aside class="preview" aria-label="Pré-visualização do anúncio">
-      <div class="preview-sticky">
-        <p class="preview-label">Pré-visualização</p>
-
-        <article class="preview-card">
-          <span class="preview-type" [class.preview-type--seek]="!isFamilia">
-            {{ isFamilia ? 'Oferta de emprego' : 'Procura de emprego' }}
-          </span>
-
-          <div class="preview-price">
-            @if (paymentValue && paymentValue > 0) {
-              <strong>{{ paymentValue | kwanza }}</strong>
-              <span>/ {{ paymentType === 'Mensal' ? 'mês' : 'dia' }}</span>
-            } @else {
-              <strong class="placeholder">Valor por indicar</strong>
-              <span>/ {{ paymentType === 'Mensal' ? 'mês' : 'dia' }}</span>
-            }
-          </div>
-
-          <div class="preview-tags">
-            @for (name of selectedCategoryNames; track name) {
-              <span class="tag">{{ name }}</span>
-            } @empty {
-              <span class="tag tag--empty">Serviços por escolher</span>
-            }
-          </div>
-
-          <ul class="preview-meta">
-            <li>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
-              {{ hoursPerDay ? hoursPerDay + ' horas por dia' : 'Horário a combinar' }}
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" /><circle cx="12" cy="10" r="2.3" /></svg>
-              @if (locationLabels.length) {
-                <span>{{ locationLabels.join(' · ') }}</span>
-              } @else {
-                <span class="muted">Localidade por indicar</span>
-              }
-            </li>
-          </ul>
-
-          @if (comments.trim()) {
-            <p class="preview-comment">{{ comments }}</p>
-          }
-        </article>
-
         <div class="progress">
-          <div class="progress-head">
-            <span>Campos obrigatórios</span>
-            <strong>{{ completedSteps }} de 3</strong>
-          </div>
-          <div class="progress-bar"><span [style.width.%]="(completedSteps / 3) * 100"></span></div>
-          <ul class="checklist">
+          <strong>{{ completedSteps }} de 3</strong>
+          <ul class="checklist" aria-label="Campos obrigatórios">
             <li [class.done]="servicesDone">Serviços</li>
-            <li [class.done]="conditionsDone">Valor do pagamento</li>
+            <li [class.done]="conditionsDone">Valor</li>
             <li [class.done]="locationsDone">Localidade</li>
           </ul>
         </div>
+        <div class="action-buttons">
+          <a class="btn btn-outline" routerLink="/feed">Cancelar</a>
+          <button class="btn btn-primary btn-publish" type="submit" [disabled]="submitting()">
+            {{ submitting() ? 'A publicar...' : (isFamilia ? 'Publicar vaga' : 'Publicar disponibilidade') }}
+          </button>
+        </div>
       </div>
-    </aside>
+    </form>
   </div>
 </section>
