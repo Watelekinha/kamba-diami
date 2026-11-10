@@ -29,13 +29,15 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 2.4rem 2.6rem 2rem;
+  padding: 2.4rem 2.6rem 3rem;
   color: #fff;
   overflow: hidden;
   // Se existir uma fotografia em assets/auth/auth-foto.jpg, aparece por baixo do degradé.
   // Sem a fotografia fica só o degradé azul.
   background:
-    linear-gradient(180deg, rgba(12, 44, 99, 0.5) 0%, rgba(12, 44, 99, 0) 22%, rgba(12, 44, 99, 0) 42%, rgba(10, 36, 84, 0.78) 68%, rgba(8, 30, 72, 0.94) 100%),
+    // Véu verde (combina com o avental da fotografia) com um toque do azul da marca.
+    linear-gradient(135deg, rgba(24, 119, 242, 0.16) 0%, rgba(47, 138, 60, 0.1) 100%),
+    linear-gradient(180deg, rgba(20, 56, 42, 0.5) 0%, rgba(20, 56, 42, 0) 22%, rgba(20, 56, 42, 0) 42%, rgba(19, 72, 62, 0.74) 66%, rgba(16, 54, 36, 0.95) 100%),
     url('/assets/auth/auth-foto.jpg') center 18% / cover no-repeat,
     radial-gradient(120% 80% at 85% 10%, #4d97ff 0%, transparent 55%),
     linear-gradient(160deg, #1877f2 0%, #145dbf 55%, #0d3f8c 100%);
