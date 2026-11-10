@@ -95,15 +95,27 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+var hashedBuildFile = new System.Text.RegularExpressions.Regex(
+    @"-[A-Z0-9]{8}\.(js|css)$", System.Text.RegularExpressions.RegexOptions.Compiled);
+
 app.UseDefaultFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
     // O index.html aponta para os ficheiros JS com hash de cada compilação. Se o navegador o guardar em
     // cache, depois de um deploy continua a pedir ficheiros que já não existem e a página deixa de funcionar.
+    // Os ficheiros JS/CSS têm um hash no nome (ex.: main-YWNEWYWH.js), por isso nunca mudam: o navegador pode
+    // guardá-los durante um ano e não volta a pedi-los ao servidor, que está longe (EUA) e cada pedido custa ~0,4 s.
+    // Logótipos e fotografias ficam um dia em cache.
     OnPrepareResponse = ctx =>
     {
-        if (ctx.File.Name.Equals("index.html", StringComparison.OrdinalIgnoreCase))
-            ctx.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+        var name = ctx.File.Name;
+        var headers = ctx.Context.Response.Headers;
+        if (name.Equals("index.html", StringComparison.OrdinalIgnoreCase))
+            headers.CacheControl = "no-cache, no-store, must-revalidate";
+        else if (hashedBuildFile.IsMatch(name))
+            headers.CacheControl = "public, max-age=31536000, immutable";
+        else if (ctx.Context.Request.Path.StartsWithSegments("/assets") || name.Equals("favicon.ico", StringComparison.OrdinalIgnoreCase))
+            headers.CacheControl = "public, max-age=86400";
     }
 });
 
