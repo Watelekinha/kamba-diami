@@ -23,6 +23,13 @@
   justify-content: space-between;
   padding: 0.85rem 1.25rem;
   max-width: 1180px;
+
+  // Com sessão iniciada a app usa mais largura (alinhada com o menu lateral e o feed).
+  &.wide {
+    max-width: 1440px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 .brand {
@@ -376,6 +383,7 @@
 
 @media (max-width: 900px) {
   .marketing-link { display: none; }
+  .navbar-inner.wide { padding-left: 1rem; padding-right: 1rem; }
 }
 
 @media (max-width: 480px) {

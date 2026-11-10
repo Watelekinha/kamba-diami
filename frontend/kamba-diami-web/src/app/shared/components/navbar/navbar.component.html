@@ -1,5 +1,5 @@
 <header class="navbar">
-  <div class="container navbar-inner">
+  <div class="container navbar-inner" [class.wide]="showLoggedInNav()">
     <a [routerLink]="homeLink()" class="brand" aria-label="Kamba Diami, o teu amigo em casa">
       <svg viewBox="4 8 112 106" class="brand-logo" aria-hidden="true">
         <path class="brand-house" d="M12 58 L60 18 L108 58 M22 50 V106 H98 V50" />
