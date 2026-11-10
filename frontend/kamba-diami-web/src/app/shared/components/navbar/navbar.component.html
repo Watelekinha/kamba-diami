@@ -108,15 +108,43 @@
           </div>
         }
 
-        <button class="nav-btn nav-btn-outline" (click)="logout()">Sair</button>
+        <span class="nav-divider" aria-hidden="true"></span>
 
-        <a routerLink="/profile" class="nav-avatar" [attr.aria-label]="'Perfil de ' + displayName()">
-          @if (photoUrl()) {
-            <img [src]="photoUrl()!" [alt]="displayName()" (error)="onPhotoError()" />
-          } @else {
-            <span class="nav-avatar-initials">{{ initials() }}</span>
+        <div class="user-wrap">
+          <button
+            type="button"
+            class="user-chip"
+            (click)="toggleUserMenu()"
+            [attr.aria-expanded]="userMenuOpen()"
+            aria-haspopup="menu"
+          >
+            <span class="nav-avatar">
+              @if (photoUrl()) {
+                <img [src]="photoUrl()!" alt="" (error)="onPhotoError()" />
+              } @else {
+                <span class="nav-avatar-initials">{{ initials() }}</span>
+              }
+            </span>
+            <span class="user-text">
+              <span class="user-name">{{ displayName() }}</span>
+              <span class="user-role">{{ roleLabel() }}</span>
+            </span>
+            <svg class="user-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+          </button>
+
+          @if (userMenuOpen()) {
+            <div class="user-menu" role="menu">
+              <a routerLink="/profile" role="menuitem" (click)="userMenuOpen.set(false)">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6" /><path d="M5 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5" /></svg>
+                O meu perfil
+              </a>
+              <button type="button" role="menuitem" class="user-menu-logout" (click)="logout()">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" /><path d="M10 17l-5-5 5-5" /><path d="M5 12h11" /></svg>
+                Sair
+              </button>
+            </div>
           }
-        </a>
+        </div>
       } @else {
         <a class="marketing-link" routerLink="/" fragment="quem-somos" (click)="scrollToFragment($event, 'quem-somos')">Quem somos</a>
         <a class="marketing-link" routerLink="/" fragment="como-funciona" (click)="scrollToFragment($event, 'como-funciona')">Como funciona</a>

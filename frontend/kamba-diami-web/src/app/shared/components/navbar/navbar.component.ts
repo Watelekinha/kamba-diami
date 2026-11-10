@@ -35,6 +35,19 @@ export class NavbarComponent {
     const user = this.authService.currentUser();
     return user ? `${user.firstName} ${user.lastName}`.trim() : 'Perfil';
   });
+  readonly userMenuOpen = signal(false);
+  readonly roleLabel = computed(() => {
+    switch (this.authService.currentUser()?.role) {
+      case 'Familia':
+        return 'Família';
+      case 'Secretaria':
+        return 'Secretária do lar';
+      case 'Admin':
+        return 'Administração';
+      default:
+        return '';
+    }
+  });
   readonly initials = computed(() => {
     const user = this.authService.currentUser();
     if (!user) {
@@ -102,7 +115,13 @@ export class NavbarComponent {
     this.photoBroken.set(true);
   }
 
+  toggleUserMenu(): void {
+    this.userMenuOpen.update((open) => !open);
+    this.notificationsOpen.set(false);
+  }
+
   logout(): void {
+    this.userMenuOpen.set(false);
     this.authService.logout();
     this.router.navigate(['/']);
   }
@@ -119,6 +138,7 @@ export class NavbarComponent {
 
   toggleNotifications(): void {
     this.notificationsOpen.update((open) => !open);
+    this.userMenuOpen.set(false);
   }
 
   markAllAsRead(): void {
@@ -151,8 +171,13 @@ export class NavbarComponent {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    if (this.notificationsOpen() && !this.host.nativeElement.contains(event.target as Node)) {
+    const target = event.target as Element;
+    if (this.notificationsOpen() && !this.host.nativeElement.contains(target)) {
       this.notificationsOpen.set(false);
+    }
+    // O menu do utilizador fecha ao clicar fora dele (incluindo noutro sítio da navbar).
+    if (this.userMenuOpen() && !target.closest?.('.user-wrap')) {
+      this.userMenuOpen.set(false);
     }
   }
 }

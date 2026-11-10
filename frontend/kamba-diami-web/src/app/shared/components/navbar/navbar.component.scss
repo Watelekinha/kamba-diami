@@ -206,29 +206,47 @@
   border: 2px solid #fff;
 }
 
+.nav-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--kd-border);
+  margin: 0 -0.4rem;
+}
+
+// Canto do utilizador: foto, nome e tipo de perfil; abre um menu com "O meu perfil" e "Sair".
+.user-wrap {
+  position: relative;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.25rem 0.4rem 0.25rem 0.25rem;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover,
+  &[aria-expanded='true'] { background: #f2f4f6; }
+
+  &:focus-visible { outline: 3px solid rgba(24, 119, 242, 0.35); outline-offset: 2px; }
+}
+
 .nav-avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   overflow: hidden;
-  border: 1.5px solid var(--kd-border);
-  background: var(--kd-rose);
-  text-decoration: none;
+  background: #e3f1ea;
   flex-shrink: 0;
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    border-color: var(--kd-clay);
-    transform: none;
-    box-shadow: none;
-  }
-
-  &::after {
-    content: none !important;
-  }
 
   img {
     width: 100%;
@@ -239,11 +257,106 @@
 }
 
 .nav-avatar-initials {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 800;
   letter-spacing: 0.02em;
-  color: var(--kd-text);
+  color: #1f6b47;
   line-height: 1;
+}
+
+.user-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  max-width: 170px;
+  line-height: 1.15;
+}
+
+.user-name {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--kd-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 0.82rem;
+  color: var(--kd-text-muted);
+  white-space: nowrap;
+}
+
+.user-chevron {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--kd-text-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.15s ease;
+}
+
+.user-chip[aria-expanded='true'] .user-chevron { transform: rotate(180deg); }
+
+.user-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 200px;
+  padding: 0.4rem;
+  background: #fff;
+  border: 1px solid var(--kd-border);
+  border-radius: 14px;
+  box-shadow: 0 20px 40px -20px rgba(28, 30, 33, 0.35);
+  z-index: 20;
+  display: grid;
+  gap: 0.15rem;
+
+  // :not(.nav-btn) para ganhar à regra genérica ".links a:not(.nav-btn)".
+  a:not(.nav-btn),
+  button {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--kd-text);
+    text-decoration: none;
+    text-align: left;
+    cursor: pointer;
+
+    &::after { content: none !important; }
+    &:hover { background: #f2f4f6; }
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .user-menu-logout { color: #b42335; }
+}
+
+@media (max-width: 760px) {
+  .user-text,
+  .user-chevron,
+  .nav-divider { display: none; }
+  .nav-avatar { width: 38px; height: 38px; }
 }
 
 .nav-btn {
