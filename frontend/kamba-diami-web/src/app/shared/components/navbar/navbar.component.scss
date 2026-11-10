@@ -21,12 +21,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 1.25rem;
-  max-width: 1180px;
+  padding: 0.85rem 2rem;
+  max-width: none;
 
-  // Com sessão iniciada a app usa mais largura (alinhada com o menu lateral e o feed).
+  // Com sessão iniciada a navbar ocupa a largura toda: logótipo e ícones encostados aos cantos.
   &.wide {
-    max-width: 1440px;
+    max-width: none;
     padding-left: 2rem;
     padding-right: 2rem;
   }
