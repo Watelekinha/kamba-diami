@@ -22,6 +22,7 @@
       </header>
 
       <!-- Uma coluna, pela ordem em que se preenche: serviços, pagamento, local e detalhes. -->
+      <div class="posting-body">
       <div class="posting-card">
       <fieldset class="step" [class.step--done]="servicesDone">
         <legend class="step-head">
@@ -233,14 +234,6 @@
 
       <!-- Barra fixa no fundo: o progresso e o botão de publicar estão sempre à vista. -->
       <div class="actions">
-        <div class="progress">
-          <strong>{{ completedSteps }} de 3</strong>
-          <ul class="checklist" aria-label="Campos obrigatórios">
-            <li [class.done]="servicesDone">Serviços</li>
-            <li [class.done]="conditionsDone">Valor</li>
-            <li [class.done]="locationsDone">Localidade</li>
-          </ul>
-        </div>
         <div class="action-buttons">
           <a class="btn btn-outline" routerLink="/feed">Cancelar</a>
           <button class="btn btn-primary btn-publish" type="submit" [disabled]="submitting()">
@@ -248,6 +241,21 @@
           </button>
         </div>
       </div>
+      </div>
+
+      <!-- Caixa ao lado com o progresso dos campos obrigatórios. -->
+      <aside class="progress-box" aria-label="Progresso">
+        <div class="progress-top">
+          <strong>{{ completedSteps }} de 3 concluídos</strong>
+          <span>{{ (completedSteps / 3) * 100 | number: '1.0-0' }}%</span>
+        </div>
+        <div class="progress-bar"><span [style.width.%]="(completedSteps / 3) * 100"></span></div>
+        <ul class="checklist" aria-label="Campos obrigatórios">
+          <li [class.done]="servicesDone">Serviços</li>
+          <li [class.done]="conditionsDone">Valor</li>
+          <li [class.done]="locationsDone">Localidade</li>
+        </ul>
+      </aside>
       </div>
     </form>
   </div>
