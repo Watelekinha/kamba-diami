@@ -42,11 +42,11 @@ svg {
   border-radius: 40% 60% 55% 45% / 58% 42% 58% 42%;
 }
 
-// A mesma largura da navbar com sessão iniciada.
+// Uma só coluna, centrada e não demasiado larga, para se ler de cima para baixo.
 .posting-layout {
   position: relative;
   z-index: 1;
-  max-width: 1376px;
+  max-width: 820px;
   margin: 0 auto;
 }
 
@@ -105,32 +105,12 @@ svg {
   line-height: 1.45;
 }
 
-/* ---------- duas colunas ---------- */
-
-.form-cols {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 0 2.5rem;
-  border-top: 1px solid var(--kd-border);
-
-  @media (max-width: 960px) { grid-template-columns: minmax(0, 1fr); }
-}
-
-.form-col {
-  min-width: 0;
-}
-
 .step {
   border: 0;
+  border-top: 1px solid var(--kd-border);
   margin: 0;
   padding: 1.1rem 0;
   min-width: 0;
-
-  & + .step { border-top: 1px solid var(--kd-border); }
-}
-
-@media (max-width: 960px) {
-  .form-col + .form-col { border-top: 1px solid var(--kd-border); }
 }
 
 .step-head {
@@ -438,8 +418,7 @@ svg {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0 0.9rem;
 
-  @media (max-width: 1180px) { grid-template-columns: 1fr 1fr; row-gap: 0.8rem; }
-  @media (max-width: 560px) { grid-template-columns: 1fr; }
+  @media (max-width: 640px) { grid-template-columns: 1fr; row-gap: 0.8rem; }
 }
 
 .select-wrap {
@@ -456,6 +435,7 @@ svg {
     font-size: 1rem;
     font-weight: 700;
     color: var(--kd-text);
+    box-sizing: border-box;
     appearance: none;
     cursor: pointer;
 
@@ -499,9 +479,11 @@ svg {
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--kd-primary) 18%, transparent);
   }
 
+  // 46px + 2px de contorno = 48px, a mesma altura do dropdown do tipo de pagamento.
   input {
     flex: 1;
     min-width: 0;
+    height: 46px;
     border: 0 !important;
     border-radius: 0 !important;
     outline: none !important;

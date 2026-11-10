@@ -21,213 +21,207 @@
         </div>
       </header>
 
-      <!-- Duas colunas para caber quase tudo no ecrã: serviços e detalhes à esquerda, pagamento e local à direita. -->
-      <div class="form-cols">
-        <div class="form-col">
-          <fieldset class="step" [class.step--done]="servicesDone">
-            <legend class="step-head">
-              <span class="step-badge">
-                @if (servicesDone) {
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-                } @else { 1 }
-              </span>
-              <span>
-                <span class="step-title">{{ isFamilia ? 'Que serviços precisas?' : 'Que serviços fazes?' }}</span>
-                <span class="step-desc">Podes escolher mais do que um.</span>
-              </span>
-            </legend>
+      <!-- Uma coluna, pela ordem em que se preenche: serviços, pagamento, local e detalhes. -->
+      <fieldset class="step" [class.step--done]="servicesDone">
+        <legend class="step-head">
+          <span class="step-badge">
+            @if (servicesDone) {
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+            } @else { 1 }
+          </span>
+          <span>
+            <span class="step-title">{{ isFamilia ? 'Que serviços precisas?' : 'Que serviços fazes?' }}</span>
+            <span class="step-desc">Podes escolher mais do que um.</span>
+          </span>
+        </legend>
 
-            <div class="services-select">
-              <button
-                type="button"
-                class="services-trigger"
-                [class.open]="servicesOpen()"
-                [attr.aria-expanded]="servicesOpen()"
-                aria-haspopup="listbox"
-                (click)="servicesOpen.set(!servicesOpen())"
-              >
-                @if (selectedCategories.length === 0) {
-                  <span class="services-placeholder">Escolhe os serviços…</span>
-                } @else {
-                  <span class="services-chips">
-                    @for (category of selectedCategories; track category.id) {
-                      <span class="services-chip">
-                        {{ category.name }}
-                        <span
-                          class="services-chip-x"
-                          role="button"
-                          [attr.aria-label]="'Tirar ' + category.name"
-                          (click)="$event.stopPropagation(); toggleCategory(category.id)"
-                        >×</span>
-                      </span>
-                    }
+        <div class="services-select">
+          <button
+            type="button"
+            class="services-trigger"
+            [class.open]="servicesOpen()"
+            [attr.aria-expanded]="servicesOpen()"
+            aria-haspopup="listbox"
+            (click)="servicesOpen.set(!servicesOpen())"
+          >
+            @if (selectedCategories.length === 0) {
+              <span class="services-placeholder">Escolhe os serviços…</span>
+            } @else {
+              <span class="services-chips">
+                @for (category of selectedCategories; track category.id) {
+                  <span class="services-chip">
+                    {{ category.name }}
+                    <span
+                      class="services-chip-x"
+                      role="button"
+                      [attr.aria-label]="'Tirar ' + category.name"
+                      (click)="$event.stopPropagation(); toggleCategory(category.id)"
+                    >×</span>
                   </span>
                 }
-                <svg class="services-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-              </button>
-
-              @if (servicesOpen()) {
-                <div class="services-panel" role="listbox" aria-multiselectable="true" aria-label="Categorias de serviço">
-                  @for (category of categories; track category.id) {
-                    <button
-                      type="button"
-                      role="option"
-                      class="services-option"
-                      [class.selected]="selectedCategoryIds.has(category.id)"
-                      [attr.aria-selected]="selectedCategoryIds.has(category.id)"
-                      (click)="toggleCategory(category.id)"
-                    >
-                      <span class="option-check" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-                      </span>
-                      <span class="chip-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                          @for (d of iconFor(category.name); track $index) {
-                            <path [attr.d]="d" />
-                          }
-                        </svg>
-                      </span>
-                      {{ category.name }}
-                    </button>
-                  }
-                  <div class="services-panel-foot">
-                    <button type="button" class="services-done" (click)="servicesOpen.set(false)">Concluído</button>
-                  </div>
-                </div>
-              }
-            </div>
-
-            @if (isOtherCategorySelected) {
-              <div class="form-field other-field">
-                <label for="customCategoryName">Qual é o serviço? *</label>
-                <input
-                  id="customCategoryName"
-                  name="customCategoryName"
-                  [(ngModel)]="customCategoryName"
-                  placeholder="Ex.: Explicações escolares"
-                  maxlength="60"
-                />
-                <small class="hint">Este serviço passa a estar disponível para todos os utilizadores.</small>
-              </div>
+              </span>
             }
-          </fieldset>
+            <svg class="services-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+          </button>
 
-          <fieldset class="step">
-            <legend class="step-head">
-              <span class="step-badge step-badge--soft">4</span>
-              <span>
-                <span class="step-title">Mais detalhes <span class="optional">(opcional)</span></span>
-                <span class="step-desc">
-                  {{ isFamilia ? 'Rotina, dias da semana, número de pessoas em casa...' : 'Experiência, disponibilidade, referências...' }}
-                </span>
-              </span>
-            </legend>
-
-            <div class="form-field">
-              <label for="comments" class="visually-hidden">Comentário</label>
-              <textarea
-                id="comments"
-                name="comments"
-                rows="3"
-                [maxlength]="commentsMaxLength"
-                [placeholder]="isFamilia ? 'Ex.: Procuramos uma pessoa pontual para limpeza e cozinha, de segunda a sexta.' : 'Ex.: Tenho 5 anos de experiência com crianças e posso começar já.'"
-                [(ngModel)]="comments"
-              ></textarea>
-              <small class="hint counter">{{ comments.length }} / {{ commentsMaxLength }}</small>
-            </div>
-          </fieldset>
-        </div>
-
-        <div class="form-col">
-          <fieldset class="step" [class.step--done]="conditionsDone">
-            <legend class="step-head">
-              <span class="step-badge">
-                @if (conditionsDone) {
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-                } @else { 2 }
-              </span>
-              <span>
-                <span class="step-title">Condições de pagamento</span>
-                <span class="step-desc">Passam para o contrato, se houver acordo.</span>
-              </span>
-            </legend>
-
-            <div class="grid-3">
-              <div class="form-field">
-                <label for="paymentType">Tipo de pagamento *</label>
-                <div class="select-wrap">
-                  <select id="paymentType" name="paymentType" [(ngModel)]="paymentType">
-                    <option value="Diaria">Diária</option>
-                    <option value="Mensal">Mensal</option>
-                  </select>
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-                </div>
-                <small class="hint">{{ paymentType === 'Mensal' ? 'Salário fixo todos os meses.' : 'Por cada dia de trabalho.' }}</small>
-              </div>
-
-              <div class="form-field">
-                <label for="paymentValue">Valor {{ paymentType === 'Mensal' ? 'mensal' : 'por dia' }} *</label>
-                <div class="input-affix" [class.input-affix--warn]="isBelowMonthlyMinimum">
-                  <input
-                    id="paymentValue"
-                    name="paymentValue"
-                    type="number"
-                    inputmode="numeric"
-                    min="1"
-                    step="500"
-                    [placeholder]="paymentType === 'Mensal' ? '50000' : '5000'"
-                    [(ngModel)]="paymentValue"
-                    required
-                  />
-                  <span class="affix">Kzs</span>
-                </div>
-                @if (isBelowMonthlyMinimum) {
-                  <small class="hint hint--warn">O valor mensal mínimo é de {{ minimumMonthlyValue | kwanza }}.</small>
-                } @else if (paymentType === 'Mensal') {
-                  <small class="hint">Mínimo de {{ minimumMonthlyValue | kwanza }} por mês.</small>
-                }
-              </div>
-
-              <div class="form-field">
-                <label for="hoursPerDay">Horas por dia <span class="optional">(opcional)</span></label>
-                <div class="input-affix">
-                  <input
-                    id="hoursPerDay"
-                    name="hoursPerDay"
-                    type="number"
-                    inputmode="numeric"
-                    min="1"
-                    max="24"
-                    placeholder="8"
-                    [(ngModel)]="hoursPerDay"
-                  />
-                  <span class="affix">horas</span>
-                </div>
-                <small class="hint">Pelo menos 1 hora de intervalo por dia.</small>
+          @if (servicesOpen()) {
+            <div class="services-panel" role="listbox" aria-multiselectable="true" aria-label="Categorias de serviço">
+              @for (category of categories; track category.id) {
+                <button
+                  type="button"
+                  role="option"
+                  class="services-option"
+                  [class.selected]="selectedCategoryIds.has(category.id)"
+                  [attr.aria-selected]="selectedCategoryIds.has(category.id)"
+                  (click)="toggleCategory(category.id)"
+                >
+                  <span class="option-check" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+                  </span>
+                  <span class="chip-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      @for (d of iconFor(category.name); track $index) {
+                        <path [attr.d]="d" />
+                      }
+                    </svg>
+                  </span>
+                  {{ category.name }}
+                </button>
+              }
+              <div class="services-panel-foot">
+                <button type="button" class="services-done" (click)="servicesOpen.set(false)">Concluído</button>
               </div>
             </div>
-          </fieldset>
-
-          <fieldset class="step" [class.step--done]="locationsDone">
-            <legend class="step-head">
-              <span class="step-badge">
-                @if (locationsDone) {
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-                } @else { 3 }
-              </span>
-              <span>
-                <span class="step-title">{{ isFamilia ? 'Onde é o trabalho?' : 'Onde podes trabalhar?' }}</span>
-                <span class="step-desc">Adiciona um ou mais municípios.</span>
-              </span>
-            </legend>
-
-            <app-multi-location-picker
-              (selectionChange)="onLocationsChange($event)"
-              (labelsChange)="onLocationLabelsChange($event)"
-            ></app-multi-location-picker>
-          </fieldset>
+          }
         </div>
-      </div>
+
+        @if (isOtherCategorySelected) {
+          <div class="form-field other-field">
+            <label for="customCategoryName">Qual é o serviço? *</label>
+            <input
+              id="customCategoryName"
+              name="customCategoryName"
+              [(ngModel)]="customCategoryName"
+              placeholder="Ex.: Explicações escolares"
+              maxlength="60"
+            />
+            <small class="hint">Este serviço passa a estar disponível para todos os utilizadores.</small>
+          </div>
+        }
+      </fieldset>
+
+      <fieldset class="step" [class.step--done]="conditionsDone">
+        <legend class="step-head">
+          <span class="step-badge">
+            @if (conditionsDone) {
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+            } @else { 2 }
+          </span>
+          <span>
+            <span class="step-title">Condições de pagamento</span>
+            <span class="step-desc">Passam para o contrato, se houver acordo.</span>
+          </span>
+        </legend>
+
+        <div class="grid-3">
+          <div class="form-field">
+            <label for="paymentType">Tipo de pagamento *</label>
+            <div class="select-wrap">
+              <select id="paymentType" name="paymentType" [(ngModel)]="paymentType">
+                <option value="Diaria">Diária</option>
+                <option value="Mensal">Mensal</option>
+              </select>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+            </div>
+            <small class="hint">{{ paymentType === 'Mensal' ? 'Salário fixo todos os meses.' : 'Por cada dia de trabalho.' }}</small>
+          </div>
+
+          <div class="form-field">
+            <label for="paymentValue">Valor {{ paymentType === 'Mensal' ? 'mensal' : 'por dia' }} *</label>
+            <div class="input-affix" [class.input-affix--warn]="isBelowMonthlyMinimum">
+              <input
+                id="paymentValue"
+                name="paymentValue"
+                type="number"
+                inputmode="numeric"
+                min="1"
+                step="500"
+                [placeholder]="paymentType === 'Mensal' ? '50000' : '5000'"
+                [(ngModel)]="paymentValue"
+                required
+              />
+              <span class="affix">Kzs</span>
+            </div>
+            @if (isBelowMonthlyMinimum) {
+              <small class="hint hint--warn">O valor mensal mínimo é de {{ minimumMonthlyValue | kwanza }}.</small>
+            } @else if (paymentType === 'Mensal') {
+              <small class="hint">Mínimo de {{ minimumMonthlyValue | kwanza }} por mês.</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="hoursPerDay">Horas por dia <span class="optional">(opcional)</span></label>
+            <div class="input-affix">
+              <input
+                id="hoursPerDay"
+                name="hoursPerDay"
+                type="number"
+                inputmode="numeric"
+                min="1"
+                max="24"
+                placeholder="8"
+                [(ngModel)]="hoursPerDay"
+              />
+              <span class="affix">horas</span>
+            </div>
+            <small class="hint">Pelo menos 1 hora de intervalo por dia.</small>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="step" [class.step--done]="locationsDone">
+        <legend class="step-head">
+          <span class="step-badge">
+            @if (locationsDone) {
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+            } @else { 3 }
+          </span>
+          <span>
+            <span class="step-title">{{ isFamilia ? 'Onde é o trabalho?' : 'Onde podes trabalhar?' }}</span>
+            <span class="step-desc">Adiciona um ou mais municípios.</span>
+          </span>
+        </legend>
+
+        <app-multi-location-picker
+          (selectionChange)="onLocationsChange($event)"
+          (labelsChange)="onLocationLabelsChange($event)"
+        ></app-multi-location-picker>
+      </fieldset>
+
+      <fieldset class="step">
+        <legend class="step-head">
+          <span class="step-badge step-badge--soft">4</span>
+          <span>
+            <span class="step-title">Mais detalhes <span class="optional">(opcional)</span></span>
+            <span class="step-desc">
+              {{ isFamilia ? 'Rotina, dias da semana, número de pessoas em casa...' : 'Experiência, disponibilidade, referências...' }}
+            </span>
+          </span>
+        </legend>
+
+        <div class="form-field">
+          <label for="comments" class="visually-hidden">Comentário</label>
+          <textarea
+            id="comments"
+            name="comments"
+            rows="3"
+            [maxlength]="commentsMaxLength"
+            [placeholder]="isFamilia ? 'Ex.: Procuramos uma pessoa pontual para limpeza e cozinha, de segunda a sexta.' : 'Ex.: Tenho 5 anos de experiência com crianças e posso começar já.'"
+            [(ngModel)]="comments"
+          ></textarea>
+          <small class="hint counter">{{ comments.length }} / {{ commentsMaxLength }}</small>
+        </div>
+      </fieldset>
 
       @if (errorMessage()) {
         <div class="error-banner" role="alert">
