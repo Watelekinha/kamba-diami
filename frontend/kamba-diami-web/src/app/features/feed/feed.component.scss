@@ -16,10 +16,9 @@
   padding: 1.75rem 0 4rem;
 }
 
+// O feed fica na coluna ao lado do menu lateral, que já trata das margens da página.
 .feed-shell {
   max-width: 900px;
-  margin: 0 auto;
-  padding: 0 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;

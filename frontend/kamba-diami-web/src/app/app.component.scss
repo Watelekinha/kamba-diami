@@ -6,14 +6,16 @@
   font-family: var(--kd-font-body);
 }
 
-// Com menu lateral: coluna fixa à esquerda e o conteúdo da página ao lado.
+// Com menu lateral: a mesma largura e margens da navbar (1180px), para o menu ficar alinhado com o
+// logótipo e o conteúdo começar logo a seguir ao menu.
 main.with-side {
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
-  gap: 1rem;
-  max-width: 1440px;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 2.5rem;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 0 1.25rem;
+  box-sizing: border-box;
 }
 
 .app-side {
@@ -24,11 +26,21 @@ main.with-side .app-content {
   min-width: 0;
 }
 
+// As páginas usam .container (centrado, com margens próprias). Dentro da coluna de conteúdo
+// ocupa a largura toda, senão ficava um espaço vazio entre o menu e o conteúdo.
+:host ::ng-deep main.with-side .app-content .container {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 @media (max-width: 900px) {
   main.with-side {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
-    padding: 0;
+    padding: 0 1rem;
   }
 
   .app-side { padding-top: 0; }
