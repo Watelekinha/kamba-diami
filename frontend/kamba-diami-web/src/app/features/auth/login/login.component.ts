@@ -10,7 +10,7 @@ import { apiErrorMessage } from '../../../core/utils/api-error';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrls: ['../auth-layout.scss', './login.component.scss']
 })
 export class LoginComponent {
   email = '';

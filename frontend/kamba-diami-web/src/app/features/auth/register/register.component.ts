@@ -13,7 +13,7 @@ import { LocationPickerComponent } from '../../../shared/components/location-pic
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, LocationPickerComponent],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  styleUrls: ['../auth-layout.scss', './register.component.scss']
 })
 export class RegisterComponent {
   role: UserRole = 'Familia';

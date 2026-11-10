@@ -1,246 +1,83 @@
-:host {
-  --a-bg: var(--kd-bg);
-  --a-yellow: var(--kd-sun);
-  --a-yellow-soft: var(--kd-sun);
-  --a-yellow-deep: var(--kd-sun-deep);
-  --a-blue: var(--kd-sky);
-  --a-blue-soft: var(--kd-sky);
-  --a-blue-deep: var(--kd-sky-deep);
-  --a-ink: var(--kd-text);
-  --a-ink-muted: var(--kd-text-muted);
-  --a-line: var(--kd-border);
-  --a-font-display: var(--kd-font-display);
-  --a-font-body: var(--kd-font-body);
+// O ecrã dividido está em ../auth-layout.scss, partilhado com o login. Aqui só o que é do registo.
 
-  display: block;
-  font-family: var(--a-font-body);
+.role-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+
+  legend { padding: 0; margin-bottom: 0.55rem; }
 }
 
-.auth-page {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 4rem 1rem 5rem;
-  background: var(--a-bg);
-  min-height: calc(100vh - 65px);
-  overflow: clip;
-}
-
-.auth-blob {
-  position: absolute;
-  filter: blur(10px);
-  opacity: 0.7;
-  z-index: 0;
-}
-.auth-blob--yellow {
-  width: 340px;
-  height: 340px;
-  background: var(--a-yellow);
-  border-radius: 62% 38% 48% 52% / 45% 55% 45% 55%;
-  top: -110px;
-  right: -90px;
-}
-.auth-blob--blue {
-  width: 280px;
-  height: 280px;
-  background: var(--a-blue);
-  border-radius: 40% 60% 55% 45% / 58% 42% 58% 42%;
-  bottom: -90px;
-  left: -80px;
-}
-
-.auth-fade {
-  opacity: 0;
-  transform: translateY(18px);
-  animation: auth-fade-in 0.7s ease forwards;
-}
-@keyframes auth-fade-in {
-  to { opacity: 1; transform: translateY(0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .auth-fade { opacity: 1; transform: none; animation: none; }
-  .auth-blob { animation: none; }
-}
-
-.auth-card {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 640px;
-  background: #fff;
-  border: 1px solid var(--a-line);
-  border-radius: 22px;
-  padding: 2.4rem 2.4rem 2.2rem;
-  box-shadow: 0 24px 48px -24px rgba(33, 43, 54, 0.25);
-}
-
-.auth-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 13px;
-  background: var(--kd-sky);
-  border-radius: 42% 58% 50% 50% / 48% 46% 54% 52%;
-  margin-bottom: 1.1rem;
-}
-.auth-mark-icon {
-  width: 30px;
-  height: 28px;
-  display: block;
-}
-
-h1 {
-  font-family: var(--a-font-display);
-  font-size: 1.9rem;
-  font-weight: 600;
-  color: var(--a-ink);
-  margin: 0 0 0.4rem;
-}
-
-.subtitle {
-  color: var(--a-ink-muted);
-  margin: 0 0 1.6rem;
-  font-size: 0.96rem;
-}
-
-.role-toggle {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.6rem;
-}
-
-.role-btn {
-  flex: 1;
-  padding: 0.8rem 0.6rem;
-  border-radius: 14px;
-  border: 1.5px solid var(--a-line);
-  background: #fff;
-  font-family: var(--a-font-body);
-  font-weight: 600;
-  font-size: 0.92rem;
-  color: var(--a-ink-muted);
-  cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-
-  &:hover { transform: translateY(-1px); }
-
-  &.active {
-    border-color: var(--a-blue-deep);
-    background: var(--a-blue-soft);
-    color: var(--a-ink);
-  }
-}
-
-.grid-2 {
+.role-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0 1rem;
-
-  @media (max-width: 560px) {
-    grid-template-columns: 1fr;
-  }
+  gap: 0.75rem;
 }
 
-.form-field {
-  label { color: var(--a-ink-muted); }
-
-  input {
-    border-color: var(--a-line);
-    font-family: var(--a-font-body);
-
-    &:focus {
-      outline: 2px solid var(--a-blue-deep);
-      border-color: var(--a-blue-deep);
-    }
-  }
-}
-
-.hint {
-  display: block;
-  color: var(--a-ink-muted);
-  font-size: 0.8rem;
-  margin-top: 0.7rem;
-}
-
-.error-text {
-  color: #c0392b;
-  font-size: 0.85rem;
-  margin-top: -0.4rem;
-}
-
-.btn-auth-primary {
-  width: 100%;
-  margin-top: 0.6rem;
-  padding: 0.85rem 1.4rem;
-  border: none;
-  border-radius: 100px;
-  background: var(--kd-clay);
-  color: #fffdf8;
-  font-family: var(--a-font-body);
-  font-weight: 700;
-  font-size: 0.96rem;
+.role-card {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  border: 1.5px solid var(--au-line);
+  border-radius: 12px;
+  background: #fff;
+  text-align: left;
+  font: inherit;
+  color: var(--au-ink);
   cursor: pointer;
-  box-shadow: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
 
-  &:hover:not(:disabled) {
-    background: var(--kd-clay-deep);
-  }
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  &:hover { border-color: var(--au-primary); }
+  &:focus-visible { outline: 3px solid rgba(24, 119, 242, 0.35); outline-offset: 2px; }
+
+  &.active {
+    border-color: var(--au-primary);
+    background: var(--au-primary-soft);
+    box-shadow: inset 0 0 0 1px var(--au-primary);
   }
 }
 
-.switch-link {
-  margin-top: 1.4rem;
-  font-size: 0.9rem;
-  text-align: center;
-  color: var(--a-ink-muted);
+.role-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+  font-size: 1rem;
 
-  a {
-    color: var(--a-blue-deep);
-    font-weight: 600;
-    text-decoration: none;
+  svg { width: 18px; height: 18px; stroke: var(--au-primary); fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+}
 
-    &:hover { text-decoration: underline; }
-  }
+.role-desc {
+  font-size: 0.86rem;
+  color: var(--au-muted);
 }
 
 .rules {
   list-style: none;
-  margin: 0.45rem 0 0;
+  margin: -0.4rem 0 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 0.8rem;
-  font-size: 0.76rem;
-  color: var(--kd-text-muted);
+  gap: 0.25rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--au-muted);
 
   li::before { content: '○ '; }
   li.met { color: #1f7a33; }
   li.met::before { content: '✓ '; }
 }
 
-.show-toggle {
-  margin-top: 0.45rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--kd-sky-deep);
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-
-  &:hover { text-decoration: underline; }
+.privacy-note {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--au-muted);
+  text-align: center;
 }
 
-.privacy-note {
-  margin: 1rem 0 0;
-  font-size: 0.76rem;
-  line-height: 1.45;
-  color: var(--kd-text-muted);
+@media (max-width: 420px) {
+  .role-cards { grid-template-columns: 1fr; }
 }
