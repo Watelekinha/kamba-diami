@@ -1,0 +1,26 @@
+<nav class="side-menu" aria-label="Menu dos anúncios">
+  <a class="side-link" routerLink="/feed" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7" /><path d="M6 9.5V20h12V9.5" /><path d="M10 20v-5.5h4V20" /></svg>
+    Início
+  </a>
+  <a class="side-link" routerLink="/job-postings/mine" routerLinkActive="active">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7" width="17" height="12.5" rx="2" /><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7" /><path d="M3.5 12.5h17" /></svg>
+    As minhas publicações
+  </a>
+  <a class="side-link" routerLink="/job-postings/saved" routerLinkActive="active">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 4h11v16l-5.5-3.8L6.5 20Z" /></svg>
+    Guardadas
+    @if (savedPostings.count() > 0) {
+      <span class="side-count">{{ savedPostings.count() }}</span>
+    }
+  </a>
+
+  <div class="side-card">
+    <span class="side-card-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+    </span>
+    <strong>Publicar anúncio</strong>
+    <p>{{ publishHint() }}</p>
+    <a class="side-card-btn" routerLink="/job-postings/new">Publicar</a>
+  </div>
+</nav>

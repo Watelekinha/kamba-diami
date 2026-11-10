@@ -1,0 +1,133 @@
+:host {
+  display: block;
+}
+
+.side-menu {
+  position: sticky;
+  top: calc(var(--kd-navbar-height) + 1.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.side-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  color: var(--kd-text-muted);
+  font-weight: 700;
+  font-size: 0.98rem;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  svg {
+    width: 21px;
+    height: 21px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--kd-text);
+  }
+
+  &.active {
+    background: #fff;
+    color: var(--kd-primary);
+    box-shadow: 0 6px 16px -10px rgba(28, 30, 33, 0.35);
+  }
+
+  &:focus-visible { outline: 3px solid rgba(24, 119, 242, 0.35); outline-offset: 2px; }
+}
+
+.side-count {
+  margin-left: auto;
+  min-width: 24px;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--kd-sage);
+  color: #1f5f40;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.side-card {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 16px;
+  background: linear-gradient(160deg, #e5f4ec 0%, #e3eefc 100%);
+  display: grid;
+  gap: 0.45rem;
+
+  strong { font-size: 1rem; color: var(--kd-text); }
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--kd-text-muted);
+  }
+}
+
+.side-card-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 0.3rem;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: #2f8a5c;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+}
+
+.side-card-btn {
+  margin-top: 0.4rem;
+  justify-self: start;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  background: linear-gradient(120deg, #2f8a5c, #1877f2);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.86rem;
+  text-decoration: none;
+
+  &:hover { filter: brightness(1.06); }
+}
+
+// Em ecrãs estreitos o menu passa a uma fila de separadores por cima do conteúdo.
+@media (max-width: 900px) {
+  .side-menu {
+    position: static;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.4rem;
+    padding: 0.75rem 1rem 0;
+    scrollbar-width: none;
+  }
+
+  .side-link {
+    flex-shrink: 0;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.88rem;
+    white-space: nowrap;
+
+    svg { width: 18px; height: 18px; }
+  }
+
+  .side-card { display: none; }
+}

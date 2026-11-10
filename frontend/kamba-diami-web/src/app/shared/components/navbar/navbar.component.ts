@@ -24,6 +24,13 @@ export class NavbarComponent {
     return this.authService.isAuthenticated() ? this.authService.homeRoute() : '/';
   });
   readonly showLoggedInNav = computed(() => this.authService.isAuthenticated());
+  /** A pesquisa da navbar procura no feed, por isso só aparece a famílias e secretárias. */
+  readonly showSearch = computed(() => {
+    const role = this.authService.currentUser()?.role;
+    return this.authService.isAuthenticated() && (role === 'Familia' || role === 'Secretaria');
+  });
+  /** Texto da pesquisa actual (?q= no feed), para a caixa não ficar vazia depois de pesquisar. */
+  readonly searchQuery = signal('');
   readonly displayName = computed(() => {
     const user = this.authService.currentUser();
     return user ? `${user.firstName} ${user.lastName}`.trim() : 'Perfil';
@@ -68,7 +75,10 @@ export class NavbarComponent {
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
         takeUntilDestroyed()
       )
-      .subscribe(() => {
+      .subscribe((event) => {
+        const tree = this.router.parseUrl(event.urlAfterRedirects);
+        const onFeed = event.urlAfterRedirects.split(/[?#]/)[0] === '/feed';
+        this.searchQuery.set(onFeed ? tree.queryParams['q'] ?? '' : '');
         if (this.showLoggedInNav() && this.authService.currentUser()?.role !== 'Admin') {
           this.chatService.refreshUnreadCount();
         }
@@ -80,6 +90,12 @@ export class NavbarComponent {
       }
       this.authService.refreshMe().subscribe({ error: () => undefined });
     }
+  }
+
+  search(event: Event, value: string): void {
+    event.preventDefault();
+    const q = value.trim();
+    this.router.navigate(['/feed'], { queryParams: q ? { q } : {} });
   }
 
   onPhotoError(): void {

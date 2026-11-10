@@ -87,67 +87,38 @@
   &:hover { border-color: var(--kd-clay); color: var(--kd-clay-deep); }
 }
 
-/* ---------- search bar ---------- */
+/* ---------- filtro de província e pesquisa activa (a pesquisa está na navbar) ---------- */
 
-.search-bar {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  background: var(--kd-surface);
-  border: 1px solid var(--f-line);
-  border-radius: var(--kd-radius);
-  padding: 0.6rem;
-  backdrop-filter: blur(6px);
-}
-
-.search-input {
-  flex: 1 1 260px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.8rem;
-  background: #fff;
-  border: 1px solid var(--f-line);
-  border-radius: 999px;
-
-  .icon {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    fill: none;
-    stroke: var(--f-ink-muted);
-    stroke-width: 1.8;
-    stroke-linecap: round;
-  }
-
-  input {
-    flex: 1;
-    min-width: 0;
-    border: none;
-    outline: none;
-    font-family: inherit;
-    font-size: 0.92rem;
-    background: transparent;
-    color: var(--f-ink);
-
-    &::placeholder { color: var(--f-ink-muted); }
-  }
-}
-
-.search-bar select {
-  padding: 0.5rem 0.9rem;
+.province-select {
+  padding: 0.55rem 0.9rem;
   border-radius: 999px;
   border: 1px solid var(--f-line);
   background: #fff;
   font-family: inherit;
   font-size: 0.86rem;
   color: var(--f-ink);
+  cursor: pointer;
 }
 
-@media (max-width: 640px) {
-  .search-bar { flex-direction: column; }
-  .search-bar select,
-  .search-bar .pill-btn { width: 100%; }
+.search-active {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.7rem;
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  background: var(--kd-sky);
+  color: var(--f-ink);
+  font-size: 0.9rem;
+}
+
+.search-clear {
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--kd-primary);
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
 }
 
 /* ---------- chips ---------- */

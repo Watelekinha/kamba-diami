@@ -16,13 +16,27 @@
       </span>
     </a>
 
+    @if (showSearch()) {
+      <form class="nav-search" role="search" (submit)="search($event, searchInput.value)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20.5 20.5 16 16" /></svg>
+        <input
+          #searchInput
+          type="search"
+          name="q"
+          [value]="searchQuery()"
+          placeholder="Pesquisar anúncios, funções, localização…"
+          aria-label="Pesquisar anúncios"
+          autocomplete="off"
+        />
+      </form>
+    }
+
     <nav class="links">
       @if (showLoggedInNav()) {
         @if (authService.currentUser()?.role === 'Admin') {
           <a routerLink="/admin">Painel</a>
         }
         @if (authService.currentUser()?.role === 'Familia' || authService.currentUser()?.role === 'Secretaria') {
-          <a routerLink="/feed">Feed</a>
           <a routerLink="/contracts">Contratos</a>
         }
         @if (authService.currentUser()?.role !== 'Admin') {

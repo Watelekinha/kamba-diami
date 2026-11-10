@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { JobPostingsService } from '../../core/services/job-postings.service';
 import { LocationService } from '../../core/services/location.service';
@@ -35,7 +36,9 @@ export class FeedComponent implements OnInit {
   constructor(
     public authService: AuthService,
     private jobPostingsService: JobPostingsService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private route: ActivatedRoute,
+    private destroyRef: DestroyRef
   ) {}
 
   ngOnInit(): void {
@@ -43,7 +46,13 @@ export class FeedComponent implements OnInit {
     this.typeFilter = role === 'Familia' ? 'ProcuraEmprego' : role === 'Secretaria' ? 'OfertaEmprego' : '';
 
     this.locationService.getProvinces().subscribe((provinces) => (this.provinces = provinces));
-    this.loadFeed();
+
+    // A pesquisa vem da navbar como ?q=; cada nova pesquisa volta à primeira página.
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.searchQuery = params.get('q')?.trim() ?? '';
+      this.page = 1;
+      this.loadFeed();
+    });
   }
 
   get heading(): string {
@@ -76,11 +85,6 @@ export class FeedComponent implements OnInit {
   onFilterChange(): void {
     this.page = 1;
     this.loadFeed();
-  }
-
-  onSearchSubmit(event: Event): void {
-    event.preventDefault();
-    this.onFilterChange();
   }
 
   setTypeFilter(type: JobPostingType | ''): void {

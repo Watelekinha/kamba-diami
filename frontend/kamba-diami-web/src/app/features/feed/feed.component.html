@@ -6,32 +6,22 @@
         <h1>{{ heading }}</h1>
       </div>
       <div class="feed-header-actions">
-        <a class="pill-btn pill-btn-outline" routerLink="/job-postings/saved">Guardadas</a>
-        <a class="pill-btn pill-btn-outline" routerLink="/job-postings/mine">Minhas Publicações</a>
+        <select class="province-select" name="province" aria-label="Província" [(ngModel)]="provinceSlug" (ngModelChange)="onFilterChange()">
+          <option [ngValue]="''">Todas as províncias</option>
+          @for (province of provinces; track province.slug) {
+            <option [ngValue]="province.slug">{{ province.name }}</option>
+          }
+        </select>
         <a class="pill-btn pill-btn-primary" routerLink="/job-postings/new">+ Publicar</a>
       </div>
     </div>
 
-    <form class="search-bar" (ngSubmit)="onSearchSubmit($event)">
-      <div class="search-input">
-        <svg viewBox="0 0 24 24" class="icon"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
-        <input
-          type="text"
-          name="search"
-          [(ngModel)]="searchQuery"
-          placeholder="Função, palavra-chave ou nome…"
-        />
+    @if (searchQuery) {
+      <div class="search-active">
+        A mostrar resultados para <strong>“{{ searchQuery }}”</strong>
+        <a routerLink="/feed" class="search-clear">Limpar pesquisa ×</a>
       </div>
-
-      <select name="province" [(ngModel)]="provinceSlug" (ngModelChange)="onFilterChange()">
-        <option [ngValue]="''">Todas as províncias</option>
-        @for (province of provinces; track province.slug) {
-          <option [ngValue]="province.slug">{{ province.name }}</option>
-        }
-      </select>
-
-      <button type="submit" class="pill-btn pill-btn-primary">Pesquisar</button>
-    </form>
+    }
 
     <div class="chip-row">
       <button type="button" class="chip" [class.active]="typeFilter === ''" (click)="setTypeFilter('')">Todos</button>

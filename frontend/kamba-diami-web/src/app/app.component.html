@@ -1,4 +1,11 @@
 <app-navbar></app-navbar>
-<main>
-  <router-outlet></router-outlet>
+<main [class.with-side]="showSideMenu()">
+  @if (showSideMenu()) {
+    <aside class="app-side">
+      <app-side-menu></app-side-menu>
+    </aside>
+  }
+  <div class="app-content">
+    <router-outlet></router-outlet>
+  </div>
 </main>

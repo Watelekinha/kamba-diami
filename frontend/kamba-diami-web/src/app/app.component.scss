@@ -5,3 +5,31 @@
   color: var(--kd-text);
   font-family: var(--kd-font-body);
 }
+
+// Com menu lateral: coluna fixa à esquerda e o conteúdo da página ao lado.
+main.with-side {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 1rem;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.app-side {
+  padding-top: 1.75rem;
+}
+
+main.with-side .app-content {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  main.with-side {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding: 0;
+  }
+
+  .app-side { padding-top: 0; }
+}
