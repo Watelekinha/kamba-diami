@@ -57,12 +57,17 @@ public class JobPostingsController : ControllerBase
         if (!string.IsNullOrWhiteSpace(filter.Search))
         {
             // O Postgres distingue maiúsculas de minúsculas, ao contrário do SQL Server.
+            // Procura no texto, nas categorias, no nome completo do autor e nos locais do anúncio
+            // (bairro, município e província), para "Luanda" ou "Talatona" também darem resultados.
             var term = filter.Search.Trim().ToLowerInvariant();
             query = query.Where(j =>
                 (j.Comments != null && j.Comments.ToLower().Contains(term)) ||
                 j.Categories.Any(c => c.ServiceCategory.Name.ToLower().Contains(term)) ||
-                j.Author.FirstName.ToLower().Contains(term) ||
-                j.Author.LastName.ToLower().Contains(term));
+                (j.Author.FirstName + " " + j.Author.LastName).ToLower().Contains(term) ||
+                j.Locations.Any(l =>
+                    l.Neighborhood.Name.ToLower().Contains(term) ||
+                    l.Neighborhood.MunicipalityName.ToLower().Contains(term) ||
+                    l.Neighborhood.ProvinceName.ToLower().Contains(term)));
         }
 
         var page = Math.Max(filter.Page, 1);
