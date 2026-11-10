@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
@@ -93,6 +93,25 @@ export class CreatePostingComponent implements OnInit {
 
   iconFor(name: string): string[] {
     return categoryIcon(name);
+  }
+
+  /** Lista de serviços em dropdown (escolha múltipla). */
+  readonly servicesOpen = signal(false);
+
+  get selectedCategories(): ServiceCategory[] {
+    return this.categories.filter((c) => this.selectedCategoryIds.has(c.id));
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.servicesOpen() && !(event.target as Element).closest?.('.services-select')) {
+      this.servicesOpen.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.servicesOpen.set(false);
   }
 
   toggleCategory(id: number): void {

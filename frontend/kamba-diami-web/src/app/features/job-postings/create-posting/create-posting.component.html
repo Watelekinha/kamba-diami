@@ -37,24 +37,63 @@
               </span>
             </legend>
 
-            <div class="category-grid" role="group" aria-label="Categorias de serviço">
-              @for (category of categories; track category.id) {
-                <button
-                  type="button"
-                  class="category-chip"
-                  [class.selected]="selectedCategoryIds.has(category.id)"
-                  [attr.aria-pressed]="selectedCategoryIds.has(category.id)"
-                  (click)="toggleCategory(category.id)"
-                >
-                  <span class="chip-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      @for (d of iconFor(category.name); track $index) {
-                        <path [attr.d]="d" />
-                      }
-                    </svg>
+            <div class="services-select">
+              <button
+                type="button"
+                class="services-trigger"
+                [class.open]="servicesOpen()"
+                [attr.aria-expanded]="servicesOpen()"
+                aria-haspopup="listbox"
+                (click)="servicesOpen.set(!servicesOpen())"
+              >
+                @if (selectedCategories.length === 0) {
+                  <span class="services-placeholder">Escolhe os serviços…</span>
+                } @else {
+                  <span class="services-chips">
+                    @for (category of selectedCategories; track category.id) {
+                      <span class="services-chip">
+                        {{ category.name }}
+                        <span
+                          class="services-chip-x"
+                          role="button"
+                          [attr.aria-label]="'Tirar ' + category.name"
+                          (click)="$event.stopPropagation(); toggleCategory(category.id)"
+                        >×</span>
+                      </span>
+                    }
                   </span>
-                  <span class="chip-label">{{ category.name }}</span>
-                </button>
+                }
+                <svg class="services-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+              </button>
+
+              @if (servicesOpen()) {
+                <div class="services-panel" role="listbox" aria-multiselectable="true" aria-label="Categorias de serviço">
+                  @for (category of categories; track category.id) {
+                    <button
+                      type="button"
+                      role="option"
+                      class="services-option"
+                      [class.selected]="selectedCategoryIds.has(category.id)"
+                      [attr.aria-selected]="selectedCategoryIds.has(category.id)"
+                      (click)="toggleCategory(category.id)"
+                    >
+                      <span class="option-check" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+                      </span>
+                      <span class="chip-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                          @for (d of iconFor(category.name); track $index) {
+                            <path [attr.d]="d" />
+                          }
+                        </svg>
+                      </span>
+                      {{ category.name }}
+                    </button>
+                  }
+                  <div class="services-panel-foot">
+                    <button type="button" class="services-done" (click)="servicesOpen.set(false)">Concluído</button>
+                  </div>
+                </div>
               }
             </div>
 
