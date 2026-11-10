@@ -222,16 +222,76 @@
   .nav-btn { padding: 0.5rem 1rem; font-size: 0.84rem; }
 }
 
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-btn svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.2s ease;
+}
+
+.nav-btn { gap: 0.45rem; }
+.nav-btn:focus-visible { outline: 3px solid rgba(24, 119, 242, 0.35); outline-offset: 2px; }
+
+// "Entrar": botão leve, com contorno que ganha cor ao passar o rato.
+.nav-btn-ghost {
+  background: #fff;
+  color: var(--kd-text);
+  border-color: var(--kd-border);
+
+  svg { color: #2f8a5c; }
+
+  &:hover,
+  &.is-active {
+    border-color: #2f8a5c;
+    background: #eef8f2;
+    color: #1f5f40;
+  }
+}
+
+// "Criar conta": degradé do verde para o azul da marca, com um brilho suave ao passar o rato.
 .nav-btn-primary {
-  background: var(--kd-primary);
-  color: #fffdf8;
-  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(120deg, #2f8a5c 0%, #1e8a9a 45%, #1877f2 100%);
+  background-size: 160% 100%;
+  background-position: 0% 50%;
+  color: #fff;
+  box-shadow: 0 8px 18px -10px rgba(24, 119, 242, 0.7), 0 4px 10px -8px rgba(47, 138, 92, 0.6);
+  transition: background-position 0.4s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.6s ease;
+  }
 
   &:hover {
-    background: var(--kd-primary-dark);
+    background-position: 100% 50%;
     transform: translateY(-1px);
-    box-shadow: none;
+    box-shadow: 0 12px 22px -10px rgba(24, 119, 242, 0.75), 0 6px 12px -8px rgba(47, 138, 92, 0.6);
   }
+
+  &:hover::before { transform: translateX(120%); }
+  &:hover svg { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-btn-primary,
+  .nav-btn-primary::before,
+  .nav-btn svg { transition: none; }
 }
 
 .nav-btn-outline {

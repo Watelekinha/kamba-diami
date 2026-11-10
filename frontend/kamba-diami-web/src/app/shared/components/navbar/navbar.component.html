@@ -109,8 +109,16 @@
         <a class="marketing-link" routerLink="/" fragment="explorar" (click)="scrollToFragment($event, 'explorar')">À procura</a>
         <a class="marketing-link" routerLink="/" fragment="servicos" (click)="scrollToFragment($event, 'servicos')">Serviços</a>
         <a class="marketing-link" routerLink="/" fragment="contacto" (click)="scrollToFragment($event, 'contacto')">Contacto</a>
-        <a routerLink="/login">Entrar</a>
-        <a class="nav-btn nav-btn-primary" routerLink="/register">Criar conta</a>
+        <span class="nav-cta">
+          <a class="nav-btn nav-btn-ghost" routerLink="/login" routerLinkActive="is-active">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6" /><path d="M5 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5" /></svg>
+            Entrar
+          </a>
+          <a class="nav-btn nav-btn-primary" routerLink="/register">
+            Criar conta
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </a>
+        </span>
       }
     </nav>
   </div>
