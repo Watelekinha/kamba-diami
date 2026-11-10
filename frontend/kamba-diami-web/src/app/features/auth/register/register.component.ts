@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { UsersService } from '../../../core/services/users.service';
 import { UserRole } from '../../../core/models/user.model';
 import { PASSWORD_MIN_LENGTH, isAngolanMobile, passwordProblems } from '../../../core/models/auth.model';
 import { apiErrorMessage } from '../../../core/utils/api-error';
@@ -15,8 +16,15 @@ import { LocationPickerComponent } from '../../../shared/components/location-pic
   templateUrl: './register.component.html',
   styleUrls: ['../auth-layout.scss', './register.component.scss']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnDestroy {
+  /** Limite e formatos aceites pelo backend em POST /api/users/me/photo. */
+  private static readonly MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+  private static readonly PHOTO_TYPES = ['image/jpeg', 'image/png'];
+
   role: UserRole = 'Familia';
+  readonly photoFile = signal<File | null>(null);
+  readonly photoPreview = signal<string | null>(null);
+  readonly photoError = signal<string | null>(null);
   firstName = '';
   lastName = '';
   phoneNumber = '';
@@ -47,6 +55,7 @@ export class RegisterComponent {
 
   constructor(
     private authService: AuthService,
+    private usersService: UsersService,
     private router: Router,
     route: ActivatedRoute
   ) {
@@ -54,6 +63,48 @@ export class RegisterComponent {
     if (role === 'Familia' || role === 'Secretaria') {
       this.role = role;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.clearPreview();
+  }
+
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    this.photoError.set(null);
+    if (!RegisterComponent.PHOTO_TYPES.includes(file.type)) {
+      this.photoError.set('Escolhe uma foto em JPEG ou PNG.');
+      return;
+    }
+    if (file.size > RegisterComponent.MAX_PHOTO_BYTES) {
+      this.photoError.set('A foto tem mais de 5 MB. Escolhe uma mais pequena.');
+      return;
+    }
+
+    this.clearPreview();
+    this.photoFile.set(file);
+    this.photoPreview.set(URL.createObjectURL(file));
+  }
+
+  removePhoto(): void {
+    this.clearPreview();
+    this.photoFile.set(null);
+    this.photoError.set(null);
+  }
+
+  private clearPreview(): void {
+    const url = this.photoPreview();
+    if (url) URL.revokeObjectURL(url);
+    this.photoPreview.set(null);
+  }
+
+  private goHome(): void {
+    this.loading.set(false);
+    this.router.navigateByUrl(this.authService.homeRoute());
   }
 
   onMunicipalityChange(municipalitySlug: string | null): void {
@@ -100,8 +151,20 @@ export class RegisterComponent {
       })
       .subscribe({
         next: () => {
-          this.loading.set(false);
-          this.router.navigateByUrl(this.authService.homeRoute());
+          const photo = this.photoFile();
+          if (!photo) {
+            this.goHome();
+            return;
+          }
+          // A conta já existe e a sessão está aberta: envia a foto. Se falhar, segue na mesma;
+          // a pessoa pode pôr a foto mais tarde em "O meu perfil".
+          this.usersService.uploadPhoto(photo).subscribe({
+            next: (user) => {
+              this.authService.setUser(user);
+              this.goHome();
+            },
+            error: () => this.goHome()
+          });
         },
         error: (err) => {
           this.loading.set(false);

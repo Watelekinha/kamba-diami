@@ -55,6 +55,102 @@
   color: var(--au-muted);
 }
 
+.photo-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1.5px dashed var(--au-line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.photo-avatar {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--au-primary-soft);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+
+  &:hover { box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.25); }
+
+  > svg { width: 38px; height: 38px; stroke: var(--au-primary); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+  img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+}
+
+.photo-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, #2f8a5c, #1877f2);
+  border: 2.5px solid #fff;
+
+  svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; stroke-linejoin: round; }
+}
+
+.photo-copy {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.photo-hint {
+  font-size: 0.82rem;
+  color: var(--au-muted);
+}
+
+.photo-actions {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  margin-top: 0.15rem;
+}
+
+.photo-btn,
+.photo-remove {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.photo-btn { color: var(--au-primary); }
+.photo-btn:hover { text-decoration: underline; }
+.photo-remove { color: var(--au-muted); }
+.photo-remove:hover { color: #b42335; }
+
+.photo-error {
+  font-size: 0.82rem;
+  color: #b42335;
+}
+
+// O input de ficheiro fica escondido mas acessível: abre-se pelos rótulos (avatar e "Escolher foto").
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.photo-field:has(#photo:focus-visible) .photo-btn { outline: 2px solid var(--au-primary); outline-offset: 2px; }
+
 .rules {
   list-style: none;
   margin: -0.4rem 0 0;

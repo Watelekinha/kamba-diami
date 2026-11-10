@@ -65,6 +65,33 @@
           </div>
         </fieldset>
 
+        <div class="photo-field">
+          <label class="photo-avatar" for="photo" [class.has-photo]="photoPreview()">
+            @if (photoPreview()) {
+              <img [src]="photoPreview()!" alt="A tua foto de perfil" />
+            } @else {
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8" /><path d="M4.5 20.5c0-4.1 3.4-6.9 7.5-6.9s7.5 2.8 7.5 6.9" /></svg>
+            }
+            <span class="photo-badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 8.5h3l1.6-2.5h6.8L17 8.5h3v10H4Z" /><circle cx="12" cy="13" r="3.2" /></svg>
+            </span>
+          </label>
+          <div class="photo-copy">
+            <span class="field-label">Foto de perfil <span class="optional">(opcional)</span></span>
+            <span class="photo-hint">Perfis com foto inspiram mais confiança. JPEG ou PNG, até 5 MB.</span>
+            <span class="photo-actions">
+              <label class="photo-btn" for="photo">{{ photoPreview() ? 'Trocar foto' : 'Escolher foto' }}</label>
+              @if (photoPreview()) {
+                <button type="button" class="photo-remove" (click)="removePhoto()">Remover</button>
+              }
+            </span>
+            @if (photoError()) {
+              <span class="photo-error" role="alert">{{ photoError() }}</span>
+            }
+          </div>
+          <input id="photo" name="photo" type="file" accept="image/jpeg,image/png" class="visually-hidden" (change)="onPhotoSelected($event)" />
+        </div>
+
         <div class="grid-2">
           <div class="field">
             <label class="field-label" for="firstName">
