@@ -100,7 +100,7 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16l-6-4-6 4V4z" /></svg>
               </button>
               <button class="cta" type="button" [disabled]="contacting()" (click)="contact()">
-                {{ contacting() ? 'A abrir conversa...' : 'Manifestar interesse' }}
+                {{ contacting() ? 'A abrir conversa...' : (isOffer() ? 'Candidatar-me' : 'Contactar') }}
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
               </button>
             }

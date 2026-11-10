@@ -86,10 +86,14 @@
       <button class="card-btn card-btn-danger" type="button" (click)="deleteRequested.emit(posting.id)">Remover</button>
     }
 
-    @if (useModalOutput) {
-      <button type="button" class="card-btn card-btn-primary" (click)="viewDetails.emit()">{{ ctaLabel }}</button>
-    } @else {
-      <a class="card-btn card-btn-primary" [routerLink]="['/job-postings', posting.id]">{{ ctaLabel }}</a>
+    @if (showAction) {
+      <button type="button" class="card-btn card-btn-primary" [disabled]="contacting()" (click)="act($event)">
+        {{ contacting() ? 'A abrir conversa…' : actionLabel }}
+      </button>
     }
   </footer>
+
+  @if (contactError()) {
+    <p class="card-error" role="alert">{{ contactError() }}</p>
+  }
 </article>

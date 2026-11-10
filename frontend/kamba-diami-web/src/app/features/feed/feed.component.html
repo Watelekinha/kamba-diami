@@ -79,7 +79,7 @@
       <div class="feed-grid">
         @for (posting of postings; track posting.id; let i = $index) {
           <div class="posting-reveal" [style.--i]="i">
-            <app-job-posting-card [posting]="posting" [useModalOutput]="true" (viewDetails)="openDetails(posting)"></app-job-posting-card>
+            <app-job-posting-card [posting]="posting"></app-job-posting-card>
           </div>
         }
       </div>
@@ -93,52 +93,4 @@
       </div>
     }
   </div>
-
-  @if (selectedPosting(); as p) {
-    <div class="modal-overlay" (click)="closeDetails()">
-      <div class="modal-card" (click)="$event.stopPropagation()">
-        <button type="button" class="modal-close" (click)="closeDetails()" aria-label="Fechar">
-          <svg viewBox="0 0 24 24" class="icon"><path d="M6 6l12 12M18 6L6 18" /></svg>
-        </button>
-
-        <div class="modal-header">
-          <span class="modal-avatar">
-            @if (p.authorPhotoPath) {
-              <img [src]="p.authorPhotoPath" [alt]="p.authorName" />
-            } @else {
-              {{ p.authorName.charAt(0) }}
-            }
-          </span>
-          <div>
-            <span class="type-badge" [class.oferta]="p.type === 'OfertaEmprego'">
-              {{ p.type === 'OfertaEmprego' ? 'Oferta de Emprego' : 'Procura Emprego' }}
-            </span>
-            <h2>{{ p.categories.length > 0 ? p.categories[0].name : 'Serviço doméstico' }}</h2>
-            <p class="modal-author">{{ p.authorName }} · {{ locationsSummary(p) }}</p>
-          </div>
-        </div>
-
-        <div class="modal-tags">
-          @for (category of p.categories; track category.id) {
-            <span class="category-chip">{{ category.name }}</span>
-          }
-          <span class="category-chip">{{ p.paymentType === 'Mensal' ? 'Mensal' : 'Diária' }}</span>
-          @if (p.hoursPerDay) {
-            <span class="category-chip">{{ p.hoursPerDay }}h/dia</span>
-          }
-        </div>
-
-        @if (p.comments) {
-          <p class="modal-description">{{ p.comments }}</p>
-        }
-
-        <div class="modal-footer">
-          <span class="modal-salary">{{ p.paymentValue | kwanza }}<small>/ {{ p.paymentType === 'Mensal' ? 'mês' : 'diária' }}</small></span>
-          <span class="modal-posted">Publicado {{ postedAgo(p) }}</span>
-        </div>
-
-        <a class="btn btn-primary modal-cta" [routerLink]="['/job-postings', p.id]">Ver página completa</a>
-      </div>
-    </div>
-  }
 </section>

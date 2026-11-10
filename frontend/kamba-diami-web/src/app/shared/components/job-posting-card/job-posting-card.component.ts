@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { JobPosting } from '../../../core/models/job-posting.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { MatchesService } from '../../../core/services/matches.service';
+import { apiErrorMessage } from '../../../core/utils/api-error';
 import { SavedPostingsService } from '../../../core/services/saved-postings.service';
 import { KwanzaCurrencyPipe } from '../../pipes/kwanza-currency.pipe';
 
@@ -16,14 +18,53 @@ import { KwanzaCurrencyPipe } from '../../pipes/kwanza-currency.pipe';
 export class JobPostingCardComponent {
   @Input({ required: true }) posting!: JobPosting;
   @Input() showDeleteButton = false;
-  @Input() useModalOutput = false;
   @Output() deleteRequested = new EventEmitter<number>();
-  @Output() viewDetails = new EventEmitter<void>();
+
+  readonly contacting = signal(false);
+  readonly contactError = signal<string | null>(null);
 
   constructor(
     public savedPostings: SavedPostingsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private matchesService: MatchesService,
+    private router: Router
   ) {}
+
+  /**
+   * Vaga de uma família → "Candidatar-me"; procura de uma secretária → "Contactar".
+   * Só aparece a quem está do outro lado do anúncio, e nunca no próprio anúncio.
+   */
+  get showAction(): boolean {
+    if (this.isMine || this.posting.status !== 'Ativo') return false;
+    const role = this.authService.currentUser()?.role;
+    return this.posting.type === 'OfertaEmprego' ? role === 'Secretaria' : role === 'Familia';
+  }
+
+  get actionLabel(): string {
+    return this.posting.type === 'OfertaEmprego' ? 'Candidatar-me' : 'Contactar';
+  }
+
+  /** Mostra interesse no anúncio (cria o match) e abre a conversa com o autor. */
+  act(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.contacting()) return;
+
+    this.contacting.set(true);
+    this.contactError.set(null);
+    this.matchesService.create({ jobPostingId: this.posting.id }).subscribe({
+      next: (match) => {
+        this.contacting.set(false);
+        if (match.conversationId) {
+          this.router.navigate(['/messages', match.conversationId]);
+        }
+      },
+      error: (err) => {
+        this.contacting.set(false);
+        this.contactError.set(apiErrorMessage(err, 'Não foi possível iniciar a conversa.'));
+      }
+    });
+  }
 
   /** Mensagem curta no botão "Partilhar" depois de copiar a ligação. */
   readonly shareFeedback = signal<string | null>(null);
@@ -53,15 +94,6 @@ export class JobPostingCardComponent {
       return `${this.posting.hoursPerDay}h por dia`;
     }
     return this.posting.paymentType === 'Mensal' ? 'Horário a combinar' : 'Por dia de trabalho';
-  }
-
-  /** Texto do botão principal, conforme quem vê o anúncio. */
-  get ctaLabel(): string {
-    if (this.isMine) return 'Ver detalhes';
-    const role = this.authService.currentUser()?.role;
-    if (role === 'Secretaria' && this.posting.type === 'OfertaEmprego') return 'Candidatar-me';
-    if (role === 'Familia' && this.posting.type === 'ProcuraEmprego') return 'Contactar';
-    return 'Ver detalhes';
   }
 
   async share(event: Event): Promise<void> {
