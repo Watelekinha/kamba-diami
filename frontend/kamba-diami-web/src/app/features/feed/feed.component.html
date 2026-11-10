@@ -2,19 +2,55 @@
   <div class="feed-shell">
     <div class="feed-header">
       <div>
-        <span class="feed-kicker">Feed</span>
-        <h1>{{ heading }}</h1>
+        <span class="feed-kicker">Comunidade</span>
+        <h1>Oportunidades para ti</h1>
+        <p class="feed-subtitle">Encontra a pessoa ou o trabalho certo.</p>
       </div>
-      <div class="feed-header-actions">
-        <select class="province-select" name="province" aria-label="Província" [(ngModel)]="provinceSlug" (ngModelChange)="onFilterChange()">
-          <option [ngValue]="''">Todas as províncias</option>
-          @for (province of provinces; track province.slug) {
-            <option [ngValue]="province.slug">{{ province.name }}</option>
-          }
-        </select>
-        <a class="pill-btn pill-btn-primary" routerLink="/job-postings/new">+ Publicar</a>
-      </div>
+      <a class="create-btn" routerLink="/job-postings/new">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+        Criar publicação
+      </a>
     </div>
+
+    <div class="feed-tabs">
+      <div class="tab-list" role="tablist" aria-label="Tipo de anúncio">
+        <button type="button" role="tab" class="tab" [class.active]="typeFilter === ''" [attr.aria-selected]="typeFilter === ''" (click)="setTypeFilter('')">Todos</button>
+        <button type="button" role="tab" class="tab" [class.active]="typeFilter === 'OfertaEmprego'" [attr.aria-selected]="typeFilter === 'OfertaEmprego'" (click)="setTypeFilter('OfertaEmprego')">Ofertas</button>
+        <button type="button" role="tab" class="tab" [class.active]="typeFilter === 'ProcuraEmprego'" [attr.aria-selected]="typeFilter === 'ProcuraEmprego'" (click)="setTypeFilter('ProcuraEmprego')">À procura</button>
+      </div>
+      <button type="button" class="filter-btn" [class.active]="filtersOpen() || activeFilterCount > 0" (click)="filtersOpen.set(!filtersOpen())" [attr.aria-expanded]="filtersOpen()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M7 12h10M10 17h4" /></svg>
+        Filtrar
+        @if (activeFilterCount > 0) {
+          <span class="filter-count">{{ activeFilterCount }}</span>
+        }
+      </button>
+    </div>
+
+    @if (filtersOpen()) {
+      <div class="filter-panel">
+        <label class="filter-field">
+          <span>Província</span>
+          <select name="province" [(ngModel)]="provinceSlug" (ngModelChange)="onFilterChange()">
+            <option [ngValue]="''">Todas as províncias</option>
+            @for (province of provinces; track province.slug) {
+              <option [ngValue]="province.slug">{{ province.name }}</option>
+            }
+          </select>
+        </label>
+        <div class="filter-field">
+          <span>Pagamento</span>
+          <div class="chip-row">
+            <button type="button" class="chip" [class.active]="paymentTypeFilter === ''" (click)="setPayment('')">Qualquer</button>
+            <button type="button" class="chip" [class.active]="paymentTypeFilter === 'Diaria'" (click)="setPayment('Diaria')">Diária</button>
+            <button type="button" class="chip" [class.active]="paymentTypeFilter === 'Mensal'" (click)="setPayment('Mensal')">Mensal</button>
+          </div>
+        </div>
+        @if (activeFilterCount > 0) {
+          <button type="button" class="filter-clear" (click)="clearFilters()">Limpar filtros</button>
+        }
+      </div>
+    }
 
     @if (searchQuery) {
       <div class="search-active">
@@ -22,16 +58,6 @@
         <a routerLink="/feed" class="search-clear">Limpar pesquisa ×</a>
       </div>
     }
-
-    <div class="chip-row">
-      <button type="button" class="chip" [class.active]="typeFilter === ''" (click)="setTypeFilter('')">Todos</button>
-      <button type="button" class="chip" [class.active]="typeFilter === 'OfertaEmprego'" (click)="setTypeFilter('OfertaEmprego')">Ofertas</button>
-      <button type="button" class="chip" [class.active]="typeFilter === 'ProcuraEmprego'" (click)="setTypeFilter('ProcuraEmprego')">Procura</button>
-      <span class="chip-divider" aria-hidden="true"></span>
-      <button type="button" class="chip" [class.active]="paymentTypeFilter === ''" (click)="setPayment('')">Qualquer pagamento</button>
-      <button type="button" class="chip" [class.active]="paymentTypeFilter === 'Diaria'" (click)="setPayment('Diaria')">Diária</button>
-      <button type="button" class="chip" [class.active]="paymentTypeFilter === 'Mensal'" (click)="setPayment('Mensal')">Mensal</button>
-    </div>
 
     <div class="results-meta">
       @if (!loading()) {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { JobPosting } from '../../../core/models/job-posting.model';
 import { AuthService } from '../../../core/services/auth.service';
@@ -25,8 +25,60 @@ export class JobPostingCardComponent {
     private authService: AuthService
   ) {}
 
+  /** Mensagem curta no botão "Partilhar" depois de copiar a ligação. */
+  readonly shareFeedback = signal<string | null>(null);
+
   get canSave(): boolean {
     return this.posting.authorUserId !== this.authService.currentUser()?.id;
+  }
+
+  get isMine(): boolean {
+    return !this.canSave;
+  }
+
+  get initials(): string {
+    const parts = this.posting.authorName.trim().split(/\s+/);
+    const first = parts[0]?.charAt(0) ?? '';
+    const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : '';
+    return `${first}${last}`.toUpperCase() || '?';
+  }
+
+  /** Província do primeiro local, para a linha por baixo do nome. */
+  get mainPlace(): string {
+    return this.posting.locations[0]?.provinceName ?? 'Angola';
+  }
+
+  get scheduleLabel(): string {
+    if (this.posting.hoursPerDay) {
+      return `${this.posting.hoursPerDay}h por dia`;
+    }
+    return this.posting.paymentType === 'Mensal' ? 'Horário a combinar' : 'Por dia de trabalho';
+  }
+
+  /** Texto do botão principal, conforme quem vê o anúncio. */
+  get ctaLabel(): string {
+    if (this.isMine) return 'Ver detalhes';
+    const role = this.authService.currentUser()?.role;
+    if (role === 'Secretaria' && this.posting.type === 'OfertaEmprego') return 'Candidatar-me';
+    if (role === 'Familia' && this.posting.type === 'ProcuraEmprego') return 'Contactar';
+    return 'Ver detalhes';
+  }
+
+  async share(event: Event): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+    const url = `${window.location.origin}/job-postings/${this.posting.id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `${this.title} · Kamba Diami`, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      this.shareFeedback.set('Ligação copiada');
+      setTimeout(() => this.shareFeedback.set(null), 2000);
+    } catch {
+      // A pessoa cancelou a partilha ou o navegador não deixou copiar: não há mais nada a fazer.
+    }
   }
 
   get locationsSummary(): string {
@@ -36,12 +88,16 @@ export class JobPostingCardComponent {
     return names.join(', ') + (extra > 0 ? ` +${extra}` : '');
   }
 
+  /** Título a partir das categorias, por exemplo "Procura-se: Limpeza e Cozinha". */
   get title(): string {
-    return this.posting.categories.length > 0 ? this.posting.categories[0].name : 'Serviço doméstico';
-  }
-
-  get extraCategories(): { id: number; name: string }[] {
-    return this.posting.categories.slice(1);
+    const names = this.posting.categories.map((c) => c.name);
+    const list =
+      names.length === 0
+        ? 'Serviço doméstico'
+        : names.length === 1
+          ? names[0]
+          : `${names.slice(0, -1).join(', ')} e ${names[names.length - 1]}`;
+    return this.posting.type === 'OfertaEmprego' ? `Procura-se: ${list}` : `Disponível para: ${list}`;
   }
 
   get statusLabel(): string {

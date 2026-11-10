@@ -42,9 +42,6 @@ export class FeedComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const role = this.authService.currentUser()?.role;
-    this.typeFilter = role === 'Familia' ? 'ProcuraEmprego' : role === 'Secretaria' ? 'OfertaEmprego' : '';
-
     this.locationService.getProvinces().subscribe((provinces) => (this.provinces = provinces));
 
     // A pesquisa vem da navbar como ?q=; cada nova pesquisa volta à primeira página.
@@ -55,10 +52,16 @@ export class FeedComponent implements OnInit {
     });
   }
 
-  get heading(): string {
-    if (this.typeFilter === 'ProcuraEmprego') return 'Secretárias disponíveis';
-    if (this.typeFilter === 'OfertaEmprego') return 'Vagas para ti';
-    return 'Anúncios recentes';
+  readonly filtersOpen = signal(false);
+
+  get activeFilterCount(): number {
+    return (this.provinceSlug ? 1 : 0) + (this.paymentTypeFilter ? 1 : 0);
+  }
+
+  clearFilters(): void {
+    this.provinceSlug = '';
+    this.paymentTypeFilter = '';
+    this.onFilterChange();
   }
 
   loadFeed(): void {
