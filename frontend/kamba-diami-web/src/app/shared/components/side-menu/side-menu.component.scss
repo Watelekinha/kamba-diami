@@ -2,9 +2,11 @@
   display: block;
 }
 
+// Ocupa a altura do ecrã para a citação ficar encostada ao fundo.
 .side-menu {
   position: sticky;
   top: calc(var(--kd-navbar-height) + 1.5rem);
+  min-height: calc(100vh - var(--kd-navbar-height) - 3rem);
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -59,20 +61,28 @@
 }
 
 .side-card {
-  margin-top: 1.25rem;
+  margin: auto 0 0;
   padding: 1.25rem;
   border-radius: 16px;
   background: linear-gradient(160deg, #e5f4ec 0%, #e3eefc 100%);
   display: grid;
-  gap: 0.45rem;
+  gap: 0.5rem;
 
-  strong { font-size: 1rem; color: var(--kd-text); }
-
-  p {
+  blockquote {
     margin: 0;
-    font-size: 0.85rem;
+    font-size: 1rem;
+    font-weight: 700;
+    font-style: italic;
     line-height: 1.45;
+    color: var(--kd-text);
+  }
+
+  figcaption {
+    font-size: 0.82rem;
+    font-weight: 600;
     color: var(--kd-text-muted);
+
+    &::before { content: '— '; }
   }
 }
 
@@ -113,6 +123,7 @@
 @media (max-width: 900px) {
   .side-menu {
     position: static;
+    min-height: 0;
     flex-direction: row;
     overflow-x: auto;
     gap: 0.4rem;

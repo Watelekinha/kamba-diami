@@ -19,12 +19,11 @@
     Contratos
   </a>
 
-  <div class="side-card">
+  <figure class="side-card">
     <span class="side-card-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+      <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z" /></svg>
     </span>
-    <strong>Publicar anúncio</strong>
-    <p>{{ publishHint() }}</p>
-    <a class="side-card-btn" routerLink="/job-postings/new">Publicar</a>
-  </div>
+    <blockquote>“{{ quote.text }}”</blockquote>
+    <figcaption>{{ quote.source }}</figcaption>
+  </figure>
 </nav>
