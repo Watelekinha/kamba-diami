@@ -7,8 +7,8 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { SideMenuComponent } from './shared/components/side-menu/side-menu.component';
 import { AuthService } from './core/services/auth.service';
 
-/** Páginas que mostram o menu lateral (Início, As minhas publicações, Guardadas). */
-const SIDE_MENU_PATHS = ['/feed', '/job-postings/mine', '/job-postings/saved'];
+/** Páginas que mostram o menu lateral (Início, As minhas publicações, Guardadas, Contratos). */
+const SIDE_MENU_PATHS = ['/feed', '/job-postings/mine', '/job-postings/saved', '/contracts'];
 
 @Component({
   selector: 'app-root',
