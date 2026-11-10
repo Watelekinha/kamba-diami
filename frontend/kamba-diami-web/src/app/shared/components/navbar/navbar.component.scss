@@ -39,25 +39,40 @@
   flex-shrink: 0;
 }
 
-.brand-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%;
-  background: var(--kd-sky);
+.brand-logo {
+  width: 40px;
+  height: 38px;
   flex-shrink: 0;
 }
 
-.brand-icon {
-  width: 18px;
-  height: 18px;
+.brand-house {
   fill: none;
-  stroke: var(--kd-text);
-  stroke-width: 1.9;
+  stroke: var(--kd-primary);
+  stroke-width: 8;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.brand-a { fill: var(--kd-primary); }
+.brand-b { fill: #e5617f; }
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.brand-name { font-weight: 700; }
+.brand-accent { color: var(--kd-primary); }
+
+.brand-tagline {
+  margin-top: 0.2rem;
+  font-family: var(--kd-font-body);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--kd-text-muted);
 }
 
 .links {
@@ -201,8 +216,8 @@
 @media (max-width: 480px) {
   .navbar-inner { padding: 0.75rem 0.9rem; flex-wrap: wrap; row-gap: 0.6rem; }
   .brand { font-size: 1.05rem; }
-  .brand-mark { width: 28px; height: 28px; }
-  .brand-icon { width: 15px; height: 15px; }
+  .brand-logo { width: 32px; height: 30px; }
+  .brand-tagline { display: none; }
   .links { gap: 0.7rem; flex-wrap: wrap; }
   .nav-btn { padding: 0.5rem 1rem; font-size: 0.84rem; }
 }

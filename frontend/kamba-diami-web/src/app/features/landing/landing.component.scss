@@ -901,6 +901,11 @@ h2 em, h1 em {
   font-size: 1.55rem;
   color: #f6efe8;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  svg { width: 36px; height: 34px; flex-shrink: 0; }
 }
 
 .l-footer-col {

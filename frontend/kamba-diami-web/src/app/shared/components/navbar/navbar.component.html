@@ -1,10 +1,19 @@
 <header class="navbar">
   <div class="container navbar-inner">
-    <a [routerLink]="homeLink()" class="brand">
-      <span class="brand-mark">
-        <svg viewBox="0 0 24 24" class="brand-icon"><path d="M4 11 12 4l8 7" /><path d="M6 9.5V20h12V9.5" /><path d="M10 20v-5.5h4V20" /></svg>
+    <a [routerLink]="homeLink()" class="brand" aria-label="Kamba Diami, o teu amigo em casa">
+      <svg viewBox="4 8 112 106" class="brand-logo" aria-hidden="true">
+        <path class="brand-house" d="M12 58 L60 18 L108 58 M22 50 V106 H98 V50" />
+        <g transform="translate(9 14) scale(0.85)">
+          <circle class="brand-a" cx="47" cy="60" r="10" />
+          <path class="brand-a" d="M29 102 C29 80 65 80 65 102 Z" />
+          <circle class="brand-b" cx="77" cy="68" r="8" />
+          <path class="brand-b" d="M62 102 C62 86 92 86 92 102 Z" />
+        </g>
+      </svg>
+      <span class="brand-text">
+        <span class="brand-name">Kamba <span class="brand-accent">Diami</span></span>
+        <span class="brand-tagline">o teu amigo em casa</span>
       </span>
-      Kamba Diami
     </a>
 
     <nav class="links">

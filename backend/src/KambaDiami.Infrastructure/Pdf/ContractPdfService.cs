@@ -18,6 +18,19 @@ public class ContractPdfService : IContractPdfService
     private static readonly Color Muted = Color.FromHex("#7A6E64");
     private static readonly CultureInfo Pt = CultureInfo.GetCultureInfo("pt-PT");
 
+    // Símbolo da marca (casa com duas pessoas), igual a frontend/.../assets/logo/kamba-diami-simbolo.svg.
+    private const string LogoSvg = """
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="4 8 112 106">
+          <path d="M12 58 L60 18 L108 58 M22 50 V106 H98 V50" fill="none" stroke="#1877f2" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+          <g transform="translate(9 14) scale(0.85)">
+            <circle cx="47" cy="60" r="10" fill="#1877f2"/>
+            <path d="M29 102 C29 80 65 80 65 102 Z" fill="#1877f2"/>
+            <circle cx="77" cy="68" r="8" fill="#e5617f"/>
+            <path d="M62 102 C62 86 92 86 92 102 Z" fill="#e5617f"/>
+          </g>
+        </svg>
+        """;
+
     public byte[] Generate(Contract contract)
     {
         var clauses = contract.Clauses.OrderBy(c => c.SortOrder).ThenBy(c => c.Id).ToList();
@@ -43,13 +56,12 @@ public class ContractPdfService : IContractPdfService
     {
         container.Background(Clay).PaddingHorizontal(48).PaddingVertical(18).Row(row =>
         {
-            row.ConstantItem(42).Height(42).Background(Colors.White).AlignCenter().AlignMiddle()
-                .Text("KD").FontColor(Clay).Bold().FontSize(13).FontFamily("Times New Roman");
+            row.ConstantItem(42).Height(42).Background(Colors.White).Padding(6).Svg(LogoSvg);
 
             row.RelativeItem().PaddingLeft(14).Column(col =>
             {
                 col.Item().Text("Kamba Diami").FontSize(22).FontColor(Colors.White).FontFamily("Times New Roman").SemiBold();
-                col.Item().Text("O seu lar em boas mãos.").FontSize(10).FontColor(Color.FromHex("#F3EBE3")).Italic();
+                col.Item().Text("O teu amigo em casa.").FontSize(10).FontColor(Color.FromHex("#F3EBE3")).Italic();
             });
 
             row.AutoItem().AlignRight().AlignMiddle().Column(col =>

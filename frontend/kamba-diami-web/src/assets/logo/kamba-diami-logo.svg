@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120" role="img" aria-label="Kamba Diami — o teu amigo em casa">
+  <g transform="translate(0 4)">
+    <path d="M12 58 L60 18 L108 58 M22 50 V106 H98 V50" fill="none" stroke="#1877f2" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(9 14) scale(0.85)">
+      <circle cx="47" cy="60" r="10" fill="#1877f2"/>
+      <path d="M29 102 C29 80 65 80 65 102 Z" fill="#1877f2"/>
+      <circle cx="77" cy="68" r="8" fill="#e5617f"/>
+      <path d="M62 102 C62 86 92 86 92 102 Z" fill="#e5617f"/>
+    </g>
+  </g>
+  <text x="136" y="70" font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif" font-size="56" font-weight="700" fill="#1c1e21">Kamba <tspan fill="#1877f2">Diami</tspan></text>
+  <text x="139" y="100" font-family="Nunito, 'Segoe UI', Arial, sans-serif" font-size="15" font-weight="600" letter-spacing="3.5" fill="#65676b">O TEU AMIGO EM CASA</text>
+</svg>
