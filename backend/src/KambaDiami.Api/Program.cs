@@ -31,6 +31,7 @@ builder.Services.AddSignalR();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<PasswordResetSender>();
 builder.Services.AddScoped<MunicipalityAreaResolver>();
+builder.Services.AddSingleton<WelcomeEmailSender>();
 builder.Services.AddKambaDiamiRateLimits();
 
 // Atrás de um proxy (Nginx/IIS), o IP real do cliente chega neste cabeçalho; é usado no

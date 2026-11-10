@@ -51,7 +51,8 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponse>> Register(
         RegisterRequest request,
         [FromServices] IValidator<RegisterRequest> validator,
-        [FromServices] MunicipalityAreaResolver areas)
+        [FromServices] MunicipalityAreaResolver areas,
+        [FromServices] WelcomeEmailSender welcomeEmail)
     {
         request.Email = NormalizeEmail(request.Email);
         request.FirstName = request.FirstName?.Trim() ?? string.Empty;
@@ -125,6 +126,9 @@ public class AuthController : ControllerBase
         }
         await _db.SaveChangesAsync();
         await transaction.CommitAsync();
+
+        // Em segundo plano: a resposta do registo não espera pelo email.
+        welcomeEmail.Queue(user);
 
         await _sessions.TrackActivityAsync(user.Id);
         return Ok(await BuildAuthResponseAsync(user));

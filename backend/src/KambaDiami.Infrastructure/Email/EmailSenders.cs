@@ -20,6 +20,15 @@ public class EmailSettings
     public string? Username { get; set; }
     public string? Password { get; set; }
 
+    /// <summary>
+    /// Chave da API do Brevo (brevo.com). No Railway, nos planos Free/Trial/Hobby, o SMTP está bloqueado,
+    /// por isso o envio é feito pela API HTTP do Brevo. Variável: Email__BrevoApiKey.
+    /// </summary>
+    public string? BrevoApiKey { get; set; }
+
+    public bool IsBrevoConfigured =>
+        !string.IsNullOrWhiteSpace(BrevoApiKey) && !string.IsNullOrWhiteSpace(FromAddress);
+
     public bool IsSmtpConfigured =>
         !string.IsNullOrWhiteSpace(SmtpHost)
         && !string.IsNullOrWhiteSpace(Username)
@@ -58,6 +67,42 @@ public class SmtpEmailSender : IEmailSender
         };
 
         await client.SendMailAsync(message, ct);
+    }
+}
+
+/// <summary>Envia pela API transaccional do Brevo (https://developers.brevo.com/reference/sendtransacemail).</summary>
+public class BrevoEmailSender : IEmailSender
+{
+    private readonly HttpClient _http;
+    private readonly EmailSettings _settings;
+
+    public BrevoEmailSender(HttpClient http, IOptions<EmailSettings> settings)
+    {
+        _http = http;
+        _settings = settings.Value;
+    }
+
+    public async Task SendAsync(string toEmail, string subject, string htmlBody, CancellationToken ct = default)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.brevo.com/v3/smtp/email")
+        {
+            Content = System.Net.Http.Json.JsonContent.Create(new
+            {
+                sender = new { name = _settings.FromName, email = _settings.FromAddress },
+                to = new[] { new { email = toEmail } },
+                subject,
+                htmlContent = htmlBody
+            })
+        };
+        request.Headers.Add("api-key", _settings.BrevoApiKey);
+        request.Headers.Accept.ParseAdd("application/json");
+
+        using var response = await _http.SendAsync(request, ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            var detail = await response.Content.ReadAsStringAsync(ct);
+            throw new InvalidOperationException($"O Brevo recusou o email ({(int)response.StatusCode}): {detail}");
+        }
     }
 }
 

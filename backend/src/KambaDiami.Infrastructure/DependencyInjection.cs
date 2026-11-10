@@ -117,7 +117,9 @@ public static class DependencyInjection
 
         services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
         var emailSettings = configuration.GetSection(EmailSettings.SectionName).Get<EmailSettings>() ?? new EmailSettings();
-        if (emailSettings.IsSmtpConfigured)
+        if (emailSettings.IsBrevoConfigured)
+            services.AddHttpClient<IEmailSender, BrevoEmailSender>(client => client.Timeout = TimeSpan.FromSeconds(15));
+        else if (emailSettings.IsSmtpConfigured)
             services.AddScoped<IEmailSender, SmtpEmailSender>();
         else
             services.AddScoped<IEmailSender, LoggingEmailSender>();
