@@ -41,7 +41,7 @@
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #2f8a5c;
+  color: var(--kd-primary);
   margin-bottom: 0.35rem;
 }
 
@@ -66,18 +66,17 @@
   gap: 0.55rem;
   padding: 0.9rem 1.5rem;
   border-radius: 14px;
-  background: linear-gradient(120deg, #2f8a5c 0%, #1e8a9a 45%, #1877f2 100%);
-  background-size: 160% 100%;
+  background: var(--kd-primary);
   color: #fff;
   font-weight: 800;
   font-size: 1rem;
   text-decoration: none;
   box-shadow: 0 14px 26px -14px rgba(24, 119, 242, 0.7);
-  transition: background-position 0.2s ease, transform 0.12s ease;
+  transition: background 0.15s ease, transform 0.12s ease;
 
   svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
 
-  &:hover { background-position: 100% 50%; transform: translateY(-1px); }
+  &:hover { background: var(--kd-primary-dark); transform: translateY(-1px); }
 }
 
 /* ---------- separadores e filtros ---------- */
