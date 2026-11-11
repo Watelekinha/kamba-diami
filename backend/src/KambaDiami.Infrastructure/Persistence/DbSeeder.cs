@@ -87,12 +87,18 @@ public static class DbSeeder
     {
         var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(DbSeeder));
 
-        var hasAdmin = await userManager.Users.AnyAsync(u => u.Role == UserRole.Admin);
-        if (hasAdmin) return;
-
         var section = services.GetRequiredService<IConfiguration>().GetSection("BootstrapAdmin");
         var email = section["Email"]?.Trim().ToLowerInvariant();
         var password = section["Password"];
+
+        var hasAdmin = await userManager.Users.AnyAsync(u => u.Role == UserRole.Admin);
+        if (hasAdmin)
+        {
+            if (string.Equals(section["ResetPassword"], "true", StringComparison.OrdinalIgnoreCase))
+                await ResetBootstrapAdminPasswordAsync(userManager, email, password, logger);
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
             logger.LogWarning(
@@ -135,5 +141,43 @@ public static class DbSeeder
 
         await userManager.AddToRoleAsync(admin, UserRole.Admin.ToString());
         logger.LogInformation("Administrador inicial criado: {Email}", email);
+    }
+
+    /// <summary>
+    /// Recuperação de acesso: com BootstrapAdmin:ResetPassword=true, a palavra-passe do administrador
+    /// com o email configurado volta a ser a da configuração e o bloqueio por tentativas é levantado.
+    /// Deve ser desligada depois de usada, para não sobrepor mudanças feitas na aplicação.
+    /// </summary>
+    private static async Task ResetBootstrapAdminPasswordAsync(
+        UserManager<ApplicationUser> userManager, string? email, string? password, ILogger logger)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            logger.LogWarning("BootstrapAdmin:ResetPassword está ativo, mas faltam Email ou Password.");
+            return;
+        }
+
+        var admin = await userManager.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
+        if (admin is null || admin.Role != UserRole.Admin)
+        {
+            var existing = await userManager.Users.Where(u => u.Role == UserRole.Admin).Select(u => u.Email).ToListAsync();
+            logger.LogWarning(
+                "BootstrapAdmin:ResetPassword: não há administrador com o email {Email}. Administradores existentes: {Admins}",
+                email, string.Join(", ", existing));
+            return;
+        }
+
+        var token = await userManager.GeneratePasswordResetTokenAsync(admin);
+        var result = await userManager.ResetPasswordAsync(admin, token, password);
+        if (!result.Succeeded)
+        {
+            logger.LogError("Não foi possível repor a palavra-passe do administrador: {Errors}",
+                string.Join(" ", result.Errors.Select(e => e.Description)));
+            return;
+        }
+
+        await userManager.SetLockoutEndDateAsync(admin, null);
+        await userManager.ResetAccessFailedCountAsync(admin);
+        logger.LogInformation("Palavra-passe do administrador {Email} reposta a partir da configuração.", email);
     }
 }
