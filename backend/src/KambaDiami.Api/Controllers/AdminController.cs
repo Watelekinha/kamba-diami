@@ -323,11 +323,10 @@ public class AdminController : ControllerBase
                     .OrderByDescending(e => e.OccurredAt)
                     .Take(10))
                 .ToListAsync(),
-            RecentPostings = await ProjectPostings(_db.JobPostings.AsNoTracking()
+            RecentPostings = await LoadPostingsAsync(_db.JobPostings.AsNoTracking()
                     .Where(j => j.AuthorUserId == id)
                     .OrderByDescending(j => j.CreatedAt)
-                    .Take(10))
-                .ToListAsync(),
+                    .Take(10)),
             RecentContracts = await ProjectContracts(_db.Contracts.AsNoTracking()
                     .Where(c => c.FamiliaUserId == id || c.SecretariaUserId == id)
                     .OrderByDescending(c => c.CreatedAt)
@@ -517,8 +516,7 @@ public class AdminController : ControllerBase
 
         var (page, pageSize) = Paging(filter.Page, filter.PageSize);
         var totalCount = await query.CountAsync();
-        var items = await ProjectPostings(query.OrderByDescending(j => j.CreatedAt).Skip((page - 1) * pageSize).Take(pageSize))
-            .ToListAsync();
+        var items = await LoadPostingsAsync(query.OrderByDescending(j => j.CreatedAt).Skip((page - 1) * pageSize).Take(pageSize));
 
         return Ok(new PagedResult<AdminPostingListItemDto> { Items = items, TotalCount = totalCount, Page = page, PageSize = pageSize });
     }
@@ -694,6 +692,17 @@ public class AdminController : ControllerBase
         });
     }
 
+    /// <summary>
+    /// Carrega os anúncios projectados. As localidades repetidas são removidas em memória: um
+    /// Distinct sobre um texto calculado dentro da subconsulta não é traduzível pelo EF Core.
+    /// </summary>
+    private static async Task<List<AdminPostingListItemDto>> LoadPostingsAsync(IQueryable<JobPosting> postings)
+    {
+        var items = await ProjectPostings(postings).ToListAsync();
+        foreach (var item in items) item.Locations = item.Locations.Distinct().ToList();
+        return items;
+    }
+
     private static IQueryable<AdminPostingListItemDto> ProjectPostings(IQueryable<JobPosting> postings) =>
         postings.AsSplitQuery().Select(j => new AdminPostingListItemDto
         {
@@ -706,7 +715,7 @@ public class AdminController : ControllerBase
             AuthorId = j.AuthorUserId,
             AuthorName = j.Author.FirstName + " " + j.Author.LastName,
             Categories = j.Categories.Select(c => c.ServiceCategory.Name).ToList(),
-            Locations = j.Locations.Select(l => l.Neighborhood.MunicipalityName + ", " + l.Neighborhood.ProvinceName).Distinct().ToList(),
+            Locations = j.Locations.Select(l => l.Neighborhood.MunicipalityName + ", " + l.Neighborhood.ProvinceName).ToList(),
             MatchesCount = j.Matches.Count,
             CreatedAt = j.CreatedAt
         });
